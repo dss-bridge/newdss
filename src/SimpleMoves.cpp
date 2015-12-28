@@ -58,11 +58,6 @@ void MakeSimpleMoves()
 }
 
 
-// So we don't create and destroy all the time...
-// HoldingSimpleMove zhmove;
-// LoopHold zhNew;
-// Trick ztrick, ztrick2, ztrick3;
-
 inline bool MakeSimpleSingleMove(
   const unsigned sl,
   const unsigned c,

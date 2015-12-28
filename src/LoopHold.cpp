@@ -866,31 +866,31 @@ return false;
 
 void LoopHold::SetDetails()
 {
-  hdet.declLen = static_cast<int>(length[QT_ACE] + length[QT_PARD]);
+  hdet.declLen = length[QT_ACE] + length[QT_PARD];
 
-  hdet.cFlipped = static_cast<int>(counter);
-  hdet.cFlippedUp = static_cast<int>(counter);
-  hdet.maskFull = (1 << (2*(suitLength-1))) - 1;
-  for (int n = 0; n < static_cast<int>(suitLength)-1; n++)
+  hdet.cFlipped = counter;
+  hdet.cFlippedUp = counter;
+  hdet.maskFull = (1u << (2*(suitLength-1))) - 1u;
+  for (unsigned n = 0; n < suitLength-1; n++)
   {
-    int mask = 0x3 << (2*n);
-    int p = static_cast<int>(counter) & mask;
+    unsigned mask = 0x3u << (2*n);
+    unsigned p = counter & mask;
     // TODO: This look wrong! Only works for bottom bit?
     if (p == QT_ACE)
       hdet.cFlipped = (hdet.cFlipped & (hdet.maskFull ^ mask)) | 
-        (QT_PARD << (2*n));
+        (static_cast<unsigned>(QT_PARD) << (2*n));
   }
 
-  for (int n = 0; n < static_cast<int>(suitLength)-1; n++)
+  for (unsigned n = 0; n < suitLength-1; n++)
   {
-    int mask = 0x3 << (2*n);
-    int p = (counter >> (2*n)) & 0x3;
+    unsigned mask = 0x3u << (2*n);
+    unsigned p = (counter >> (2*n)) & 0x3;
     if (p == QT_PARD)
       hdet.cFlippedUp = (hdet.cFlippedUp & (hdet.maskFull ^ mask)) | 
-        (QT_ACE << (2*n));
+        (static_cast<unsigned>(QT_ACE) << (2*n));
   }
 
-  hdet.lenMaxOpp = static_cast<int>(Max(length[QT_LHO], length[QT_RHO]));
+  hdet.lenMaxOpp = Max(length[QT_LHO], length[QT_RHO]);
 
   if (length[QT_ACE] >= length[QT_PARD])
   {
@@ -903,8 +903,8 @@ void LoopHold::SetDetails()
     hdet.pShort = QT_ACE;
   }
 
-  hdet.lenLong = static_cast<int>(length[hdet.pLong]);
-  hdet.lenShort = static_cast<int>(length[hdet.pShort]);
+  hdet.lenLong = length[hdet.pLong];
+  hdet.lenShort = length[hdet.pShort];
 
   int maxCardOpps = (hdet.lenMaxOpp == 0 ? -1 :
     static_cast<int>(Max(completeList[QT_LHO][0], completeList[QT_RHO][0])));
@@ -988,7 +988,7 @@ void LoopHold::UpdateDetailsForOpp(
   hdet.numTopsShort = 0;
 
   int i = 0;
-  while (i < hdet.lenLong && static_cast<int>(completeList[hdet.pLong][i]) > oppRank)
+  while (i < static_cast<int>(hdet.lenLong) && static_cast<int>(completeList[hdet.pLong][i]) > oppRank)
   {
     hdet.numTopsLong++;
     hdet.minTopLong = static_cast<int>(completeList[hdet.pLong][i]);
@@ -996,7 +996,7 @@ void LoopHold::UpdateDetailsForOpp(
   }
 
   i = 0;
-  while (i < hdet.lenShort && static_cast<int>(completeList[hdet.pShort][i]) > oppRank)
+  while (i < static_cast<int>(hdet.lenShort) && static_cast<int>(completeList[hdet.pShort][i]) > oppRank)
   {
     hdet.numTopsShort++;
     hdet.minTopShort = static_cast<int>(completeList[hdet.pShort][i]);
@@ -1049,8 +1049,8 @@ void LoopHold::UpdateDetailsForOpp(
   hdet.maxTopShort += delta;
   hdet.minTopShort += delta;
 
-  hdet.xLong = hdet.lenLong - hdet.numTopsLong;
-  hdet.xShort = hdet.lenShort - hdet.numTopsShort;
+  hdet.xLong = static_cast<int>(hdet.lenLong - hdet.numTopsLong);
+  hdet.xShort = static_cast<int>(hdet.lenShort - hdet.numTopsShort);
   hdet.numTopsAll = hdet.numTopsLong + hdet.numTopsShort;
 }
 
@@ -1090,7 +1090,7 @@ void LoopHold::SolveCrashTricks(
 
   if (oppBest == QT_BOTH)
   {
-    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
+    LoopHold::SolveCrashTricksHand(static_cast<int>(hdet.lenMaxOpp),
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
     // See explanation below.
@@ -1230,13 +1230,13 @@ void LoopHold::SolveCrashTricksHand(
 {
   // The crash trick, always present.
 
-  if (hdet.numTopsAll >= lenOpp+1)
-    ctricks = hdet.lenLong;
+  if (static_cast<int>(hdet.numTopsAll) >= lenOpp+1)
+    ctricks = static_cast<int>(hdet.lenLong);
   else
   {
-    ctricks = hdet.numTopsLong;
+    ctricks = static_cast<int>(hdet.numTopsLong);
     if (hdet.lenShort >= 2 && hdet.numTopsAll < hdet.declLen)
-      ctricks += Min(hdet.lenShort-1, hdet.xLong);
+      ctricks += Min(static_cast<int>(hdet.lenShort)-1, hdet.xLong);
   }
 
   if (hdet.lenShort == 1 || 
@@ -1255,7 +1255,7 @@ void LoopHold::SolveCrashTricksHand(
 
   int cspecial = SDS_VOID;
   if (hdet.lenLong > hdet.lenShort && hdet.lenShort >= 3 &&
-      lenOpp < hdet.lenShort)
+      lenOpp < static_cast<int>(hdet.lenShort))
     cspecial = SDS_VOID - (lenOpp+1);
       // lenOpp == hdet.lenShort-1)
     // cspecial = SDS_VOID - hdet.lenShort;
@@ -1309,8 +1309,8 @@ void LoopHold::SolveCrashTricksHand(
     (hdet.declLen > hdet.numTopsAll || 
      hdet.minTopLong < hdet.maxTopShort) ?  true : false);
 
-  bool must = ((hdet.numTopsAll <= Min(lenOpp, hdet.lenLong) ||
-    (hdet.xShort == 0 && hdet.minTopShort > crank) ) &&
+  bool must = ((hdet.numTopsAll <= Min(static_cast<unsigned>(lenOpp), hdet.lenLong) ||
+    (hdet.xShort == 0 && static_cast<int>(hdet.minTopShort) > crank) ) &&
     hdet.lenLong > hdet.lenShort ? true : false);
 
   if ((! poss) || (hdet.lenShort > 1 && ! must))
@@ -1322,16 +1322,16 @@ void LoopHold::SolveCrashTricksHand(
 
   // So now there is a trick.
 
-  btricks = hdet.lenShort;
-  brank = hdet.minTopShort;
+  btricks = static_cast<int>(hdet.lenShort);
+  brank = static_cast<int>(hdet.minTopShort);
   bend = hdet.pLong;
 
-  if (hdet.numTopsAll >= lenOpp)
-    rtricks = hdet.lenLong - hdet.numTopsShort;
+  if (static_cast<int>(hdet.numTopsAll) >= lenOpp)
+    rtricks = static_cast<int>(hdet.lenLong - hdet.numTopsShort);
   else
-    rtricks = Min(hdet.numTopsLong, hdet.lenLong - hdet.numTopsShort);
+    rtricks = static_cast<int>(Min(hdet.numTopsLong, hdet.lenLong - hdet.numTopsShort));
 
-  ocash = SDS_VOID - Min(lenOpp, hdet.lenLong);
+  ocash = SDS_VOID - Min(lenOpp, static_cast<int>(hdet.lenLong));
   if (ocash >= brank)
     rrank = SDS_VOID;
   else
@@ -1385,21 +1385,6 @@ bool LoopHold::SolveStopped(
   }
   else
     return false;
-}
-
-
-inline bool LoopHold::SetMove(
-  HoldingSimpleMove& move,
-  const PosType& start,
-  const PosType& end,
-  const int rank,
-  const int tricks)
-{
-  move.start = start;
-  move.end = end;
-  move.rank = rank;
-  move.tricks = tricks;
-  return true;
 }
 
 
@@ -1499,28 +1484,6 @@ bool LoopHold::StopFinesse(
     }
     num++;
   }
-
-#if 0
-  cout << "StopFinesse:\n";
-  cout << "numFinesses     " << numFinesses << "\n";
-  cout << "firstNonTopAce  " << firstNonTopAce << 
-    " (" << fna << ")\n";
-  cout << "firstNonTopPard " << firstNonTopPard << 
-    " (" <<  fnp << "\n";
-  cout << "ignoreOtherOpp  " << ignoreOtherOpp << "\n";
-  cout << "anchor          " << anchor << "\n";
-  cout << "\n";
-  cout "skip     " << skipOnePard << " " << skipTwoPard <<
-    " eff " << effLenPard << "\n";
-  cout << "tops     " << topOf3 << " " << topOf5 << " " topOf7 << "\n";
-  cout << "effrho   " <<
-    completeList[pr][0] << " " <<
-    completeList[pr][1] << " " <<
-    completeList[pr][2] << " " <<
-    completeList[pr][3]) << "\n";
-  count << "efface-x " << completeList[pa][fna] <<
-    "effpard-x " << completeList[pp][fnp] << "\n";
-#endif
 
   if (topOf3 < 2 ||
       completeList[pr][0] < completeList[pp][fnp] ||

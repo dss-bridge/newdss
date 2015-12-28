@@ -16,15 +16,6 @@
 #define SDS_MAX_RANKS 14
 
 
-struct HoldingSimpleMove
-{
-  PosType start;
-  PosType end;
-  int rank;
-  int tricks;
-};
-
-
 class LoopHold: public Holding
 {
   private:
@@ -48,21 +39,21 @@ class LoopHold: public Holding
 
     struct HoldingDetails
     {
-      int cFlipped;
-      int cFlippedUp; // All partner cards flipped to ace side
-      int maskFull;
-      int declLen;
+      unsigned cFlipped;
+      unsigned cFlippedUp; // All partner cards flipped to ace side
+      unsigned maskFull;
+      unsigned declLen;
 
       PosType pLong;
       PosType pShort;
 
-      int numTopsAll;
-      int numTopsLong;
-      int numTopsShort;
+      unsigned numTopsAll;
+      unsigned numTopsLong;
+      unsigned numTopsShort;
 
-      int lenLong;
-      int lenShort;
-      int lenMaxOpp;
+      unsigned lenLong;
+      unsigned lenShort;
+      unsigned lenMaxOpp;
 
       int xLong;
       int xShort;
@@ -103,13 +94,6 @@ class LoopHold: public Holding
       const int cashLength,
       const int toBeat,
       unsigned& lowestRank);
-
-    bool SetMove(
-      HoldingSimpleMove& move,
-      const PosType& start,
-      const PosType& end,
-      const int rank,
-      const int tricks);
 
     bool StopFinesse(
       const int mumFinesses,
