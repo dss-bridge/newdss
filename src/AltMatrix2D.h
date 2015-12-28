@@ -1,26 +1,25 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #ifndef SDS_ALTMATRIX2D_H
 #define SDS_ALTMATRIX2D_H
 
-#include <iostream>
 #include <string>
 
-#include "cst.h"
+#include "compare.h"
+#include "const.h"
 
 
 class AltMatrix2D
 {
   private:
 
-    cmpDetailType matrix[SDS_MAX_ALT][SDS_MAX_ALT];
+    CmpDetailType matrix[SDS_MAX_ALT][SDS_MAX_ALT];
 
     unsigned numX;
     unsigned numY;
@@ -34,7 +33,7 @@ class AltMatrix2D
     bool hasXsum[SDS_HEADER_CMP_SIZE];
     bool hasYsum[SDS_HEADER_CMP_SIZE];
 
-    cmpDetailType cval;
+    CmpDetailType cval;
 
     void ResetVectors(
       bool has[SDS_MAX_ALT][SDS_HEADER_CMP_SIZE],
@@ -49,15 +48,15 @@ class AltMatrix2D
       bool hasSum[],
       const bool verifyFlag);
 
-    cmpDetailType ComparePartial(
-      const cmpDetailType diff,
-      const cmpDetailType winX,
-      const cmpDetailType winY);
+    CmpDetailType ComparePartial(
+      const CmpDetailType diff,
+      const CmpDetailType winX,
+      const CmpDetailType winY);
 
-    cmpDetailType ComparePartialDeclarer(
-      const cmpDetailType diff,
-      const cmpDetailType winX,
-      const cmpDetailType winY);
+    CmpDetailType ComparePartialDeclarer(
+      const CmpDetailType diff,
+      const CmpDetailType winX,
+      const CmpDetailType winY);
 
     void PrintVector(
       std::ostream& out,
@@ -86,7 +85,7 @@ class AltMatrix2D
     void SetValue(
       const unsigned x,
       const unsigned y,
-      const cmpDetailType c);
+      const CmpDetailType c);
 
     void PurgeX(
       const unsigned x);
@@ -97,16 +96,16 @@ class AltMatrix2D
     void Verify(
       const bool verifyFlag = true);
 
-    cmpDetailType Compare();
+    CmpDetailType Compare();
 
-    cmpDetailType CompareDeclarer();
+    CmpDetailType CompareDeclarer();
 
-    cmpDetailType CompareHard();
+    CmpDetailType CompareHard();
 
     bool CandList(
-      const posType side,
+      const PosType side,
       bool use[],
-      cmpDetailType& c) const;
+      CmpDetailType& c) const;
 
     void Print(
       std::ostream& out,

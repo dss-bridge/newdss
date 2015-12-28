@@ -1,23 +1,40 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #include <iomanip>
 #include <assert.h>
 
+#include "Trick.h"
+#include "Header.h"
 #include "DefList.h"
+#include "AltMatrix2D.h"
+#include "files.h"
+#include "options.h"
 
 using namespace std;
 
 
-extern bool debugDefList;
+extern FilesType files;
+extern OptionsType options;
 extern unsigned highestDefNo;
 extern vector<unsigned> holdCtr;
+
+
+const CmpType cmpDetailToShort[SDS_HEADER_CMP_SIZE] =
+{
+  SDS_SAME,
+  SDS_NEW_BETTER,
+  SDS_OLD_BETTER,
+  SDS_DIFFERENT,
+  SDS_NEW_BETTER,
+  SDS_OLD_BETTER,
+  SDS_DIFFERENT
+};
 
 
 DefList::DefList()
@@ -86,9 +103,11 @@ bool DefList::Set12(
 
 Header& DefList::GetHeader()
 {
+  holdCtr[950]++;
   if (! headerDirty)
     return header;
   headerDirty = false;
+  holdCtr[951]++;
 
   assert(len > 0);
 
@@ -165,17 +184,17 @@ void DefList::operator += (
   // Adds an alternative to the current set of alternatives,
   // eliminating inferior ones (as seen from the defensive side).
 
-  vector<int> seen(SDS_CMP_SIZE, 0);
+  vector<unsigned> seen(SDS_CMP_SIZE, 0);
   vector<bool> skip(len, false);
   bool purge = false;
 
   for (unsigned d = 0; d < len; d++)
   {
-    cmpDetailType cd = list[d].Compare(alt);
-    cmpType c = cmpDetailToShort[cd];
-    seen[c] = 1;
+    CmpDetailType cd = list[d].Compare(alt);
+    CmpType cc = cmpDetailToShort[cd];
+    seen[cc] = 1;
 
-    if (c == SDS_OLD_BETTER)
+    if (cc == SDS_OLD_BETTER)
     {
       // Defense will prefer the new one.
       purge = true;
@@ -183,8 +202,8 @@ void DefList::operator += (
     }
   }
 
-  int cc = seen[SDS_SAME] + seen[SDS_NEW_BETTER] + seen[SDS_OLD_BETTER];
-  if (cc > 1)
+  unsigned c = seen[SDS_SAME] + seen[SDS_NEW_BETTER] + seen[SDS_OLD_BETTER];
+  if (c > 1)
   {
     cout << seen[SDS_SAME] << " " << 
       seen[SDS_NEW_BETTER] << " " <<
@@ -193,10 +212,10 @@ void DefList::operator += (
     cout << "\n";
     alt.Print(cout, "Offending alt");
     cout << endl;
-    assert(cc <= 1);
+    assert(c <= 1);
   }
 
-  if (cc == 1 && ! purge)
+  if (c == 1 && ! purge)
     return;
 
   if (purge)
@@ -228,17 +247,17 @@ void DefList::operator += (
   
   headerDirty = true;
 
-  if (debugDefList)
+  if (options.debugDef)
   {
-    DefList::Print(cout, "DefList::MergeDefender: old");
-    def2.Print(cout, "DefList::MergeDefender: new");
+    DefList::Print(files.debug, "DefList::MergeDefender: old");
+    def2.Print(files.debug, "DefList::MergeDefender: new");
   }
 
   for (unsigned d2 = 0; d2 < def2.len; d2++)
     * this += def2.list[d2];
 
-  if (debugDefList)
-    DefList::Print(cout, "DefList::MergeDefender after merge");
+  if (options.debugDef)
+    DefList::Print(files.debug, "DefList::MergeDefender after merge");
 
   DefList::RegisterSize("NEWDEF3");
 }
@@ -272,10 +291,10 @@ void DefList::operator *= (
 
   headerDirty = true;
 
-  if (debugDefList)
+  if (options.debugDef)
   {
-    DefList::Print(cout, "DefList::MergeDeclarer old");
-    def2.Print(cout, "DefList::MergeDeclarer: new");
+    DefList::Print(files.debug, "DefList::MergeDeclarer old");
+    def2.Print(files.debug, "DefList::MergeDeclarer: new");
   }
 
   /*
@@ -294,7 +313,7 @@ void DefList::operator *= (
     for (unsigned dNew = 0; dNew < def2.len; dNew++)
       comp.SetValue(dOld, dNew, list[dOld].CompareHard(def2.list[dNew]));
 
-  cmpDetailType c = comp.CompareDeclarer();
+  CmpDetailType c = comp.CompareDeclarer();
   if (c == SDS_HEADER_PLAY_OLD_BETTER ||
       c == SDS_HEADER_RANK_OLD_BETTER ||
       c == SDS_HEADER_SAME)
@@ -326,8 +345,8 @@ void DefList::operator *= (
     }
   }
 
-  if (debugDefList)
-    DefList::Print(cout, "DefList::MergeDeclarer after Merge");
+  if (options.debugDef)
+    DefList::Print(files.debug, "DefList::MergeDeclarer after Merge");
 
   DefList::RegisterSize("NEWDEF4");
 }
@@ -346,10 +365,10 @@ bool DefList::MergeSidesSoft(
   if (def1.len != def2.len)
     return false;
 
-  if (debugDefList)
+  if (options.debugDef)
   {
-    def1.Print(cout, "DefList::MergeSidesSoft def1");
-    def2.Print(cout, "DefList::MergeSidesSoft def2");
+    def1.Print(files.debug, "DefList::MergeSidesSoft def1");
+    def2.Print(files.debug, "DefList::MergeSidesSoft def2");
   }
 
   DefList::Reset();
@@ -403,8 +422,8 @@ bool DefList::MergeSidesSoft(
   for (unsigned d = 0; d < len; d++)
     list[d].SetStart();
 
-  if (debugDefList)
-    DefList::Print(cout, "DefList::MergeSidesSoft result");
+  if (options.debugDef)
+    DefList::Print(files.debug, "DefList::MergeSidesSoft result");
 
   return true;
 }
@@ -424,10 +443,10 @@ void DefList::MergeSidesHard(
 
   DefList::Reset();
 
-  if (debugDefList)
+  if (options.debugDef)
   {
-    def1.Print(cout, "DefList::MergeSidesHard def1");
-    def2.Print(cout, "DefList::MergeSidesHard def2");
+    def1.Print(files.debug, "DefList::MergeSidesHard def1");
+    def2.Print(files.debug, "DefList::MergeSidesHard def2");
   }
 
   // Merge defenses as a cross product.
@@ -441,8 +460,8 @@ void DefList::MergeSidesHard(
     }
   }
 
-  if (debugDefList)
-    DefList::Print(cout, "DefList::MergeSidesHard result");
+  if (options.debugDef)
+    DefList::Print(files.debug, "DefList::MergeSidesHard result");
 
   DefList::RegisterSize("NEWDEF5");
 }
@@ -485,8 +504,8 @@ bool DefList::Reduce()
       if (skip[d2])
         continue;
 
-      cmpDetailType cd = list[d2].Compare(list[d1]);
-      cmpType c = cmpDetailToShort[cd];
+      CmpDetailType cd = list[d2].Compare(list[d1]);
+      CmpType c = cmpDetailToShort[cd];
 
       // If new (d1) is better, the defense will not choose it.
       if (c == SDS_SAME || c == SDS_NEW_BETTER)
@@ -515,11 +534,11 @@ void DefList::RegisterSize(
   if (len > highestDefNo) 
   {
     highestDefNo = len;
-    cout << text << ": " << len << "\n";
+    files.track << text << ": " << len << "\n";
 
     if (len > SDS_MAX_DEF)
     {
-      cerr << "Too many alternatives" << endl;
+      cout << "Too many alternatives" << endl;
       assert(false);
     }
   }

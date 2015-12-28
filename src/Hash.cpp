@@ -1,11 +1,10 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #include <iostream>
 #include <assert.h>
@@ -38,8 +37,8 @@ unsigned Hash::GetKey(
   const Header& header)
 {
   // TRICK: 12 bits (4096) --> 132 combinations, 8 bits.
-  int tFullTrick = header.GetTrickKey();
-  int tRedTrick;
+  unsigned tFullTrick = header.GetTrickKey();
+  unsigned tRedTrick;
   if (trickKeyMap[tFullTrick] == 0)
     trickKeyMap[tFullTrick] = keyMapNo++;
   tRedTrick = trickKeyMap[tFullTrick]-1;
@@ -48,8 +47,8 @@ unsigned Hash::GetKey(
 
   // RANK: 12 bits ( 4096) --> 399 combinations,  9 bits.
   // RANK: 16 bits (65536) --> 593 combinations, 10 bits.
-  int tFullRank = header.GetRankKey();
-  int tRedRank;
+  unsigned tFullRank = header.GetRankKey();
+  unsigned tRedRank;
   if (rankKeyMap[tFullRank] == 0)
     rankKeyMap[tFullRank] = rankMapNo++;
   tRedRank = rankKeyMap[tFullRank]-1;
@@ -58,32 +57,33 @@ unsigned Hash::GetKey(
 
   // CASE: ? bits --> 20 combinations, 5 bits.
   unsigned tFullCase = header.GetKeyNew();
-  int tRedCase;
+  unsigned tRedCase;
   if (caseKeyMap[tFullCase] == 0)
     caseKeyMap[tFullCase] = caseMapNo++;
   tRedCase = caseKeyMap[tFullCase]-1;
   assert(tFullCase < SDS_HASH_LENCASE);
   assert(tRedCase < 128);
 
-  int tFullRankCase = (tRedRank << 7) | tRedCase;
-  int tRedRankCase;
+  unsigned tFullRankCase = (tRedRank << 7) | tRedCase;
+  unsigned tRedRankCase;
   if (rankCaseKeyMap[tFullRankCase] == 0)
     rankCaseKeyMap[tFullRankCase] = rankCaseMapNo++;
   tRedRankCase = rankCaseKeyMap[tFullRankCase]-1;
   assert(tFullRankCase < SDS_HASH_LENRANKCASE);
   assert(tRedRankCase < 4096);
 
-  int key = (tRedRankCase << 8) | tRedTrick;
+  unsigned key = (tRedRankCase << 8) | tRedTrick;
   assert(key < ML_MAXKEY);
 
   return key;
 }
 
 
-void Hash::PrintCounts() const
+void Hash::PrintCounts(
+  ostream& out) const
 {
-  cout << "Trick count: " << keyMapNo-1 << "\n";
-  cout << "Rank count: " << rankMapNo-1 << "\n";
-  cout << "Case count: " << caseMapNo-1 << "\n";
-  cout << "Rank-case count: " << rankCaseMapNo-1 << "\n";
+  out << "Trick count: " << keyMapNo-1 << "\n";
+  out << "Rank count: " << rankMapNo-1 << "\n";
+  out << "Case count: " << caseMapNo-1 << "\n";
+  out << "Rank-case count: " << rankCaseMapNo-1 << "\n";
 }

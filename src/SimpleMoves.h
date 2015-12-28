@@ -1,30 +1,31 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #ifndef SDS_SIMPLEMOVES_H
 #define SDS_SIMPLEMOVES_H
 
-#include "Holding.h"
+class DefList;
+class LoopHold;
 
 
-void MakeMovesSimple();
+void MakeSimpleMoves();
+
+bool MakeSimpleSingleMove(
+  const unsigned suitLength,
+  const unsigned counter,
+  DefList& def,
+  LoopHold& holding);
 
 void UpdateHist(
-  const int histNo,
-  const int suitLength,
-  const int counter,
-  const int rank,
+  const unsigned histNo,
+  const unsigned suitLength,
+  const unsigned counter,
+  const unsigned rank,
   bool newFlag);
-
-void CompareRecurse(
-  unsigned moveNo,
-  Holding& Holding,
-  const int histNo);
 
 #endif

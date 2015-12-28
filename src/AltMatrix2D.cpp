@@ -1,12 +1,12 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
+#include <iostream>
 #include <iomanip>
 #include <assert.h>
 
@@ -72,7 +72,7 @@ bool AltMatrix2D::IsPurgedY(
 void AltMatrix2D::SetValue(
   const unsigned x,
   const unsigned y,
-  const cmpDetailType c)
+  const CmpDetailType c)
 {
   assert(x < numX);
   assert(y < numY);
@@ -211,20 +211,20 @@ void AltMatrix2D::Verify(
 }
 
 
-cmpDetailType AltMatrix2D::ComparePartial(
-  const cmpDetailType diff,
-  const cmpDetailType winX,
-  const cmpDetailType winY)
+CmpDetailType AltMatrix2D::ComparePartial(
+  const CmpDetailType diff,
+  const CmpDetailType winX,
+  const CmpDetailType winY)
 {
   if (hasYsum[winX] && hasYsum[winY])
   {
     if (! (hasXsum[winX] && hasXsum[winY]))
     {
       cerr << "Error 1: " << 
-        static_cast<int>(diff) << " " << 
-        static_cast<int>(winX) << " " << 
-        static_cast<int>(winY) << "\n";
-      for (int c = 0; c < SDS_HEADER_CMP_SIZE; c++)
+        static_cast<unsigned>(diff) << " " << 
+        static_cast<unsigned>(winX) << " " << 
+        static_cast<unsigned>(winY) << "\n";
+      for (unsigned c = 0; c < SDS_HEADER_CMP_SIZE; c++)
         cerr << setw(2) << c << 
           setw(5) << hasXsum[c] <<
           setw(5) << hasYsum[c];
@@ -238,10 +238,10 @@ cmpDetailType AltMatrix2D::ComparePartial(
     if (! (hasYsum[winX] && hasYsum[winY]))
     {
       cerr << "Error 2: " << 
-        static_cast<int>(diff) << " " << 
-        static_cast<int>(winX) << " " << 
-        static_cast<int>(winY) << "\n";
-      for (int c = 0; c < SDS_HEADER_CMP_SIZE; c++)
+        static_cast<unsigned>(diff) << " " << 
+        static_cast<unsigned>(winX) << " " << 
+        static_cast<unsigned>(winY) << "\n";
+      for (unsigned c = 0; c < SDS_HEADER_CMP_SIZE; c++)
         cerr << setw(2) << c << 
           setw(5) << hasXsum[c] <<
           setw(5) << hasYsum[c];
@@ -265,10 +265,10 @@ cmpDetailType AltMatrix2D::ComparePartial(
 }
 
 
-cmpDetailType AltMatrix2D::ComparePartialDeclarer(
-  const cmpDetailType diff,
-  const cmpDetailType winX,
-  const cmpDetailType winY)
+CmpDetailType AltMatrix2D::ComparePartialDeclarer(
+  const CmpDetailType diff,
+  const CmpDetailType winX,
+  const CmpDetailType winY)
 {
   if (hasXsum[diff] && hasYsum[diff])
     return diff;
@@ -285,11 +285,11 @@ cmpDetailType AltMatrix2D::ComparePartialDeclarer(
 }
 
 
-cmpDetailType AltMatrix2D::Compare()
+CmpDetailType AltMatrix2D::Compare()
 {
   AltMatrix2D::Verify();
 
-  cmpDetailType c = AltMatrix2D::ComparePartial(
+  CmpDetailType c = AltMatrix2D::ComparePartial(
     SDS_HEADER_PLAY_DIFFERENT,
     SDS_HEADER_PLAY_OLD_BETTER,
     SDS_HEADER_PLAY_NEW_BETTER);
@@ -310,7 +310,7 @@ cmpDetailType AltMatrix2D::Compare()
 }
 
 
-cmpDetailType AltMatrix2D::CompareDeclarer()
+CmpDetailType AltMatrix2D::CompareDeclarer()
 {
   AltMatrix2D::Verify(false);
 
@@ -343,7 +343,7 @@ cmpDetailType AltMatrix2D::CompareDeclarer()
 }
 
 
-cmpDetailType AltMatrix2D::CompareHard()
+CmpDetailType AltMatrix2D::CompareHard()
 {
   AltMatrix2D::Verify(false);
 
@@ -373,9 +373,9 @@ cmpDetailType AltMatrix2D::CompareHard()
 
 
 bool AltMatrix2D::CandList(
-  const posType sideToLose,
+  const PosType sideToLose,
   bool use[],
-  cmpDetailType& c) const
+  CmpDetailType& c) const
 {
   c = SDS_HEADER_SAME;
 

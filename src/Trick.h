@@ -1,19 +1,18 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #ifndef SDS_TRICK_H
 #define SDS_TRICK_H
 
 #include <iostream>
 
-#include "cst.h"
-#include "Holding.h"
+#include "compare.h"
+#include "const.h"
 
 class Holding;
 class Segment;
@@ -23,21 +22,21 @@ class Trick
 {
   private:
 
-    struct trickType
+    struct TrickType
     {
-      posType start;
-      posType end;
+      PosType start;
+      PosType end;
       unsigned char cashing;
       unsigned char ranks;
     };
 
-    trickType trick;
+    TrickType trick;
 
     void Reset();
 
-    cmpType ComparePlay(
+    CmpType ComparePlay(
       const Trick& t1,
-      const posType side) const;
+      const PosType side) const;
 
   public:
 
@@ -48,20 +47,20 @@ class Trick
     ~Trick();
 
     void Set(
-      const posType start,
-      const posType end,
+      const PosType start,
+      const PosType end,
       const unsigned ranks,
       const unsigned cashing);
 
     void SetStart(
-      const posType start);
+      const PosType start);
 
     void SetEnd(
-      const posType end);
+      const PosType end);
 
-    posType GetStart() const;
+    PosType GetStart() const;
 
-    posType GetEnd() const;
+    PosType GetEnd() const;
 
     unsigned GetCashing() const;
 
@@ -82,7 +81,7 @@ class Trick
     void Localize(
       const Holding& holding);
 
-    appendType Prepend(
+    AppendType Prepend(
       const Trick& tPrep,
       const bool mergeSpecialFlag,
       const bool lastFlag);
@@ -90,10 +89,10 @@ class Trick
     bool ReduceBoth(
       const Trick& t1);
 
-    cmpDetailType Compare(
+    CmpDetailType Compare(
       const Trick& t1) const;
 
-    cmpType CashRankOrder(
+    CmpType CashRankOrder(
       const unsigned char c,
       const unsigned char r) const;
 

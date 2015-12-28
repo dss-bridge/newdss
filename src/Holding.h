@@ -1,22 +1,16 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #ifndef SDS_HOLDING_H
 #define SDS_HOLDING_H
 
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <string>
-
-#include "cst.h"
 #include "Trick.h"
+#include "const.h"
 
 class Trick;
 
@@ -27,10 +21,10 @@ class Holding
 {
   private:
 
-    posType side;
-    posType lho;
-    posType pard;
-    posType rho;
+    PosType side;
+    PosType lho;
+    PosType pard;
+    PosType rho;
 
     int numLeads;
     int numLhos;
@@ -49,10 +43,10 @@ class Holding
     int rhoRank;
     int maxDef;
     int maxDefRun;
-    int minRank[DDS_HANDS];
+    int minRank[SDS_HANDS];
 
-    posType winSide;
-    int winRank;
+    PosType winSide;
+    unsigned winRank;
 
     int rankMap[14];
     bool aceFlip;
@@ -60,31 +54,28 @@ class Holding
 
     void MakeRanks();
 
-    void FlipAceToPard(
-      int& maskFull,
-      int& cFlipped);
-
     void ToText(
       std::ostream&) const;
 
   protected:
 
     unsigned suitLength;
-    int counter;
+    unsigned counter;
 
-    int cardListLo[DDS_HANDS][SDS_MAX_RANKS];
-    int cardListHi[DDS_HANDS][SDS_MAX_RANKS];
-    unsigned cardNo[DDS_HANDS];
-    int completeList[DDS_HANDS][SDS_MAX_RANKS];
-    unsigned length[DDS_HANDS];
+    int cardListLo[SDS_HANDS][SDS_MAX_RANKS];
+    int cardListHi[SDS_HANDS][SDS_MAX_RANKS];
+    unsigned cardNo[SDS_HANDS];
+    unsigned completeList[SDS_HANDS][SDS_MAX_RANKS];
+    unsigned length[SDS_HANDS];
 
-    unsigned ListToRank(const int listValue);
+    unsigned ListToRank(
+      const unsigned listValue) const;
 
-    unsigned PlayerTopsOverRank(
-      const posType& player,
-      const int& rank);
+    unsigned TopsOverRank(
+      const PosType& player,
+      const unsigned& rank) const;
 
-    void AdjustWinRank(const int used[]);
+    void AdjustWinRank();
 
 
   public:
@@ -94,8 +85,8 @@ class Holding
     ~Holding();
 
     void Set(
-      const int suitLength,
-      const int counter);
+      const unsigned suitLength,
+      const unsigned counter);
 
     void RewindLead();
     void RewindLho();
@@ -108,15 +99,15 @@ class Holding
 
     void SetSide(const int side);
 
-    posType GetSide() const;
-    posType GetWinSide();
+    PosType GetSide() const;
+    PosType GetWinSide();
 
     const Trick GetTrick() const;
 
-    int GetPrependRank() const;
+    unsigned GetPrependRank() const;
     int GetMaxOppRank();
-    int GetSuitLength() const;
-    int GetCounter() const;
+    unsigned GetSuitLength() const;
+    unsigned GetCounter() const;
     unsigned GetLength(const int player) const;
     unsigned GetMinDeclLength() const;
     bool LHOIsVoid() const;
@@ -124,11 +115,11 @@ class Holding
     bool IsAATrick() const;
 
     unsigned GetNumTops();
-    posType GetOppBest();
+    PosType GetOppBest();
 
     bool MakePlay(
-      int& slNew,
-      int& cNew);
+      unsigned& slNew,
+      unsigned& cNew);
 
     bool GetAceFlip() const;
 
@@ -136,9 +127,9 @@ class Holding
 
     bool GetMergeType() const;
 
-    int FlipTops(
-      const int numTops,
-      const int nMask);
+    unsigned FlipTops(
+      const unsigned numTops,
+      const unsigned nMask);
 
     void Print(
       std::ostream& out = std::cout,

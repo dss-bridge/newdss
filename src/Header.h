@@ -1,7 +1,7 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -9,24 +9,21 @@
 #ifndef SDS_HEADER_H
 #define SDS_HEADER_H
 
-#include <iostream>
-
-#include "cst.h"
-
-class Trick;
+#include "Trick.h"
+#include "const.h"
 
 
 class Header
 {
   private:
 
-    posType start;
-    posType end;
+    PosType start;
+    PosType end;
     unsigned char maxTricks;
     unsigned char maxRanks;
     unsigned char minRanks;
-    unsigned char cashTricks[DDS_HANDS];
-    unsigned char cashRanks[DDS_HANDS];
+    unsigned char cashTricks[SDS_HANDS];
+    unsigned char cashRanks[SDS_HANDS];
     unsigned keyNew;
 
     unsigned dCum;
@@ -69,15 +66,15 @@ class Header
     void GetAD(
       unsigned& d,
       unsigned& asum) const;
-    int GetTrickKey() const;
-    int GetRankKey() const;
+    unsigned GetTrickKey() const;
+    unsigned GetRankKey() const;
     unsigned GetMaxRank() const;
     unsigned GetKeyNew() const;
-    unsigned CheckManual() const;
+    unsigned GetSymmTricks() const;
 
     void PrintKey(
       std::ostream& out,
-      const int key) const;
+      const unsigned key) const;
 
     void Print(
       std::ostream& out = std::cout,

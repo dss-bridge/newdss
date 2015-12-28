@@ -1,18 +1,17 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #ifndef SDS_LOOPHOLD_H
 #define SDS_LOOPHOLD_H
 
-#include "cst.h"
 #include "DefList.h"
 #include "Holding.h"
+#include "const.h"
 
 #define SDS_MAX_RANKS 14
 
@@ -24,8 +23,8 @@ struct HoldingDetails
   int maskFull;
   int declLen;
 
-  posType pLong;
-  posType pShort;
+  PosType pLong;
+  PosType pShort;
 
   int numTopsAll;
   int numTopsLong;
@@ -49,8 +48,8 @@ struct HoldingDetails
 
 struct HoldingSimpleMove
 {
-  posType start;
-  posType end;
+  PosType start;
+  PosType end;
   int rank;
   int tricks;
 };
@@ -82,13 +81,13 @@ class LoopHold: public Holding
       HoldingDetails& hdet,
       const int& oppRank,
       const bool oppSkippedFlag,
-      const posType& oppSkipped);
+      const PosType& oppSkipped);
 
     void SolveCrashTricksHand(
       const HoldingDetails& hdet,
       const int& lenOpp,
-      posType& bend,
-      posType& cend,
+      PosType& bend,
+      PosType& cend,
       int& brank,
       int& rrank,
       int& crank,
@@ -98,7 +97,7 @@ class LoopHold: public Holding
       int& ctricks);
       
     int GetNumTopsOverOpp(
-      const posType opp) const;
+      const PosType opp) const;
 
     bool GetAsymmRanks(
       const int plong,
@@ -113,8 +112,8 @@ class LoopHold: public Holding
 
     bool SetMove(
       HoldingSimpleMove& move,
-      const posType& start,
-      const posType& end,
+      const PosType& start,
+      const PosType& end,
       const int rank,
       const int tricks);
 
@@ -123,7 +122,7 @@ class LoopHold: public Holding
       const int firstNonTopAce,
       const int firstNonTopPard,
       const bool ignoreOtherOpp,
-      const posType anchor);
+      const PosType anchor);
 
     bool SolveStopped0(HoldingSimpleMove& move);
     bool SolveStopped1(HoldingSimpleMove& move);
@@ -159,17 +158,18 @@ class LoopHold: public Holding
 
     ~LoopHold();
 
-    void SolveShortAce(int& rank);
+    void CashAceShort(
+      unsigned& rank) const;
 
     bool SolveStopped(HoldingSimpleMove& move);
 
     void CashoutAce(
-      int& tricks,
-      int& ranks);
+      unsigned& tricks,
+      unsigned& ranks);
 
-    bool CashoutPard(
-      int& tricks,
-      int& ranks);
+    bool CashoutAceSideBlocked(
+      unsigned& tricks,
+      unsigned& ranks) const;
 
     bool CashoutBoth(
       DefList& def,
@@ -180,9 +180,9 @@ class LoopHold: public Holding
 
     void SolveCrashTricks(
       HoldingDetails& hdet,
-      const posType& oppBest,
-      posType& bend,
-      posType& cend,
+      const PosType& oppBest,
+      PosType& bend,
+      PosType& cend,
       int& brank,
       int& rrank,
       int& crank,

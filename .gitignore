@@ -40,3 +40,8 @@
 *.log
 *.filters
 *.suo
+*.def
+.def
+
+# Output files
+*.txt

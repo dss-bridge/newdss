@@ -1,11 +1,10 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #ifndef SDS_DEFLIST_H
 #define SDS_DEFLIST_H
@@ -15,12 +14,16 @@
 #include <vector>
 
 #include "AltList.h"
-#include "cst.h"
+#include "const.h"
+
+class Trick;
 
 
 class DefList
 {
   private:
+
+    #include "Header.h"
 
     AltList list[SDS_MAX_DEF];
     unsigned len;

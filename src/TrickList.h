@@ -1,11 +1,10 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #ifndef SDS_TRICKLIST_H
 #define SDS_TRICKLIST_H
@@ -13,9 +12,10 @@
 #include <iostream>
 
 #include "Segment.h"
-#include "Trick.h"
-#include "Header.h"
-#include "Holding.h"
+
+class Holding;
+class Header;
+class Trick;
 
 #define TRICKLIST_MAXSEGS 4
 
@@ -31,22 +31,22 @@ class TrickList
     {
       unsigned lenOld;
       unsigned lenNew;
-      cmpDetailType winnerFirst;
-      cmpDetailType winnerRunning;
+      CmpDetailType winnerFirst;
+      CmpDetailType winnerRunning;
       unsigned tricksOld;
       unsigned tricksNew;
       unsigned ranksOld;
       unsigned ranksNew;
     };
 
-    cmpDetailType CompareInit(
+    CmpDetailType CompareInit(
       const TrickList& lNew,
       CompareStruct cdata) const;
 
-    cmpDetailType CompareRunning(
+    CmpDetailType CompareRunning(
       const CompareStruct cdata) const;
 
-    cmpDetailType CompareTail(
+    CmpDetailType CompareTail(
       const TrickList& lNew,
       CompareStruct cdata) const;
 
@@ -68,22 +68,22 @@ class TrickList
       const Trick& trick2);
 
     void SetStart(
-      const posType start);
+      const PosType start);
 
-    posType GetFirstStart() const;
+    PosType GetFirstStart() const;
 
-    posType GetFirstEnd() const;
+    PosType GetFirstEnd() const;
 
-    unsigned int GetLength() const;
+    unsigned GetLength() const;
 
-    const void GetHeader(
+    void GetHeader(
       Header& header,
       const unsigned startNo = 0) const;
 
     void GetFirstSummaryTrick(
       Trick& t) const;
 
-    cmpDetailType Compare(
+    CmpDetailType Compare(
       const TrickList& lNew) const;
 
     bool EqualsExceptStart(
@@ -98,23 +98,23 @@ class TrickList
     void operator += (
       const Holding& holding);
 
-    cmpDetailType CompareToTrick (
+    CmpDetailType CompareToTrick (
       const Trick& trick) const;
 
-    cmpDetailType FixOrCompare(
+    CmpDetailType FixOrCompare(
       TrickList& lOther,
-      fixType& fix1,
-      fixType& fix2);
+      FixType& fix1,
+      FixType& fix2);
     
     bool Fix(
       TrickList& lOther,
-      fixType& fix1,
-      fixType& fix2);
+      FixType& fix1,
+      FixType& fix2);
     
-    posType ConnectFirst(
-      const posType pend);
+    PosType ConnectFirst(
+      const PosType pend);
 
-    posType ConnectFirst();
+    PosType ConnectFirst();
 
     void Print(
       std::ostream& out = std::cout,

@@ -1,26 +1,24 @@
 /* 
    SDS, a bridge-suit single double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #include <iostream>
 #include <iomanip>
-#include <string>
-#include <stdexcept>
+#include <time.h>
+
+#include "portab.h"
+#include "stats.h"
 
 using namespace std;
 
-#include "portab.h"
-#include "Stats.h"
 
 #define NUM_TIMERS 2000
 #define COUNTER_SLOTS 200
 
-#include <time.h>
 
 #ifdef _WIN32
 LARGE_INTEGER timerFreq;
@@ -43,10 +41,10 @@ clock_t timerSys1;
 clock_t timerListSys0[NUM_TIMERS];
 clock_t timerListSys1[NUM_TIMERS];
 
-int timerCount;
-int timerListCount[NUM_TIMERS];
+unsigned timerCount;
+unsigned timerListCount[NUM_TIMERS];
 
-int timerNameSet;
+unsigned timerNameSet;
 
 char timerName[80];
 
@@ -118,26 +116,28 @@ void PrintTimer()
     cout << setw(19) << left << "Timer name" << ": " << timerName << "\n";
 
   cout << setw(19) << left << "Number of calls" << ": " << 
-    timerCount << "\n";
+    setw(10) << right << timerCount << "\n";
   if (timerCount == 0) return;
 
   if (timerUserCum == 0)
-    cout << setw(19) << left << "User time" << ": zero" << "\n";
+    cout << setw(19) << left << "User time" << ": " <<
+      setw(10) << right << "zero\n";
   else
   {
     cout << setw(19) << left << "User time/ticks" << ": " << 
-      timerUserCum << "\n";
+      setw(10) << right << timerUserCum << "\n";
     cout << setw(19) << left << "User per call" << right << ": " <<
       setw(10) << std::fixed << std::setprecision(2) <<
       static_cast<float>(timerUserCum / timerCount) << "\n";
   }
 
   if (timerSysCum == 0)
-    cout << setw(19) << left << "Sys time" << ": zero" << "\n";
+    cout << setw(19) << left << "Sys time" << ": " <<
+      setw(10) << right << "zero\n";
   else
   {
     cout << setw(19) << left << "Sys time/ticks" << ": " << 
-      timerSysCum << "\n";
+      setw(10) << right << timerSysCum << "\n";
     cout << setw(19) << left << "Sys per call" << right << ": " <<
       setw(10) << std::fixed << std::setprecision(2) <<
       static_cast<float>(timerSysCum / timerCount) << "\n";
@@ -151,7 +151,7 @@ void PrintTimer()
 
 void InitTimerList()
 {
-  for (int i = 0; i < NUM_TIMERS; i++)
+  for (unsigned i = 0; i < NUM_TIMERS; i++)
   {
     timerListCount [i] = 0;
     timerListUserCum[i] = 0;
@@ -160,7 +160,7 @@ void InitTimerList()
 }
 
 
-void StartTimerNo(const int no)
+void StartTimerNo(const unsigned no)
 {
   timerListCount[no]++;
   timerListSys0[no] = clock();
@@ -173,7 +173,7 @@ void StartTimerNo(const int no)
 }
 
 
-void EndTimerNo(const int no)
+void EndTimerNo(const unsigned no)
 {
   timerListSys1[no] = clock();
 
@@ -196,7 +196,7 @@ void EndTimerNo(const int no)
 
 
 void EndTimerNoAndComp(
-  const int no, 
+  const unsigned no, 
   const int pred)
 {
   timerListSys1[no] = clock();
@@ -229,11 +229,11 @@ void PrintTimerList()
   cout << setw(5) << "n" <<
     setw(11) << "Number" <<
     setw(13) << "User ticks" <<
-    setw(11) << "Avg" <<
+    setw(16) << "Avg" <<
     setw(11) << "Syst time" << "\n";
 
-  int totNum = 0;
-  for (int no = 0; no < NUM_TIMERS; no++)
+  unsigned totNum = 0;
+  for (unsigned no = 0; no < NUM_TIMERS; no++)
   {
     if (timerListCount[no] == 0)
       continue;
@@ -243,12 +243,21 @@ void PrintTimerList()
     double avg = static_cast<double>(timerListUserCum[no]) /
                  static_cast<double>(timerListCount[no]);
 
-    // For some reason I have trouble when putting it on one line...
     cout << setw(5) << no <<
       setw(11) << timerListCount[no] <<
       setw(13) << timerListUserCum[no] << 
-      setw(11) << std::fixed << std::setprecision(2) << avg <<
-      setw(10) << timerListSysCum[no] << "\n";
+      setw(16) << std::fixed << std::setprecision(2) << avg <<
+      setw(11) << timerListSysCum[no];
+
+    if (timerListSysCum[no] > 10000L)
+    {
+      double seconds = timerListSysCum[no] / static_cast<double>(1000.);
+      unsigned min = static_cast<unsigned>(seconds / 60.);
+      unsigned sec = static_cast<unsigned>(seconds - min*60.);
+      cout << "   (" << min << ":" << setfill('0') << setw(2) << sec << ")";
+      setfill(' ');
+    }
+    cout << "\n";
   }
   cout << "\n";
   if (predError != 0)
@@ -281,14 +290,14 @@ long long counter[COUNTER_SLOTS];
 
 void InitCounter()
 {
-  for (int i = 0; i < COUNTER_SLOTS; i++)
+  for (unsigned i = 0; i < COUNTER_SLOTS; i++)
     counter[i] = 0;
 }
 
 
 void PrintCounter()
 {
-  for (int i = 0; i < COUNTER_SLOTS; i++)
+  for (unsigned i = 0; i < COUNTER_SLOTS; i++)
   {
     if (counter[i])
       cout << setw(8) << i << setw(12) << counter[i] << "\n";

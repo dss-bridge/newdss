@@ -1,19 +1,19 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #include <assert.h>
 
-#include "cst.h"
+#include "Holding.h"
+#include "Trick.h"
 #include "TrickList.h"
+#include "Header.h"
 
 using namespace std;
-
 
 
 TrickList::TrickList()
@@ -62,34 +62,34 @@ bool TrickList::Set2(
 
 
 void TrickList::SetStart(
-  const posType start)
+  const PosType start)
 {
   assert(len > 0);
   list[len-1].SetStart(start);
 }
 
 
-posType TrickList::GetFirstStart() const
+PosType TrickList::GetFirstStart() const
 {
   assert(len > 0);
   return list[len-1].GetStart();
 }
 
 
-posType TrickList::GetFirstEnd() const
+PosType TrickList::GetFirstEnd() const
 {
   assert(len > 0);
   return list[len-1].GetEnd();
 }
 
 
-unsigned int TrickList::GetLength() const
+unsigned TrickList::GetLength() const
 {
   return len;
 }
 
 
-const void TrickList::GetHeader(
+void TrickList::GetHeader(
   Header& header,
   const unsigned startNo) const
 {
@@ -115,11 +115,11 @@ void TrickList::GetFirstSummaryTrick(
 }
 
 
-cmpDetailType TrickList::CompareInit(
+CmpDetailType TrickList::CompareInit(
   const TrickList& lNew,
   CompareStruct cdata) const
 {
-  cmpDetailType cc;
+  CmpDetailType cc;
   do
   {
     if (cdata.lenOld == 0 && cdata.lenNew == 0)
@@ -160,7 +160,7 @@ cmpDetailType TrickList::CompareInit(
 }
 
 
-cmpDetailType TrickList::Compare(
+CmpDetailType TrickList::Compare(
   const TrickList& lNew) const
 {
   assert(len > 0);
@@ -176,7 +176,7 @@ cmpDetailType TrickList::Compare(
   cdata.winnerFirst = SDS_HEADER_SAME;
   cdata.winnerRunning = SDS_HEADER_SAME;
 
-  cmpDetailType cc = TrickList::CompareInit(lNew, cdata);
+  CmpDetailType cc = TrickList::CompareInit(lNew, cdata);
   cdata.winnerFirst = cc;
 
   if (cc == SDS_HEADER_PLAY_DIFFERENT)
@@ -189,7 +189,7 @@ cmpDetailType TrickList::Compare(
 }
 
 
-cmpDetailType TrickList::CompareRunning(
+CmpDetailType TrickList::CompareRunning(
   const CompareStruct cdata) const
 {
   if (cdata.tricksOld > cdata.tricksNew)
@@ -205,7 +205,7 @@ cmpDetailType TrickList::CompareRunning(
 }
 
 
-cmpDetailType TrickList::CompareTail(
+CmpDetailType TrickList::CompareTail(
   const TrickList& lNew,
   CompareStruct cdata) const
 {
@@ -215,7 +215,7 @@ cmpDetailType TrickList::CompareTail(
   }
   else if (cdata.lenOld == 0)
   {
-    cmpDetailType c = cdata.winnerRunning;
+    CmpDetailType c = cdata.winnerRunning;
     if (c == SDS_HEADER_SAME ||
         c == SDS_HEADER_PLAY_NEW_BETTER ||
         c == SDS_HEADER_RANK_NEW_BETTER)
@@ -225,7 +225,7 @@ cmpDetailType TrickList::CompareTail(
   }
   else if (cdata.lenNew == 0)
   {
-    cmpDetailType c = cdata.winnerRunning;
+    CmpDetailType c = cdata.winnerRunning;
     if (c == SDS_HEADER_SAME ||
         c == SDS_HEADER_PLAY_OLD_BETTER ||
         c == SDS_HEADER_RANK_OLD_BETTER)
@@ -252,10 +252,10 @@ cmpDetailType TrickList::CompareTail(
     cdata.lenNew--;
   }
 
-  cmpDetailType d = TrickList::CompareRunning(cdata);
+  CmpDetailType d = TrickList::CompareRunning(cdata);
   cdata.winnerRunning = cmpDetailMatrix[cdata.winnerRunning][d];
 
-  cmpDetailType c = TrickList::CompareTail(lNew, cdata);
+  CmpDetailType c = TrickList::CompareTail(lNew, cdata);
   return cmpDetailMatrix[cdata.winnerFirst][c];
 }
 
@@ -271,7 +271,7 @@ bool TrickList::EqualsExceptStart(
     return false;
   else
   {
-    int p = 1;
+    unsigned p = 1;
     while (p <= len-1)
     {
       if (list[len-1-p] != lNew.list[lNew.len-1-p])
@@ -359,7 +359,7 @@ void TrickList::operator += (
 }
 
 
-cmpDetailType TrickList::CompareToTrick(
+CmpDetailType TrickList::CompareToTrick(
   const Trick& trick) const
 {
   assert(len > 0);
@@ -369,15 +369,15 @@ cmpDetailType TrickList::CompareToTrick(
 }
 
 
-cmpDetailType TrickList::FixOrCompare(
+CmpDetailType TrickList::FixOrCompare(
   TrickList& lOther,
-  fixType& fix1,
-  fixType& fix2)
+  FixType& fix1,
+  FixType& fix2)
 {
   if (TrickList::Fix(lOther, fix1, fix2))
     return SDS_HEADER_PLAY_DIFFERENT;
 
-  cmpDetailType c;
+  CmpDetailType c;
   switch (c = TrickList::Compare(lOther))
   {
     case SDS_HEADER_PLAY_OLD_BETTER:
@@ -403,8 +403,8 @@ cmpDetailType TrickList::FixOrCompare(
 
 bool TrickList::Fix(
   TrickList& lOther,
-  fixType& fix1,
-  fixType& fix2)
+  FixType& fix1,
+  FixType& fix2)
 {
   fix1 = SDS_FIX_UNCHANGED;
   fix2 = SDS_FIX_UNCHANGED;
@@ -477,8 +477,8 @@ void TrickList::Split()
 }
 
 
-posType TrickList::ConnectFirst(
-  const posType pend)
+PosType TrickList::ConnectFirst(
+  const PosType pend)
 {
   if (TrickList::GetFirstEnd() != pend)
     return QT_LHO; // Anything
@@ -487,7 +487,7 @@ posType TrickList::ConnectFirst(
 }
 
 
-posType TrickList::ConnectFirst()
+PosType TrickList::ConnectFirst()
 {
   assert(len > 0);
   if (len == 1)

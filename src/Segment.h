@@ -1,19 +1,20 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #ifndef SDS_SEGMENT_H
 #define SDS_SEGMENT_H
 
 #include <iostream>
 
-#include "Trick.h"
-#include "Holding.h"
+#include "compare.h"
+
+class Holding;
+
 
 #define SEGMENT_MAXMOVES 2
 
@@ -22,6 +23,8 @@ class Segment
 {
   private:
 
+    #include "Trick.h"
+    
     Trick list[SEGMENT_MAXMOVES];
     unsigned len;
 
@@ -42,24 +45,24 @@ class Segment
 
     bool Fix11_12(
       const Segment& seg2,
-      fixType& fix1,
-      fixType& fix2);
+      FixType& fix1,
+      FixType& fix2);
 
     bool Fix11_OneB(
       Segment& seg2,
-      fixType& fix1,
-      fixType& fix2) const;
+      FixType& fix1,
+      FixType& fix2) const;
 
     bool Fix12Special(
       Segment& seg20,
       Segment& seg21,
-      fixType& fix1,
-      fixType& fix2) const;
+      FixType& fix1,
+      FixType& fix2) const;
 
     bool Fix1nSpecial(
       Segment& seg20,
-      fixType& fix1,
-      fixType& fix2) const;
+      FixType& fix1,
+      FixType& fix2) const;
 
   public:
 
@@ -77,23 +80,23 @@ class Segment
       const unsigned no);
 
     void SetStart(
-      const posType start);
+      const PosType start);
 
-    posType GetStart() const;
+    PosType GetStart() const;
 
     void SetEnd(
-      const posType end);
+      const PosType end);
 
-    posType GetEnd() const;
+    PosType GetEnd() const;
 
-    unsigned int GetRanks() const;
+    unsigned GetRanks() const;
 
-    unsigned int GetLength() const;
+    unsigned GetLength() const;
 
     void GetSummaryTrick(
       Trick& summaryTrick) const;
 
-    cmpDetailType Compare(
+    CmpDetailType Compare(
       const Segment& seg2) const;
 
     bool EqualsExceptStart(
@@ -115,24 +118,24 @@ class Segment
     bool FixRanks(
       const unsigned rPrep);
 
-    posType Connect(
+    PosType Connect(
       const Segment& sPrepend);
 
     bool Fix11(
       Segment& seg2,
-      fixType& fix1,
-      fixType& fix2);
+      FixType& fix1,
+      FixType& fix2);
     
     bool Fix12(
       Segment& seg20,
       Segment& seg21,
-      fixType& fix1,
-      fixType& fix2);
+      FixType& fix1,
+      FixType& fix2);
     
     bool Fix1n(
       Segment& seg20,
-      fixType& fix1,
-      fixType& fix2) const;
+      FixType& fix1,
+      FixType& fix2) const;
     
     void Print(
       std::ostream& out = std::cout) const;

@@ -1,9 +1,18 @@
-EXPORTER	= Exports.def
+CC       	= cl
+# CC_FLAGS        = /O2 /Oi /Ot /Oy /GL /Zi /EHsc
+# CC_FLAGS        = /Ox /GL /Zi /EHsc
+CC_FLAGS        = /Ox /GL /Gw /EHsc
+# CC_LINK         = /LTCG /INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF
+# CC_LINK         = /LTCG:PGINSTRUMENT /DEBUG /OPT:REF,ICF
+# CC_LINK         = /LTCG:PGOPTIMIZE /DEBUG /OPT:REF,ICF
+CC_LINK         = /LTCG /DEBUG /OPT:REF,ICF
+
 
 SOURCE_FILES 	=		\
-        Stats.cpp               \
+        stats.cpp               \
         DefList.cpp             \
         MoveList.cpp            \
+        SideMoveList.cpp        \
         Trick.cpp               \
         Segment.cpp             \
         TrickList.cpp           \
@@ -15,99 +24,79 @@ SOURCE_FILES 	=		\
         SimpleMoves.cpp         \
         ComplexMoves.cpp        \
         Header.cpp              \
+        Hash.cpp                \
         Twiddle.cpp             \
-        Dist.cpp
+        Dist.cpp                \
+        sort.cpp                \
+        files.cpp               \
+        check.cpp               \
+        hist.cpp                \
+        options.cpp             \
+        summary.cpp             \
+        single.cpp
 
-TEST		= single
-ITEST		= single
+OBJ_FILES 	= $(SOURCE_FILES:.cpp=.obj)
 
-# Compilers
-
-CC_VS     	= cl
-
-# Compiler and linker flags
-
-CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi
-CC_LINK_DEBUG   = /INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF
-
-LD_FLAGS_VS	= 
-LD_FLAGS_LINUX	=
-LD_FLAGS_MACOS	=
-
-ifeq ($(DDS_THREADS),none)
-DDS_THR		= -DDDS_THREADS_SINGLE
-else
-DDS_THR		= 
-endif
-
-WINDRES_FLAG	= -F pe-i386
-
-CC		= $(CC_VS)
-CC_FLAGS	= $(CC_FLAGS_VS)
-LD_FLAGS	= $(LD_FLAGS_VS)
-
-O_FILES 	= $(subst .cpp,.o,$(SOURCE_FILES))
-
-OBJ_FILES 	= $(subst .cpp,.obj,$(SOURCE_FILES))
-
-TEST_SOURCE_FILES = $(TEST).cpp
-TEST_O_FILES 	= $(subst .cpp,.o,$(TEST_SOURCE_FILES)) Stats.o
-TEST_OBJ_FILES 	= $(subst .cpp,.obj,$(TEST_SOURCE_FILES)) Stats.obj
-
-ITEST_SOURCE_FILES = $(ITEST).cpp
-ITEST_O_FILES 	= $(subst .cpp,.o,$(ITEST_SOURCE_FILES))
-ITEST_OBJ_FILES = $(subst .cpp,.obj,$(ITEST_SOURCE_FILES))
-
-# Linking directly.
-
-test:	$(OBJ_FILES) $(ITEST_OBJ_FILES)
-	link /LTCG $(CC_LINK_DEBUG) $(OBJ_FILES) $(ITEST_OBJ_FILES) /out:$(ITEST).exe
+test:	$(OBJ_FILES) 
+	link $(CC_LINK) $(OBJ_FILES) /out:single.exe
 
 
-%.o:	%.cpp
-	$(CC) $(CC_FLAGS) $(DDS_THR) -c $<
+.cpp.obj:
+	$(CC) $(CC_FLAGS) /c $<
 
 %.obj:	%.cpp
-	$(CC_VS) $(CC_FLAGS) $(DDS_THR) /c /EHsc $<
-
+	$(CC) $(CC_FLAGS) /c $<
 
 depend:
-	makedepend -Y -o.obj -- $(CC_FLAGS) -- $(SOURCE_FILES) $(TEST).cpp
+	makedepend -Y -o.obj -- $(CC_FLAGS) -- $(SOURCE_FILES)
 
 clean:
-	rm -f $(OBJ_FILES) $(TEST_O_FILES) $(TEST_OBJ_FILES) $(TEST).o $(ITEST).o $(TEST).obj $(ITEST).obj $(DLL) $(TEST).exe $(ITEST).exe $(DLLBASE).lib $(DLLBASE).exp $(DLLBASE).def $(TEST).exp $(DLLBASE).o $(DLLBASE).obj $(DLLBASE).res
-
+	rm -f $(OBJ_FILES) single.exe single.exp 
 
 # DO NOT DELETE
 
-Stats.obj: portab.h Stats.h
-DefList.obj: cst.h DefList.h AltList.h TrickList.h Segment.h Trick.h
-DefList.obj: Holding.h Header.h AltMatrix1D.h AltMatrix2D.h
-MoveList.obj: portab.h cst.h MoveList.h Holding.h Trick.h DefList.h AltList.h
-MoveList.obj: TrickList.h Segment.h Header.h AltMatrix1D.h AltMatrix2D.h
-Trick.obj: cst.h Trick.h Holding.h portab.h
-Segment.obj: cst.h Segment.h Trick.h Holding.h Header.h portab.h
-TrickList.obj: cst.h TrickList.h Segment.h Trick.h Holding.h Header.h
-TrickList.obj: portab.h
-AltList.obj: cst.h AltList.h TrickList.h Segment.h Trick.h Holding.h Header.h
-AltList.obj: AltMatrix1D.h AltMatrix2D.h portab.h
-AltMatrix1D.obj: cst.h AltMatrix1D.h portab.h
-AltMatrix2D.obj: cst.h AltMatrix2D.h portab.h
-Holding.obj: cst.h Holding.h Trick.h
-LoopHold.obj: cst.h LoopHold.h DefList.h AltList.h TrickList.h Segment.h
-LoopHold.obj: Trick.h Holding.h Header.h AltMatrix1D.h AltMatrix2D.h
-SimpleMoves.obj: cst.h DefList.h AltList.h TrickList.h Segment.h Trick.h
-SimpleMoves.obj: Holding.h Header.h AltMatrix1D.h AltMatrix2D.h MoveList.h
-SimpleMoves.obj: SimpleMoves.h ComplexMoves.h Twiddle.h Dist.h LoopHold.h
-ComplexMoves.obj: portab.h cst.h DefList.h AltList.h TrickList.h Segment.h
-ComplexMoves.obj: Trick.h Holding.h Header.h AltMatrix1D.h AltMatrix2D.h
-ComplexMoves.obj: MoveList.h SimpleMoves.h ComplexMoves.h Stats.h
-Header.obj: cst.h Header.h Trick.h Holding.h
-Twiddle.obj: cst.h MoveList.h Holding.h Trick.h DefList.h AltList.h
-Twiddle.obj: TrickList.h Segment.h Header.h AltMatrix1D.h AltMatrix2D.h
-Twiddle.obj: SimpleMoves.h Twiddle.h
-Dist.obj: Holding.h cst.h Trick.h DefList.h AltList.h TrickList.h Segment.h
-Dist.obj: Header.h AltMatrix1D.h AltMatrix2D.h SimpleMoves.h
-single.obj: portab.h cst.h MoveList.h Holding.h Trick.h DefList.h AltList.h
-single.obj: TrickList.h Segment.h Header.h AltMatrix1D.h AltMatrix2D.h
-single.obj: SimpleMoves.h ComplexMoves.h Stats.h Twiddle.h Dist.h LoopHold.h
+stats.obj: portab.h stats.h
+DefList.obj: Trick.h compare.h const.h Header.h DefList.h AltList.h
+DefList.obj: TrickList.h Segment.h AltMatrix2D.h files.h options.h
+MoveList.obj: Header.h Trick.h compare.h const.h MoveList.h SideMoveList.h
+MoveList.obj: Holding.h DefList.h AltList.h TrickList.h Segment.h Hash.h
+MoveList.obj: sort.h files.h
+SideMoveList.obj: Header.h Trick.h compare.h const.h SideMoveList.h Holding.h
+SideMoveList.obj: DefList.h AltList.h TrickList.h Segment.h Hash.h sort.h
+SideMoveList.obj: portab.h
+Trick.obj: Trick.h compare.h const.h Holding.h
+Segment.obj: Trick.h compare.h const.h Segment.h Holding.h
+TrickList.obj: Holding.h Trick.h compare.h const.h TrickList.h Segment.h
+TrickList.obj: Header.h
+AltList.obj: Trick.h compare.h const.h AltList.h TrickList.h Segment.h
+AltList.obj: AltMatrix1D.h AltMatrix2D.h Holding.h Header.h files.h options.h
+AltMatrix1D.obj: AltMatrix1D.h compare.h const.h
+AltMatrix2D.obj: AltMatrix2D.h compare.h const.h
+Holding.obj: Holding.h Trick.h compare.h const.h
+LoopHold.obj: Trick.h compare.h const.h LoopHold.h DefList.h AltList.h
+LoopHold.obj: TrickList.h Segment.h Header.h Holding.h
+SimpleMoves.obj: Trick.h compare.h const.h Header.h DefList.h AltList.h
+SimpleMoves.obj: TrickList.h Segment.h MoveList.h SideMoveList.h Holding.h
+SimpleMoves.obj: Hash.h sort.h SimpleMoves.h ComplexMoves.h Twiddle.h hist.h
+SimpleMoves.obj: Dist.h LoopHold.h single.h
+ComplexMoves.obj: Header.h Trick.h compare.h const.h DefList.h AltList.h
+ComplexMoves.obj: TrickList.h Segment.h MoveList.h SideMoveList.h Holding.h
+ComplexMoves.obj: Hash.h sort.h ComplexMoves.h stats.h portab.h files.h
+ComplexMoves.obj: single.h options.h summary.h hist.h
+Header.obj: Header.h Trick.h compare.h const.h
+Hash.obj: Hash.h Header.h Trick.h compare.h const.h
+Twiddle.obj: Twiddle.h hist.h check.h options.h single.h const.h
+Dist.obj: Dist.h hist.h Holding.h Trick.h compare.h const.h single.h
+sort.obj: sort.h
+files.obj: files.h
+check.obj: MoveList.h SideMoveList.h Header.h Trick.h compare.h const.h
+check.obj: Holding.h DefList.h AltList.h TrickList.h Segment.h Hash.h sort.h
+check.obj: ComplexMoves.h hist.h check.h
+hist.obj: hist.h const.h
+options.obj: single.h options.h const.h
+summary.obj: summary.h
+single.obj: portab.h Header.h Trick.h compare.h const.h MoveList.h
+single.obj: SideMoveList.h Holding.h DefList.h AltList.h TrickList.h
+single.obj: Segment.h Hash.h sort.h SimpleMoves.h ComplexMoves.h stats.h
+single.obj: Twiddle.h hist.h Dist.h LoopHold.h files.h options.h summary.h
+single.obj: single.h

@@ -1,7 +1,7 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -63,29 +63,29 @@
   Using only way (1) above.
 */
 
-#include <stdio.h>
 #include <assert.h>
 
-#include "cst.h"
-#include "MoveList.h"
-#include "SimpleMoves.h"
 #include "Twiddle.h"
+#include "check.h"
+#include "options.h"
+#include "single.h"
+#include "hist.h"
+#include "const.h"
 
 using namespace std;
 
 
-extern singleType * singles[14];
-
-extern MoveList moveList;
+extern SingleType * singles[14];
+extern OptionsType options;
 
 
 #define SDS_MAXGROUPS 5
 
 struct PermGroup
 {
-  int bitShift;
-  int numCards;
-  int numLho;
+  unsigned bitShift;
+  unsigned numCards;
+  unsigned numLho;
 };
 
 
@@ -106,11 +106,11 @@ void FillBits(
   const int numGroups,
   const int cBase,
   const int compBits,
-  int suitLength,
+  unsigned suitLength,
   unsigned moveNo,
   Holding& holding,
-  const int rank,
-  const int histNo,
+  const unsigned rank,
+  const HistIndexType histNo,
   bool& newFlag);
 
 
@@ -197,46 +197,27 @@ void InitTwiddle(
 }
 
 
-int pctr = 0;
-bool pnew = true;
-int histGroup[SDS_MAXGROUPS] = {0};
-int nCall = 0;
-int nSet = 0;
-
-void PrintGroupHist()
-{
-  cout << "Group histogram\n";
-  for (int g = 0; g < SDS_MAXGROUPS; g++)
-    cout << setw(2) << g << setw(10) << histGroup[g] << "\n";
-  cout << "\n";
-  cout << "nCall " << nCall << " nSet " << nSet << "\n";
-}
-
-
 void SetAllPermutations(
-  const int& suitLength,
-  const int& counter,
+  const unsigned& suitLength,
+  const unsigned& counter,
   unsigned moveNo,
   Holding& holding,
-  const int rank,
-  const int histNo,
+  const unsigned rank,
+  const HistIndexType histNo,
   bool& newFlag)
 {
   PermGroup group[SDS_MAXGROUPS];
   int numGroups = 0;
   bool run = false;
-  int blockNo = 0;
+  unsigned blockNo = 0;
   group[0].numCards = 0;
   group[0].numLho = 0;
-
-pnew = true;
-nCall++;
 
   // Detect groups to be permuted.
   // Consciously include a zero byte to get the end of a run.
   while (blockNo < suitLength)
   {
-    int p = (counter >> (2*blockNo)) & 0x3;
+    unsigned p = (counter >> (2*blockNo)) & 0x3;
     if (p == QT_ACE || p == QT_PARD)
     {
       run = false;
@@ -261,21 +242,13 @@ nCall++;
     blockNo++;
   }
 
-histGroup[numGroups]++;
-// if (histNo == HIST_ACE_SHORT)
-// if (histNo == HIST_BLOCKED)
-// if (histNo == HIST_PARD_VOID)
-// if (histNo == HIST_CRASH)
-// if (histNo == HIST_SINGLE)
-// if (histNo == HIST_CASHES)
-  // CompareRecurse(moveNo, holding, histNo);
+  if (options.histCompare == histNo || options.histCompare == HIST_COMPLEX)
+    CompareRecurse(moveNo, holding, histNo);
 
   if (numGroups == 0)
   {
-nSet++;
     singles[suitLength][counter].moveNo = moveNo;
-    UpdateHist(histNo, suitLength, counter, rank, newFlag);
-    // CompareRecurse(moveNo, holding, histNo);
+    UpdateHist(histNo, singles[suitLength][counter].declLen, rank, newFlag);
     return;
   }
 
@@ -288,7 +261,7 @@ nSet++;
     mask ^= ((1 << (2*group[groupNo].numCards)) - 1) <<
       group[groupNo].bitShift;
   }
-  int cBase = counter & mask;
+  int cBase = static_cast<int>(counter) & mask;
 
   // Cycle recursively through the groups.
   FillBits(group, 0, numGroups, cBase, 0, 
@@ -302,18 +275,20 @@ void FillBits(
   const int numGroups,
   const int cBase,
   const int compBits,
-  int suitLength,
+  unsigned suitLength,
   unsigned moveNo,
   Holding& holding,
-  const int rank,
-  const int histNo,
+  const unsigned rank,
+  const HistIndexType histNo,
   bool& newFlag)
 {
-  int x, y, z, p[14], b[12];
+  int x, y, z;
+  unsigned b[12];
+  int p[14];
   bool newLocal = false;
 
-  const int n = group[groupNo].numCards;
-  const int m = group[groupNo].numLho;
+  const int n = static_cast<int>(group[groupNo].numCards);
+  const int m = static_cast<int>(group[groupNo].numLho);
   InitTwiddle(m, n, p);
 
   for (int i = 0; i < n-m; i++)
@@ -329,9 +304,9 @@ void FillBits(
     for (int i = 0; i < n; i++)
     {
       if (b[i] == 0)
-        compGroup |= (QT_RHO << (2*i));
+        compGroup |= (static_cast<int>(QT_RHO) << (2*i));
       else
-        compGroup |= (QT_LHO << (2*i));
+        compGroup |= (static_cast<int>(QT_LHO) << (2*i));
     }
 
     compGroup = (compGroup << group[groupNo].bitShift);
@@ -343,14 +318,9 @@ void FillBits(
       {
         singles[suitLength][c].moveNo = moveNo;
 
-        // if (histNo == HIST_CRASH)
-        UpdateHist(histNo, suitLength, c, rank, newFlag);
-nSet++;
+        UpdateHist(histNo, singles[suitLength][c].declLen, rank, newFlag);
 
-        // if (pnew)
-          // CompareRecurse(moveNo, holding, histNo);
         newFlag = false;
-        pnew = false;
       }
     }
     else

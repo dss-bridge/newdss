@@ -1,16 +1,16 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #include <assert.h>
 
-#include "cst.h"
+#include "Trick.h"
 #include "Segment.h"
+#include "Holding.h"
 
 using namespace std;
 
@@ -74,7 +74,7 @@ void Segment::PunchOut(
 
 
 void Segment::SetStart(
-  const posType start)
+  const PosType start)
 {
   assert(len > 0);
   list[len-1].SetStart(start);
@@ -84,7 +84,7 @@ void Segment::SetStart(
 }
 
 
-posType Segment::GetStart() const
+PosType Segment::GetStart() const
 {
   assert(len > 0);
   return list[len-1].trick.start;
@@ -92,28 +92,28 @@ posType Segment::GetStart() const
 
 
 void Segment::SetEnd(
-  const posType end)
+  const PosType end)
 {
   assert(len > 0);
   list[0].SetEnd(end);
 }
 
 
-posType Segment::GetEnd() const
+PosType Segment::GetEnd() const
 {
   assert(len > 0);
   return list[0].GetEnd();
 }
 
 
-unsigned int Segment::GetRanks() const
+unsigned Segment::GetRanks() const
 {
   assert(len > 0);
   return list[len-1].trick.ranks;
 }
 
 
-unsigned int Segment::GetLength() const
+unsigned Segment::GetLength() const
 {
   return len;
 }
@@ -135,7 +135,7 @@ void Segment::GetSummaryTrick(
   if (list[0].trick.ranks < summaryTrick.trick.ranks)
     summaryTrick.trick.ranks = list[0].trick.ranks;
 
-  posType e = list[0].trick.end;
+  PosType e = list[0].trick.end;
   if (e == QT_BOTH)
     summaryTrick.trick.end = QT_BOTH;
   else if (list[0].trick.start == QT_BOTH && list[1].trick.end != e)
@@ -145,7 +145,7 @@ void Segment::GetSummaryTrick(
 }
 
 
-cmpDetailType Segment::Compare(
+CmpDetailType Segment::Compare(
   const Segment& seg2) const
 {
   Trick t1;
@@ -426,13 +426,13 @@ bool Segment::FixRanks(
 }
 
 
-posType Segment::Connect(
+PosType Segment::Connect(
   const Segment& sPrepend)
 {
   // This arises when we collapse the first two segments in a TrickList.
   // It only works for segments of 1 or 2 tricks, which is the case.
 
-  posType pend = sPrepend.list[0].trick.end;
+  PosType pend = sPrepend.list[0].trick.end;
 
   list[0].trick.start = pend;
   if (len == 2)
@@ -463,8 +463,8 @@ posType Segment::Connect(
 
 bool Segment::Fix11(
   Segment& seg2,
-  fixType& fix1,
-  fixType& fix2)
+  FixType& fix1,
+  FixType& fix2)
 {
   fix1 = SDS_FIX_UNCHANGED;
   fix2 = SDS_FIX_UNCHANGED;
@@ -501,7 +501,7 @@ bool Segment::Fix11(
 
   if (t1.trick.start != QT_BOTH && t2.trick.start != QT_BOTH)
   {
-    cmpType c = t1.CashRankOrder(t2.trick.cashing, t2.trick.ranks);
+    CmpType c = t1.CashRankOrder(t2.trick.cashing, t2.trick.ranks);
     if (t1.trick.start == t2.trick.start)
     {
       if (t1.trick.end == QT_BOTH && 
@@ -537,7 +537,7 @@ bool Segment::Fix11(
   }
   else if (t1.trick.start == QT_BOTH && t2.trick.start == QT_BOTH)
   {
-    cmpType c = t1.CashRankOrder(t2.trick.cashing, t2.trick.ranks);
+    CmpType c = t1.CashRankOrder(t2.trick.cashing, t2.trick.ranks);
     if (t1.trick.end != QT_BOTH &&
         t2.trick.end == SDS_PARTNER[t1.trick.end])
     {
@@ -576,13 +576,13 @@ bool Segment::Fix11(
 
 bool Segment::Fix11_OneB(
   Segment& seg2,
-  fixType& fix1,
-  fixType& fix2) const
+  FixType& fix1,
+  FixType& fix2) const
 {
   const Trick& t1 = list[0];
   Trick& t2 = seg2.list[0];
 
-  cmpType c = t1.CashRankOrder(t2.trick.cashing, t2.trick.ranks);
+  CmpType c = t1.CashRankOrder(t2.trick.cashing, t2.trick.ranks);
 
   // CA: BA+AA where AA is better, BP+PP ditto.  Doesn't happen.
   // CB: BB+AB or PB where the latter is better.  Doesn't happen.
@@ -617,8 +617,8 @@ bool Segment::Fix11_OneB(
 
 bool Segment::Fix11_12(
   const Segment& seg2,
-  fixType& fix1,
-  fixType& fix2)
+  FixType& fix1,
+  FixType& fix2)
 {
   /* Two single segments with 1 and 2 Tricks, respectively.
      There are eight possibilities for seg2, considering that
@@ -669,7 +669,7 @@ bool Segment::Fix11_12(
   assert(t21.trick.end == SDS_PARTNER[t21.trick.start] &&
       t20.trick.start != SDS_PARTNER[t21.trick.end]);
 
-  cmpType c = t1.CashRankOrder(
+  CmpType c = t1.CashRankOrder(
       t20.trick.cashing + t21.trick.cashing,
       Min(t20.trick.ranks, t21.trick.ranks));
 
@@ -692,8 +692,8 @@ bool Segment::Fix11_12(
 bool Segment::Fix12(
   Segment& seg20,
   Segment& seg21,
-  fixType& fix1,
-  fixType& fix2)
+  FixType& fix1,
+  FixType& fix2)
 {
   /* One single segment versus two segments, all with length 1.
      We only want the candidates for weakening, not purging.
@@ -734,7 +734,7 @@ bool Segment::Fix12(
   Trick& t20 = seg20.list[0];
   Trick& t21 = seg21.list[0];
 
-  cmpType c = t1.CashRankOrder(
+  CmpType c = t1.CashRankOrder(
       t20.trick.cashing + t21.trick.cashing,
       Min(t20.trick.ranks, t21.trick.ranks));
 
@@ -819,8 +819,8 @@ bool Segment::Fix12(
 
 bool Segment::Fix1n(
   Segment& seg20,
-  fixType& fix1,
-  fixType& fix2) const
+  FixType& fix1,
+  FixType& fix2) const
 {
   if (len == 1 && seg20.len == 2 &&
       Segment::Fix1nSpecial(seg20, fix1, fix2))
@@ -833,8 +833,8 @@ bool Segment::Fix1n(
 bool Segment::Fix12Special(
   Segment& seg20,
   Segment& seg21,
-  fixType& fix1,
-  fixType& fix2) const
+  FixType& fix1,
+  FixType& fix2) const
 {
   // xAnr or xA-m1-s1 + BP-m2-s2 + AA-m3-s3,
   // with m1+m2+m3 and min(s1,s2,s3) <= n, r).
@@ -896,8 +896,8 @@ bool Segment::Fix12Special(
 
 bool Segment::Fix1nSpecial(
   Segment& seg20,
-  fixType& fix1,
-  fixType& fix2) const
+  FixType& fix1,
+  FixType& fix2) const
 {
   // APnr or AP-m1-s1 + PA-m2-s2 + P...
   // PAnr or PA-m1-s1 + AP-m2-s2 + A...

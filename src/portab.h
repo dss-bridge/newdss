@@ -1,11 +1,10 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #if defined(_WIN32)
   #if defined(__MINGW32__) && !defined(WINVER)

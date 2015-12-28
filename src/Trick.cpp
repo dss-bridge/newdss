@@ -1,18 +1,87 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
+#include <iomanip>
 #include <assert.h>
 
-#include "cst.h"
 #include "Trick.h"
+#include "Holding.h"
 
 using namespace std;
+
+
+const CmpDetailType cmpPlayToDetail[SDS_CMP_SIZE] =
+{
+  SDS_HEADER_SAME,
+  SDS_HEADER_PLAY_NEW_BETTER,
+  SDS_HEADER_PLAY_OLD_BETTER,
+  SDS_HEADER_PLAY_DIFFERENT
+};
+
+const CmpDetailType cmpRanksToDetail[SDS_CMP_SIZE] =
+{
+  SDS_HEADER_SAME,
+  SDS_HEADER_RANK_NEW_BETTER,
+  SDS_HEADER_RANK_OLD_BETTER,
+  SDS_HEADER_RANK_DIFFERENT
+};
+
+const CmpType cmpMergeMatrix[SDS_CMP_SIZE][SDS_CMP_SIZE] =
+{
+  // Same            New             Old             Diff
+  {  SDS_SAME,       SDS_NEW_BETTER, SDS_OLD_BETTER, SDS_DIFFERENT },
+  {  SDS_NEW_BETTER, SDS_NEW_BETTER, SDS_DIFFERENT,  SDS_DIFFERENT },
+  {  SDS_OLD_BETTER, SDS_DIFFERENT,  SDS_OLD_BETTER, SDS_DIFFERENT },
+  {  SDS_DIFFERENT,  SDS_DIFFERENT,  SDS_DIFFERENT,  SDS_DIFFERENT }
+};
+
+enum reachType
+{
+  SIDE_NONE = 0, 
+  SIDE_ACE = 1, 
+  SIDE_PARD = 2, 
+  SIDE_BOTH = 3, 
+  SIDE_SIZE = 4
+};
+
+const reachType posToReach[QT_SIZE] =
+{ 
+  SIDE_ACE, 
+  SIDE_NONE, 
+  SIDE_PARD, 
+  SIDE_NONE, 
+  SIDE_BOTH 
+};
+
+const reachType reachMap[SIDE_SIZE][QT_SIZE] =
+{
+  // LHO, RHO and BOTH as 2nd index can't happen.
+  // QT_ACE     QT_LHO     QT_PARD    QT_RHO     QT_BOTH 
+  {  SIDE_ACE,  SIDE_NONE, SIDE_PARD, SIDE_NONE, SIDE_NONE },
+  {  SIDE_ACE,  SIDE_NONE, SIDE_BOTH, SIDE_NONE, SIDE_NONE },
+  {  SIDE_BOTH, SIDE_NONE, SIDE_PARD, SIDE_NONE, SIDE_NONE },
+  {  SIDE_BOTH, SIDE_NONE, SIDE_BOTH, SIDE_NONE, SIDE_NONE }
+};
+
+const CmpType reachMatrix[SIDE_SIZE][SIDE_SIZE] =
+{
+  // NONE            ACE             PARD            BOTH
+  {  SDS_SAME,       SDS_NEW_BETTER, SDS_NEW_BETTER, SDS_NEW_BETTER },
+  {  SDS_OLD_BETTER, SDS_SAME,       SDS_DIFFERENT,  SDS_NEW_BETTER },
+  {  SDS_OLD_BETTER, SDS_DIFFERENT,  SDS_SAME,       SDS_NEW_BETTER },
+  {  SDS_OLD_BETTER, SDS_OLD_BETTER, SDS_OLD_BETTER, SDS_SAME }
+};
+
+const char POS_NAMES[QT_SIZE][10] =
+{
+  "Ace", "LHO", "Pard", "RHO", "Both"
+};
+
 
 
 Trick::Trick()
@@ -32,8 +101,8 @@ void Trick::Reset()
 
 
 void Trick::Set(
-  const posType start,
-  const posType end,
+  const PosType start,
+  const PosType end,
   const unsigned ranks,
   const unsigned cashing)
 {
@@ -45,26 +114,26 @@ void Trick::Set(
 
 
 void Trick::SetStart(
-  const posType start)
+  const PosType start)
 {
   trick.start = start;
 }
 
 
 void Trick::SetEnd(
-  const posType end)
+  const PosType end)
 {
   trick.end = end;
 }
 
 
-posType Trick::GetStart() const
+PosType Trick::GetStart() const
 {
   return trick.start;
 }
 
 
-posType Trick::GetEnd() const
+PosType Trick::GetEnd() const
 {
   return trick.end;
 }
@@ -145,7 +214,7 @@ void Trick::Localize(
 }
 
 
-appendType Trick::Prepend(
+AppendType Trick::Prepend(
   const Trick& tPrep,
   const bool mergeSpecialFlag,
   const bool lastFlag)
@@ -193,7 +262,7 @@ appendType Trick::Prepend(
   // The ending side is generally trick.end.
   // This gets overridden to QT_BOTH in some lastFlag cases.
   // This in turn gets overridden in some special void cases below.
-  posType newEnd;
+  PosType newEnd;
 
   if (lastFlag &&
       trick.start == QT_BOTH &&
@@ -282,7 +351,7 @@ bool Trick::ReduceBoth(
 }
 
 
-cmpType Trick::CashRankOrder(
+CmpType Trick::CashRankOrder(
   const unsigned char c,
   const unsigned char r) const
 {
@@ -299,9 +368,9 @@ cmpType Trick::CashRankOrder(
 }
 
 
-cmpType Trick::ComparePlay(
+CmpType Trick::ComparePlay(
   const Trick& t1,
-  const posType side) const
+  const PosType side) const
 {
   reachType oldReach = posToReach[trick.end];
   reachType newReach = posToReach[t1.trick.end];
@@ -312,11 +381,11 @@ cmpType Trick::ComparePlay(
   if (t1.trick.start == QT_BOTH)
     newReach = reachMap[newReach][side];
 
-  cmpType runningScore = reachMatrix[oldReach][newReach];
+  CmpType runningScore = reachMatrix[oldReach][newReach];
   if (runningScore == SDS_DIFFERENT)
     return SDS_DIFFERENT;
 
-  cmpType trickScore;
+  CmpType trickScore;
   if (trick.cashing > t1.trick.cashing)
     trickScore = SDS_OLD_BETTER;
   else if (trick.cashing < t1.trick.cashing)
@@ -328,16 +397,16 @@ cmpType Trick::ComparePlay(
 }
 
 
-cmpDetailType Trick::Compare(
+CmpDetailType Trick::Compare(
   const Trick& t1) const
 {
-  cmpType sideScore =
+  CmpType sideScore =
     reachMatrix[posToReach[trick.start]][posToReach[t1.trick.start]];
-  cmpType runningScore = sideScore;
+  CmpType runningScore = sideScore;
   if (runningScore == SDS_DIFFERENT)
     return SDS_HEADER_PLAY_DIFFERENT;
 
-  cmpType playScore;
+  CmpType playScore;
   if (sideScore == SDS_OLD_BETTER)
     playScore = Trick::ComparePlay(t1, t1.trick.start);
   else if (sideScore == SDS_NEW_BETTER)
@@ -346,8 +415,8 @@ cmpDetailType Trick::Compare(
     playScore = Trick::ComparePlay(t1, trick.start);
   else
   {
-    cmpType playScore1 = Trick::ComparePlay(t1, QT_ACE);
-    cmpType playScore2 = Trick::ComparePlay(t1, QT_PARD);
+    CmpType playScore1 = Trick::ComparePlay(t1, QT_ACE);
+    CmpType playScore2 = Trick::ComparePlay(t1, QT_PARD);
     playScore = cmpMergeMatrix[playScore1][playScore2];
   }
 
@@ -361,7 +430,7 @@ cmpDetailType Trick::Compare(
   if (runningScore != SDS_SAME)
     return cmpPlayToDetail[runningScore];
 
-  cmpType rankScore;
+  CmpType rankScore;
   if (trick.ranks > t1.trick.ranks)
     rankScore = SDS_OLD_BETTER;
   else if (trick.ranks < t1.trick.ranks)
@@ -381,8 +450,8 @@ void Trick::Print(
   ostream& out) const
 {
   out <<
-    setw(6) << SDS_POS_NAMES[trick.start] <<
-    setw(6) << SDS_POS_NAMES[trick.end] <<
+    setw(6) << POS_NAMES[trick.start] <<
+    setw(6) << POS_NAMES[trick.end] <<
     setw(6) << static_cast<unsigned>(trick.cashing) <<
     setw(8) << SDS_RANK_NAMES[trick.ranks] << "\n";
 }

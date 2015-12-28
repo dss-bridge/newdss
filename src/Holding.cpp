@@ -1,26 +1,24 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <string>
 
-using namespace std;
-
-// #include <stdio.h>
 #include <string.h>
-// #include <stdlib.h>
 #include <assert.h>
 
-#include "cst.h"
 #include "Holding.h"
+#include "const.h"
+
+using namespace std;
+
 
 Holding::Holding()
 {
@@ -33,10 +31,10 @@ Holding::~Holding()
 
 
 void Holding::Set(
-  const int sl,
-  const int c)
+  const unsigned sl,
+  const unsigned c)
 {
-  this->suitLength = static_cast<unsigned>(sl);
+  this->suitLength = sl;
   this->counter = c;
 
   Holding::MakeRanks();
@@ -84,9 +82,6 @@ const Trick Holding::GetTrick() const
   trick.Set(side, winSide, Holding::GetPrependRank(), 1);
   return trick;
 }
-
-
-// #define HOLD_DEBUG
 
 
 void Holding::RewindLead()
@@ -152,13 +147,6 @@ void Holding::RewindLead()
     else
     {
       // Order is 2-1-0-3 and LHO may or may not cover.
-      /*
-      leadList[numLeads] = lrHi;
-      if (lrLo != lrHi)
-        multiLead[lrHi] = true;
-      numLeads++;
-      */
-
       // Consider all the options.
       for (int mm = lrLo; mm <= lrHi; mm++)
       {
@@ -167,12 +155,6 @@ void Holding::RewindLead()
       }
     }
   }
-
-#ifdef HOLD_DEBUG
-  cout << "Leads for side " << side << ":\n";
-  for (int i = 0; i < numLeads; i++)
-    cout << setw(2) << i << "  " << i << "\n";
-#endif
 }
 
 
@@ -203,33 +185,21 @@ void Holding::RewindLho()
       // Could also be void.
       lhoList[numLhos] = c;
       numLhos++;
-#ifdef HOLD_DEBUG
-cout << "P0 " << l << "\n";
-#endif
       continue;
     }
     else if (c < leadRank)
     {
       // Only the lowest of these cards counts.
-#ifdef HOLD_DEBUG
-cout << "R1 " << l << "\n";
-#endif
       continue;
     }
     else if (c < minRank[pard])
     {
       // No point in going higher.
-#ifdef HOLD_DEBUG
-cout << "R2 " << l << "\n";
-#endif
       continue;
     }
     else if (c < cardListHi[rho][0])
     {
       // RHO has a higher card anyway.
-#ifdef HOLD_DEBUG
-cout << "R3 " << l << "\n";
-#endif
       continue;
     }
     else
@@ -240,9 +210,6 @@ cout << "R3 " << l << "\n";
         // No lower card that still beats the lead
         lhoList[numLhos] = c;
         numLhos++;
-#ifdef HOLD_DEBUG
-cout << "P4 " << l << "\n";
-#endif
         continue;
       }
 
@@ -252,9 +219,6 @@ cout << "P4 " << l << "\n";
         if (pc < nextDown)
         {
           // Nothing more forthcoming
-#ifdef HOLD_DEBUG
-cout << "R5 " << l << " i " << i << " nextDown " << nextDown << "\n";
-#endif
           break;
         }
         else if (pc < c)
@@ -262,23 +226,11 @@ cout << "R5 " << l << " i " << i << " nextDown " << nextDown << "\n";
           // Partner has finesse, so the card is useful.
           lhoList[numLhos] = c;
           numLhos++;
-#ifdef HOLD_DEBUG
-cout << "P6 " << l << "\n";
-#endif
           break;
         }
       }
-#ifdef HOLD_DEBUG
-cout << "R7 " << l << "\n";
-#endif
     }
   }
-
-#ifdef HOLD_DEBUG
-  cout << "LHO for side " << sie << " lead " << leadRank << ":\n";
-  for (int i = 0; i < numLhos; i++)
-    cout << setw(2) << i << "  " << lhoList[i] << "\n";
-#endif
 }
 
 
@@ -299,13 +251,6 @@ void Holding::RewindPard()
     pardList[numPards] = (prLo > leadRank ? prHi : prLo);
     numPards++;
   }
-
-#ifdef HOLD_DEBUG
-  cout << ("Pard for side " << side << " lead " << leadRank <<
-    " LHO " << lhoRank << ":\n";
-  for (int i = 0; i < numPards; i++)
-    cout << setw(2) << i << "  " << pardList[i];
-#endif
 }
 
 
@@ -316,9 +261,6 @@ bool Holding::NextLead()
 
   leadRank = leadList[leadCurrIndex];
   leadCurrIndex++;
-#ifdef HOLD_DEBUG
-  cout << "Play lead " << leadRank << "\n";
-#endif
   return true;
 }
 
@@ -329,9 +271,6 @@ bool Holding::NextLho()
     return false;
 
   lhoRank = lhoList[lhoCurrIndex];
-#ifdef HOLD_DEBUG
-  cout << "Play LHO " << lhoRank << "\n";
-#endif
   lhoCurrIndex++;
   maxDefRun = Max(lhoRank, cardListHi[rho][0]);
   return true;
@@ -350,19 +289,15 @@ bool Holding::NextPard()
   {
     winSide = side;
     if (maxDef == -1 && length[QT_PARD] == 0)
-      winRank = static_cast<int>(suitLength); // This means "void"
+      winRank = suitLength; // This means "void"
     else
-      winRank = leadRank;
+      winRank = static_cast<unsigned>(leadRank);
   }
   else
   {
     winSide = pard;
-    winRank = pardRank;
+    winRank = static_cast<unsigned>(pardRank);
   }
-
-#ifdef HOLD_DEBUG
-  cout << "Play pard " << pardRank << "\n";
-#endif
   return true;
 }
 
@@ -374,21 +309,21 @@ void Holding::SetRhoNo()
 }
 
 
-posType Holding::GetSide() const
+PosType Holding::GetSide() const
 {
   return side;
 }
 
 
-posType Holding::GetWinSide()
+PosType Holding::GetWinSide()
 {
   return winSide;
 }
 
 
-int Holding::GetPrependRank() const
+unsigned Holding::GetPrependRank() const
 {
-  return static_cast<int>
+  return static_cast<unsigned>
     (SDS_ACE - (suitLength - static_cast<unsigned>(winRank) - 1));
 }
 
@@ -407,13 +342,13 @@ int Holding::GetMaxOppRank()
 }
 
 
-int Holding::GetSuitLength() const
+unsigned Holding::GetSuitLength() const
 {
-  return static_cast<int>(suitLength);
+  return suitLength;
 }
 
 
-int Holding::GetCounter() const
+unsigned Holding::GetCounter() const
 {
   return counter;
 }
@@ -421,7 +356,7 @@ int Holding::GetCounter() const
 
 unsigned Holding::GetLength(const int player) const
 {
-  assert(player >= 0 && player < DDS_HANDS);
+  assert(player >= 0 && player < SDS_HANDS);
   return length[player];
 }
 
@@ -444,7 +379,8 @@ unsigned Holding::GetLHOMaxRank() const
   if (m == -1)
     return 0;
   else
-    return SDS_VOID - (static_cast<int>(suitLength) - m);
+    return static_cast<unsigned>(
+      SDS_VOID - (static_cast<int>(suitLength) - m));
 }
 
 
@@ -456,9 +392,9 @@ bool Holding::IsAATrick() const
 
 void Holding::MakeRanks()
 {
-  int h, p, r;
+  unsigned h, p, r;
 
-  for (h = 0; h < DDS_HANDS; h++)
+  for (h = 0; h < SDS_HANDS; h++)
   {
     cardNo[h] = 0;
     length[h] = 0;
@@ -475,13 +411,13 @@ void Holding::MakeRanks()
   cardListHi[QT_ACE][0] = static_cast<int>(suitLength-1);
 
   length[QT_ACE] = 1;
-  completeList[QT_ACE][0] = static_cast<int>(suitLength-1);
+  completeList[QT_ACE][0] = suitLength-1;
 
-  int hlast = QT_ACE;
+  unsigned hlast = QT_ACE;
 
   for (int m = static_cast<int>(suitLength)-2; m >= 0; m--)
   {
-    p = (counter >> (2*m)) & 3;
+    p = (counter >> (2*static_cast<unsigned>(m))) & 3;
 
     // Play lowest of equals, other than the ace.
     if (p == hlast)
@@ -498,11 +434,11 @@ void Holding::MakeRanks()
 
     hlast = p;
 
-    completeList[p][length[p]] = m;
+    completeList[p][length[p]] = static_cast<unsigned>(m);
     length[p]++;
   }
 
-  for (h = 0; h < DDS_HANDS; h++)
+  for (h = 0; h < SDS_HANDS; h++)
   {
     if (cardNo[h])
       continue;
@@ -513,7 +449,7 @@ void Holding::MakeRanks()
     cardNo[h] = 1;
   }
 
-  for (h = 0; h < DDS_HANDS; h++)
+  for (h = 0; h < SDS_HANDS; h++)
     minRank[h] = cardListLo[h][cardNo[h]-1];
 
   maxDef = Max(cardListLo[QT_LHO][0], cardListLo[QT_RHO][0]);
@@ -531,7 +467,7 @@ unsigned Holding::GetNumTops()
 }
 
 
-posType Holding::GetOppBest()
+PosType Holding::GetOppBest()
 {
   if (length[QT_LHO] == 0)
     return QT_RHO;
@@ -552,7 +488,7 @@ posType Holding::GetOppBest()
 }
 
 
-const int loMask[13] =
+const unsigned loMask[13] =
 {
   0x000000, // 2
   0x000003, // 3
@@ -569,7 +505,7 @@ const int loMask[13] =
   0xffffff  // A
 };
 
-const int hiMask[13] =
+const unsigned hiMask[13] =
 {
   0xfffffc, // 2
   0xfffff0, // 3
@@ -587,37 +523,40 @@ const int hiMask[13] =
 };
 
 
-void Holding::AdjustWinRank(
-  const int used[])
+void Holding::AdjustWinRank()
 {
   // We only adjust winRank when the lead wins and when the defense
   // has a card higher than the winner (so a finesse).
-  if (winRank != leadRank || winRank > maxDef)
+  if (static_cast<int>(winRank) != leadRank || static_cast<int>(winRank) > maxDef)
     return;
 
   // We look for the next rank down, skipping over played cards.
-  int soughtRank = winRank-1;
-  if (soughtRank == lhoRank)
+  unsigned soughtRank = winRank-1;
+  if (soughtRank == static_cast<unsigned>(lhoRank))
   {
+    if (soughtRank == 0) return;
     soughtRank--;
-    if (soughtRank == rhoRank)
+    if (soughtRank == static_cast<unsigned>(rhoRank))
+    {
+      if (soughtRank == 0) return;
       soughtRank--;
+    }
   }
-  else if (soughtRank == rhoRank)
+  else if (soughtRank == static_cast<unsigned>(rhoRank))
   {
+    if (soughtRank == 0) return;
     soughtRank--;
-    if (soughtRank == lhoRank)
+    if (soughtRank == static_cast<unsigned>(lhoRank))
+    {
+      if (soughtRank == 0) return;
       soughtRank--;
+    }
   }
-
-  if (soughtRank == -1)
-    return;
-// cout << "AWR soughtRank " << soughtRank << "\n";
 
   // If declarer holds that card, 
-  if (leadCurrIndex < numLeads && leadList[leadCurrIndex] == soughtRank)
+  if (leadCurrIndex < numLeads && leadList[leadCurrIndex] == 
+    static_cast<int>(soughtRank))
   {
-// cout << "AWR1 adjusting from " << winRank << " to " << soughtRank << "\n";
     winRank = soughtRank;
   }
   else
@@ -627,7 +566,6 @@ void Holding::AdjustWinRank(
     {
       if (completeList[pard][p] == soughtRank)
       {
-// cout << "AWR2 adjusting from " << winRank << " to " << soughtRank << "\n";
         winRank = soughtRank;
         return;
       }
@@ -637,8 +575,8 @@ void Holding::AdjustWinRank(
 
 
 bool Holding::MakePlay(
-  int& slNew,
-  int& cNew)
+  unsigned& slNew,
+  unsigned& cNew)
 {
   // true if a move can be looked up, false if the trick is the
   // last one that can be won by declarer.
@@ -647,7 +585,7 @@ bool Holding::MakePlay(
   // highest of equals in order to have the most sparing use of ranks.  
   // If not, the lowest of equals for the same reason.
 
-  slNew = static_cast<int>(suitLength);
+  slNew = suitLength;
   cNew = counter;
 
   int used[13] = {0};
@@ -699,7 +637,7 @@ bool Holding::MakePlay(
   else if (pardRank != -1)
     used[pardRank] = 1;
 
-  Holding::AdjustWinRank(used);
+  Holding::AdjustWinRank();
 
   for (int u = static_cast<int>(suitLength)-2; u >= 0; u--)
   {
@@ -735,7 +673,7 @@ bool Holding::MakePlay(
     // cNew is in a sense done already, as the "ace" is implicit.
     // But we have to check who has the new "ace".
 
-    posType newTop = static_cast<posType>((cNew >> 2*(slNew-1)) & 0x3);
+    PosType newTop = static_cast<PosType>((cNew >> 2*(slNew-1)) & 0x3);
     if (newTop == QT_LHO || newTop == QT_RHO)
     {
       // This was the last quick trick for declarer.
@@ -751,11 +689,11 @@ bool Holding::MakePlay(
 
   if (aceFlip)
   {
-    int cFlip = cNew;
-    int flipBit;
-    for (int s = 0; s < slNew; s++)
+    unsigned cFlip = cNew;
+    unsigned flipBit;
+    for (unsigned s = 0; s < slNew; s++)
     {
-      flipBit = 0x2 << (2*s);
+      flipBit = static_cast<unsigned>(0x2) << (2*s);
       cFlip ^= flipBit;
     }
 
@@ -794,16 +732,16 @@ int Holding::GetNewRank(int r) const
   // Used when updating a looked-up trick list and appending
   // a new trick.
 
-  int rNew = rankMap[r];
+  unsigned rNew = static_cast<unsigned>(rankMap[r]);
 
   // Normally PP1Q + BA1A = PP1A + BA1- = PA2Q.
   // But there is a special Prepend case where it becomes PA2A.
   // So we can't throw away that information.
 
   if (mergeSpecialFlag)
-    return rNew;
+    return static_cast<int>(rNew);
   else
-    return (Holding::GetPrependRank() < rNew ? SDS_VOID : rNew);
+    return static_cast<int>((Holding::GetPrependRank() < rNew ? SDS_VOID : rNew));
 }
 
 
@@ -813,68 +751,56 @@ bool Holding::GetMergeType() const
 }
 
 
-unsigned Holding::PlayerTopsOverRank(
-  const posType& player,
-  const int& rank)
+unsigned Holding::TopsOverRank(
+  const PosType& player,
+  const unsigned& rank) const
 {
-  // TODO No c???
-  unsigned i = 0;
   unsigned c = 0;
-  while (i < length[player] && completeList[player][i] > rank)
-  {
-    c++;
-    i++;
-  }
-
+  for (; c < length[player]; c++)
+    if (completeList[player][c] < rank)
+      break;
   return c;
 }
 
 
-void Holding::FlipAceToPard(
-  int& maskFull,
-  int& cFlipped)
+unsigned Holding::FlipTops(
+  const unsigned numTops,
+  const unsigned nMask)
 {
-  cFlipped = counter;
-  maskFull = (1 << (2*(suitLength-1))) - 1;
+  unsigned cFlipped = counter;
+  unsigned maskFull = (1u << (2*(suitLength-1))) - 1u;
 
-  for (int n = 0; n < static_cast<int>(suitLength)-1; n++)
+  for (unsigned n = 0; n < suitLength-1; n++)
   {
-    int mask = 0x3 << (2*n);
-    int p = counter & mask;
+    unsigned mask = 0x3u << (2*n);
+    unsigned p = counter & mask;
     // TODO: This look wrong! Only works for bottom bit?
     if (p == QT_ACE)
-      cFlipped = (cFlipped & (maskFull ^ mask)) | (QT_PARD << (2*n));
+      cFlipped = (cFlipped & (maskFull ^ mask)) | 
+        (static_cast<unsigned>(QT_PARD) << (2*n));
   }
-}
-
-
-int Holding::FlipTops(
-  const int numTops,
-  const int nMask)
-{
-  int maskFull, cFlipped;
-  Holding::FlipAceToPard(maskFull, cFlipped);
 
   // Ace is implicit
-  int expMask = 0;
-  for (int n = 0; n < numTops-1; n++)
+  unsigned expMask = 0;
+  for (unsigned n = 0; n < numTops-1u; n++)
   {
-    if (nMask & (1 << n))
-      expMask |= (0x3 << (2*n));
+    if (nMask & (1u << n))
+      expMask |= (0x3u << (2*n));
   }
 
-  expMask = (expMask << 2*(static_cast<int>(suitLength)-numTops));
+  expMask = (expMask << 2*(suitLength-numTops));
 
-  if (nMask & (1 << (numTops-1))) // Ace also to be flipped
+  if (nMask & (1u << (numTops-1))) // Ace also to be flipped
     return (expMask & counter) | ((maskFull ^ expMask) & cFlipped);
   else
     return (expMask & cFlipped) | ((maskFull ^ expMask) & counter);
 }
 
 
-unsigned Holding::ListToRank(const int listValue)
+unsigned Holding::ListToRank(
+  const unsigned listValue) const
 {
-  return (SDS_VOID - suitLength + static_cast<unsigned>(listValue));
+  return (SDS_VOID - suitLength + listValue);
   
 }
 
@@ -909,7 +835,7 @@ void Holding::ToText(
   int pl;
   for (int m = static_cast<int>(suitLength)-2; m >= 0; m--)
   {
-    pl = (counter >> (2*m)) & 3;
+    pl = (static_cast<int>(counter) >> (2*m)) & 3;
     * p[pl] = SDS_RANK_NAMES[r];
     p[pl]++;
     r--;
@@ -936,7 +862,7 @@ void Holding::ToText(
 void Holding::PrintRanks() const
 {
   cout << "Lowest new ranks\n";
-  for (unsigned i = 0; i < DDS_HANDS; i++)
+  for (unsigned i = 0; i < SDS_HANDS; i++)
   {
     if (cardNo[i] > 13)
     {
@@ -952,7 +878,7 @@ void Holding::PrintRanks() const
   cout << "\n";
 
   cout << "Highest new ranks\n";
-  for (unsigned i = 0; i < DDS_HANDS; i++)
+  for (unsigned i = 0; i < SDS_HANDS; i++)
   {
     cout << i << ": " << setw(2) << cardNo[i] << ", ";
     for (unsigned j = 0; j < cardNo[i]; j++)
@@ -962,7 +888,7 @@ void Holding::PrintRanks() const
   cout << "\n";
 
   cout << "Complete ranks\n";
-  for (unsigned i = 0; i < DDS_HANDS; i++)
+  for (unsigned i = 0; i < SDS_HANDS; i++)
   {
     cout << i << ": " << setw(2) << length[i] << ", ";
     for (unsigned j = 0; j < length[i]; j++)

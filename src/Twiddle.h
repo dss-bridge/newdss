@@ -1,24 +1,25 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #ifndef SDS_TWIDDLE_H
 #define SDS_TWIDDLE_H
 
+#include "hist.h"
+
+class Holding;
+
 void SetAllPermutations(
-  const int& suitLength,
-  const int& counter,
+  const unsigned& suitLength,
+  const unsigned& counter,
   unsigned moveNo,
   Holding& holding,
-  const int rank,
-  const int histNo,
+  const unsigned rank,
+  const HistIndexType histNo,
   bool& newFlag);
-
-void PrintGroupHist();
 
 #endif

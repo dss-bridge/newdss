@@ -1,27 +1,29 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
-#include <iostream>
-
-// #include <stdio.h>
+#include <iomanip>
 #include <assert.h>
 
-#include "portab.h"
-
-#include "cst.h"
+#include "Header.h"
+#include "Trick.h"
 #include "DefList.h"
 #include "MoveList.h"
-#include "SimpleMoves.h"
 #include "ComplexMoves.h"
-#include "Stats.h"
+#include "stats.h"
+#include "portab.h"
+#include "files.h"
+#include "single.h"
+#include "options.h"
+#include "summary.h"
+#include "hist.h"
 
 using namespace std;
+
 
 /*
    The multi-threading is rather simple:  Each thread gets a
@@ -31,36 +33,28 @@ using namespace std;
    OPENMP multi-threading is untested.
 */
 
-#define SDS_BATCHSIZE 1000
-#define SDS_MAXHOLDINGS (MAXNOOFCORES * SDS_BATCHSIZE)
+#define SDS_BATCH_SIZE 1000
+#define SDS_MAX_HOLDINGS (SDS_MAX_CORES * SDS_BATCH_SIZE)
 
 
-extern int noOfCores;
-
-extern singleType * singles[14];
-
+extern FilesType files;
+extern OptionsType options;
+extern SingleType * singles[14];
 extern MoveList moveList;
-
-extern int histCount[HIST_SIZE][14], histRank[HIST_SIZE][14];
-extern int histMoveCount[HIST_SIZE][14], histMoveRank[HIST_SIZE][14];
-
-extern bool debugComplex;
+extern SummaryType summary;
 
 
 // Globals for multi-threading.
-Holding holdingList[SDS_MAXHOLDINGS];
-
-DefList defList1[SDS_MAXHOLDINGS];
-DefList defList2[SDS_MAXHOLDINGS];
-
-int batchLen;
-
+Holding holdingList[SDS_MAX_HOLDINGS];
+DefList defList1[SDS_MAX_HOLDINGS];
+DefList defList2[SDS_MAX_HOLDINGS];
+unsigned batchLen;
 
 
 bool MakeComplexTables(
-  int& slStart,
-  int& cStart,
-  const int dlen);
+  unsigned& slStart,
+  unsigned& cStart,
+  const unsigned dlen);
 
 int MakeComplexDistribute();
 
@@ -89,73 +83,79 @@ void DumpStatus(
   DefList& def2,
   const char text[]);
 
-void DumpStatus(
+void DumpMoves(
+  ostream& out,
+  const Holding& holding,
   DefList& def1,
   DefList& def2,
-  const char text[],
-  const int val);
-
-void DumpStatus(
-  DefList& def1,
-  DefList& def2,
-  const char text[],
-  const int val1,
-  const int val2);
-
-void DumpStatus(
-  DefList& def,
-  const char text[],
-  const int val1,
-  const int val2);
-
+  unsigned& count);
 
 void MakeComplexMoves()
 {
-  int hist[14] = {0};
+  DefList def1, def2;
+  Holding holding;
   bool newFlag;
 
-  // General case.
-  Holding holding;
-
-  for (int dlen = 2; dlen <= 13; dlen++)
+  for (unsigned dlen = 2; dlen <= 13; dlen++)
   {
-    for (int sl = 1; sl <= 13; sl++)
+    for (unsigned sl = 1; sl <= 13; sl++)
     {
-      for (int c = 0; c < SDS_NUMSINGLES[sl]; c++)
+      cout << "\nComplex moves (dlen " << dlen << "): " << sl << "\n";
+
+      for (unsigned c = 0; c < SDS_NUM_SINGLES[sl]; c++)
       {
-        if (singles[sl][c].moveNo)
+        if ((c & 0x3ffff) == 0)
+        {
+          cout << "Count " <<
+            setw(8) << c << " (" <<
+            setw(5) << fixed << setprecision(2) <<
+            100. * c / SDS_NUM_SINGLES[sl] << "%)" << endl;
+        }
+
+        if (singles[sl][c].moveNo || singles[sl][c].declLen != dlen)
           continue;
 
-        if (singles[sl][c].declLen != dlen)
-          continue;
-
-// if (sl == 10 && c == 0x81aa)
-  // debugComplex = true;
-// else
-  // debugComplex = false;
-// cout << setw(2) << dlen << 
-// setw(3) << sl << " " << setw(3) << hex << c << dec << endl;
         holding.Set(sl, c);
-        DefList def1, def2;
-
+        def1.Reset();
+        def2.Reset();
         MakeComplexSingleMove(holding, def1, def2);
 
         StartTimer();
-        singles[sl][c].moveNo = moveList.AddMoves(def1, def2, 
+        singles[sl][c].moveNo = moveList.AddMove(def1, def2, 
           holding, newFlag);
         EndTimer();
 
-        histCount[HIST_COMPLEX][dlen]++;
-        // Header& header = singles[sl][c].defp->GetHeader();
-        // int r = static_cast<int>(header.GetMaxRank());
-        unsigned r = moveList.GetMaxRank(singles[sl][c].moveNo);
-        histRank[HIST_COMPLEX][r]++;
-
-        if (newFlag)
+        if (options.findFlag)
         {
-          histMoveCount[HIST_COMPLEX][dlen]++;
-          histMoveRank[HIST_COMPLEX][r]++;
+          // To help in table development, certain tricks are printed.
+          unsigned t = moveList.GetSymmTricks(singles[sl][c].moveNo);
+          if (t == 0)
+            continue;
+
+          unsigned gl1 = holding.GetLength(QT_ACE);
+          unsigned gl2 = holding.GetLength(QT_PARD);
+          unsigned gl = Max(gl1, gl2);
+
+          if (t < gl)
+            DumpMoves(files.simpleShort, holding, 
+              def1, def2, summary.countShort);
+          else if (gl1 == gl2)
+            DumpMoves(files.simpleEqual, holding, 
+              def1, def2, summary.countEqual);
+          else
+            DumpMoves(files.simpleDiff, holding, 
+              def1, def2, summary.countDiff);
+
+          // Other possibility:
+          // unsigned c = holding.GetCounter();
+          // unsigned s = holding.GetSuitLength();
+          // unsigned top = c >> (2*s - 8);
+          // Specialized: AKQJ with ace.
+          // if (top == 0) ...
         }
+
+        unsigned r = moveList.GetMaxRank(singles[sl][c].moveNo);
+        UpdateHist(HIST_COMPLEX, singles[sl][c].declLen, r, newFlag);
       }
     }
   }
@@ -167,8 +167,11 @@ void MakeComplexSingleMove(
   DefList& def1,
   DefList& def2)
 {
-holding.Print(cout);
-cout.flush();
+  if (options.numCores == 1)
+  {
+    holding.Print(files.track);
+    files.track.flush();
+  }
 
   assert(holding.GetLength(QT_ACE) > 0);
   if (holding.GetLength(QT_PARD) == 0)
@@ -178,7 +181,6 @@ cout.flush();
   }
   else
   {
-
     holding.SetSide(QT_ACE);
     BestMoveAfterSide(holding, def1);
 
@@ -186,62 +188,22 @@ cout.flush();
     BestMoveAfterSide(holding, def2);
   }
 
-
-#if 0
-  int gl1 = holding.GetLength(QT_ACE);
-  int gl2 = holding.GetLength(QT_PARD);
-  int gl = Max(gl1, gl2);
-  // int c = holding.GetCounter();
-  // int s = holding.GetSuitLength();
-  // int top = c >> (2*s - 8);
-
-  unsigned t1 = def1.GetHeader().CheckManual();
-  unsigned t2 = def2.GetHeader().CheckManual();
-
-  manualMoveType m;
-  if (t1 == 0 || t2 == 0)
-    m = MANUAL_NONE;
-  else if (t1 < gl || t2 < gl)
-    m = MANUAL_SHORT;
-  else
-    m = MANUAL_LONG;
-
-  // Suit doesn't cash (SHORT).
-  // if (m == MANUAL_SHORT)
-
-  // Suit cashes completely.  Same length ace-pard (EQUAL)
-  // if (m == MANUAL_ALL && gl1 == gl2)
-
-  // Suit cashes completely.  Not same length ace-pard (DIFF)
-  if (m == MANUAL_ALL && gl1 != gl2)
-
-  // Specialized: AKQJ with ace.
-  // if (top == 0)
-
-  {
-    holding.Print(cout);
-    def1.Print(cout);
-    cout << "-\n";
-    def2.Print(cout);
-  }
-#endif
-
-  if (debugComplex)
+  if (options.debugFlow)
     DumpStatus(def1, def2, "MakeComplexSingleMove");
 }
 
 
 bool MakeComplexTables(
-  int& slStart,
-  int& cStart,
-  const int dlen)
+  unsigned& slStart,
+  unsigned& cStart,
+  const unsigned dlen)
 {
   batchLen = 0;
 
-  for (int sl = slStart; sl <= 13; sl++)
+  for (unsigned sl = slStart; sl <= 13; sl++)
   {
-    int cs = (sl == slStart ? cStart : 0);
-    for (int c = 0; c < SDS_NUMSINGLES[sl]; c++)
+    unsigned cs = (sl == slStart ? cStart : 0);
+    for (unsigned c = 0; c < SDS_NUM_SINGLES[sl]; c++)
     {
       if (singles[sl][c].moveNo)
         continue;
@@ -252,8 +214,7 @@ bool MakeComplexTables(
       holdingList[batchLen].Set(sl, c);
 
       batchLen++;
-      // if (batchLen == SDS_MAXHOLDINGS)
-      if (batchLen == noOfCores * SDS_BATCHSIZE)
+      if (batchLen == options.numCores * SDS_BATCH_SIZE)
       {
         slStart = sl;
         cStart = c+1;
@@ -271,54 +232,33 @@ void MakeComplexMovesParallel()
 {
   bool newFlag;
 
-  for (int dlen = 2; dlen <= 13; dlen++)
+  for (unsigned dlen = 2; dlen <= 13; dlen++)
   {
-    int slStart = 1, cStart = 0;
+    unsigned slStart = 1, cStart = 0;
     bool flag;
     cout << "\nDeclaring length " << dlen << ":\n";
 
-    double histRest = histCount[HIST_ORIG_COUNT][dlen];
-    for (int hno = 1; hno < HIST_COMPLEX; hno++)
-      histRest -= histCount[hno][dlen];
-    if (histRest < 1)
-      histRest = 1;
-
-    int skip = 0;
+    unsigned skip = 0;
     do
     {
       if (++skip == 10)
-      {
-        cout << "Count " << setw(8) << cStart << " (" <<
-          setw(5) << std::fixed << std::setprecision(2) <<
-          100. * histCount[HIST_COMPLEX][dlen] / 
-            histRest << "%)" << endl;
-        skip = 0;
-      }
+        PrintPercentHist(cout, cStart, dlen);
 
       flag = MakeComplexTables(slStart, cStart, dlen);
 
       StartTimer();
       MakeComplexDistribute();
 
-      for (int i = 0; i < batchLen; i++)
+      for (unsigned i = 0; i < batchLen; i++)
       {
-        int sl = holdingList[i].GetSuitLength();
-        int c = holdingList[i].GetCounter();
+        unsigned sl = holdingList[i].GetSuitLength();
+        unsigned c = holdingList[i].GetCounter();
 
-        singles[sl][c].moveNo = moveList.AddMoves(
+        singles[sl][c].moveNo = moveList.AddMove(
          defList1[i], defList2[i], holdingList[i], newFlag);
 
-        histCount[HIST_COMPLEX][dlen]++;
-        // Header& header = singles[sl][c].defp->GetHeader();
-        // int r = static_cast<int>(header.GetMaxRank());
         unsigned r = moveList.GetMaxRank(singles[sl][c].moveNo);
-        histRank[HIST_COMPLEX][r]++;
-
-        if (newFlag)
-        {
-          histMoveCount[HIST_COMPLEX][dlen]++;
-          histMoveRank[HIST_COMPLEX][r]++;
-        }
+        UpdateHist(HIST_COMPLEX, singles[sl][c].declLen, r, newFlag);
       }
       EndTimer();
 
@@ -334,7 +274,7 @@ void MakeComplexMovesParallel()
 DWORD CALLBACK MakeComplexBatch(void *);
 
 
-HANDLE solveAllEvents[MAXNOOFCORES];
+HANDLE solveAllEvents[SDS_MAX_CORES];
 LONG volatile threadIndex;
 
 
@@ -343,10 +283,10 @@ DWORD CALLBACK MakeComplexBatch(void *)
   int thid;
   thid = InterlockedIncrement(&threadIndex);
 
-  int startNo = SDS_BATCHSIZE * thid;
-  int endNo = Min(batchLen, startNo + SDS_BATCHSIZE);
+  unsigned startNo = SDS_BATCH_SIZE * static_cast<unsigned>(thid);
+  unsigned endNo = Min(batchLen, startNo + SDS_BATCH_SIZE);
 
-  for (int n = startNo; n < endNo; n++)
+  for (unsigned n = startNo; n < endNo; n++)
     MakeComplexSingleMove(holdingList[n], defList1[n], defList2[n]);
 
   if (SetEvent(solveAllEvents[thid]) == 0)
@@ -360,32 +300,32 @@ DWORD CALLBACK MakeComplexBatch(void *)
 int MakeComplexDistribute()
 {
   DWORD solveAllWaitResult;
-  int k, res;
+  unsigned k;
+  int res;
 
   threadIndex = -1;
 
-  for (k = 0; k < noOfCores; k++)
+  for (k = 0; k < options.numCores; k++)
   {
     solveAllEvents[k] = CreateEvent(NULL, FALSE, FALSE, 0);
     if (solveAllEvents[k] == 0)
       return -1;
   }
 
-  for (k = 0; k < noOfCores; k++)
+  for (k = 0; k < options.numCores; k++)
   {
     res = QueueUserWorkItem(MakeComplexBatch, NULL, WT_EXECUTELONGFUNCTION);
     if (res != 1)
       return res;
   }
 
-  solveAllWaitResult = WaitForMultipleObjects(
-    static_cast<unsigned>(noOfCores),
+  solveAllWaitResult = WaitForMultipleObjects(options.numCores,
     solveAllEvents, TRUE, INFINITE);
 
   if (solveAllWaitResult != WAIT_OBJECT_0)
     return -2;
 
-  for (k = 0; k < noOfCores; k++)
+  for (k = 0; k < options.numCores; k++)
     CloseHandle(solveAllEvents[k]);
 
   return 1;
@@ -398,29 +338,27 @@ void MakeComplexBatch(int thid);
 
 void MakeComplexBatch(int thid)
 {
-  int startNo = SDS_BATCHSIZE * thid;
-  int endNo = Min(batchLen, startNo + SDS_BATCHSIZE);
+  unsigned startNo = SDS_BATCH_SIZE * thid;
+  unsigned endNo = Min(batchLen, startNo + SDS_BATCH_SIZE);
 
-  for (int n = startNo; n < endNo; n++)
+  for (unsigned n = startNo; n < endNo; n++)
     MakeComplexSingleMove(&holdingList[n], &defList1[n], &defList2[n]);
 
   return 1;
-
 }
 
 
 int MakeComplexDistribute()
 {
-  int k;
   fail = 1;
 
 #if defined (_OPENMP)
   if (omp_get_dynamic())
     omp_set_dynamic(0);
-  omp_set_num_threads(noOfCores);
+  omp_set_num_threads(options.numCores);
 #endif
 
-  int index, thid, hint;
+  int thid;
   schedType st;
 
   #pragma omp parallel default(none) shared(fail) private(thid, res)
@@ -471,7 +409,7 @@ void BestMoveAfterSide(
       def *= defNew;
     }
 
-    if (debugComplex)
+    if (options.debugFlow)
       DumpStatus(def, "BestMoveAfterSide: leadNo");
   }
 }
@@ -500,7 +438,7 @@ void BestMoveAfterLead(
       def += defNew;
     }
 
-    if (debugComplex)
+    if (options.debugFlow)
       DumpStatus(def, "BestMoveAfterLead: lhoNo");
   }
 }
@@ -528,7 +466,7 @@ void BestMoveAfterLho(
       def *= defNew;
     }
 
-    if (debugComplex)
+    if (options.debugFlow)
       DumpStatus(def, "BestMoveAfterLho: pardNo");
   }
 }
@@ -538,25 +476,25 @@ bool BestMoveAfterPard(
   Holding& holding,
   DefList& def)
 {
-  int slNew = 0, cNew = 0;
+  unsigned slNew = 0;
+  unsigned cNew = 0;
 
   holding.SetRhoNo();
   if (! holding.MakePlay(slNew, cNew))
   {
-    const Trick& trick = holding.GetTrick();
-    def.Set1(trick);
+    def.Set1(holding.GetTrick());
 
-    if (debugComplex)
+    if (options.debugFlow)
     {
       DumpStatus(def, "BestMoveAfterPard: Simple play");
-      holding.PrintPlayNew(cout);
+      holding.PrintPlayNew(files.debug);
     }
 
     return true;
   }
 
   assert(slNew >= 1 && slNew <= 12);
-  assert(cNew >= 0 && cNew < SDS_NUMSINGLES[slNew]);
+  assert(cNew < SDS_NUM_SINGLES[slNew]);
 
 
   if (singles[slNew][cNew].moveNo == 0)
@@ -564,49 +502,43 @@ bool BestMoveAfterPard(
     Holding tmpHolding;
     tmpHolding.Set(slNew, cNew);
 
-    if (debugComplex)
+    if (options.debugFlow)
     {
-      cout << "Start recursing\n";
-      tmpHolding.Print(cout);
+      files.debug << "Start recursing\n";
+      tmpHolding.Print(files.debug);
     }
 
     DefList deftmp1, deftmp2;
+    MakeComplexSingleMove(tmpHolding, deftmp1, deftmp2);
       
     bool newFlag;
-    MakeComplexSingleMove(tmpHolding, deftmp1, deftmp2);
-    int sl = tmpHolding.GetSuitLength();
-    int c = tmpHolding.GetCounter();
-    // TODO: Does tmpHolding really change in the invocation?
-    singles[sl][c].moveNo = moveList.AddMoves(
+    singles[slNew][cNew].moveNo = moveList.AddMove(
       deftmp1, deftmp2, tmpHolding, newFlag);
 
-    if (debugComplex)
+    if (options.debugFlow)
     {
-      deftmp1.Print(cout);
-      deftmp2.Print(cout);
-      cout << "Done recursing\n";
+      deftmp1.Print(files.debug);
+      deftmp2.Print(files.debug);
+      files.debug << "Done recursing\n";
     }
   }
 
   assert(singles[slNew][cNew].moveNo != 0);
   def = moveList.GetCombinedMove(singles[slNew][cNew].moveNo);
 
-  if (debugComplex)
+  if (options.debugFlow)
   {
-    DumpStatus(def, "BestMoveAfterPard: Stored play count", slNew, cNew);
-    Holding hTmp;
-    hTmp.Set(slNew, cNew);
-    hTmp.Print(cout);
-    holding.PrintPlayNew(cout);
-    fflush(stdout);
+    DumpStatus(def, "BestMoveAfterPard: Stored play count");
+    Holding htmp;
+    htmp.Set(slNew, cNew);
+    htmp.Print(files.debug);
+    holding.PrintPlayNew(files.debug);
   }
 
   def += holding;
-// cout << "After +=, dc " << debugComplex << endl;
 
-  if (debugComplex)
+  if (options.debugFlow)
     DumpStatus(def, "Prepended: Stored play count");
-// cout.flush();
 
   return true;
 }
@@ -616,10 +548,9 @@ void DumpStatus(
   DefList& def,
   const char text[])
 {
-  cout << text << "\n";
-  def.GetHeader().Print(cout);
-  def.Print(cout);
-  cout.flush();
+  files.debug << text << "\n";
+  def.GetHeader().Print(files.debug);
+  def.Print(files.debug);
 }
 
 
@@ -628,55 +559,25 @@ void DumpStatus(
   DefList& def2,
   const char text[])
 {
-  cout << text << "\n";
-  def1.GetHeader().Print(cout);
-  def1.Print(cout);
-  def2.GetHeader().Print(cout);
-  def2.Print(cout);
-  cout.flush();
+  files.debug << text << "\n";
+  def1.GetHeader().Print(files.debug);
+  def1.Print(files.debug);
+  def2.GetHeader().Print(files.debug);
+  def2.Print(files.debug);
 }
 
 
-void DumpStatus(
+inline void DumpMoves(
+  ostream& out,
+  const Holding& holding,
   DefList& def1,
   DefList& def2,
-  const char text[],
-  const int val)
+  unsigned& count)
 {
-  cout << text << " " << val << "\n";
-  def1.GetHeader().Print();
-  def1.Print(cout);
-  def2.GetHeader().Print();
-  def2.Print(cout);
-  cout.flush();
-}
-
-
-void DumpStatus(
-  DefList& def,
-  const char text[],
-  const int val1,
-  const int val2)
-{
-  cout << text  << " " << val1 << " 0x" << hex << val2 << dec << "\n";
-  def.GetHeader().Print();
-  def.Print(cout);
-  cout.flush();
-}
-
-
-void DumpStatus(
-  DefList& def1,
-  DefList& def2,
-  const char text[],
-  const int val1,
-  const int val2)
-{
-  cout << text  << " " << val1 << " 0x" << hex << val2 << dec << "\n";
-  def1.GetHeader().Print();
-  def1.Print(cout);
-  def2.GetHeader().Print();
-  def2.Print(cout);
-  cout.flush();
+  holding.Print(out);
+  def1.Print(out);
+  out << "---\n";
+  def2.Print(out);
+  count++;
 }
 

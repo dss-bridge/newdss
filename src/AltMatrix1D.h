@@ -1,11 +1,10 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #ifndef SDS_ALTMATRIX1D_H
 #define SDS_ALTMATRIX1D_H
@@ -13,14 +12,15 @@
 #include <iostream>
 #include <string>
 
-#include "cst.h"
+#include "compare.h"
+#include "const.h"
 
 
 class AltMatrix1D
 {
   private:
 
-    cmpDetailType matrix[SDS_MAX_ALT][SDS_MAX_ALT];
+    CmpDetailType matrix[SDS_MAX_ALT][SDS_MAX_ALT];
 
     unsigned num;
 
@@ -48,7 +48,7 @@ class AltMatrix1D
     void SetValue(
       const unsigned x,
       const unsigned y,
-      const cmpDetailType c);
+      const CmpDetailType c);
 
     void Purge(
       const unsigned x);

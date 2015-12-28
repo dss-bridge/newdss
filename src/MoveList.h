@@ -1,11 +1,10 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #ifndef SDS_MOVELIST_H
 #define SDS_MOVELIST_H
@@ -15,42 +14,40 @@
 #include <vector>
 #include <map>
 
+#include "SideMoveList.h"
 #include "Holding.h"
 #include "DefList.h"
-#include "SideMoveList.h"
+#include "sort.h"
 
 
 class MoveList
 {
   private:
 
-    struct MoveNumberStruct
-    {
-      unsigned noComb;
-      unsigned no1;
-      unsigned no2;
-    };
-
     SideMoveList sideComb;
     SideMoveList sideList1;
     SideMoveList sideList2;
 
-    std::vector<MoveNumberStruct> noToComponents;
-    unsigned noLen;
-    unsigned noCount;
+    std::vector<AggrMoveType> noToAggr;
+    unsigned len;
+    unsigned count;
 
-    std::map<std::string, unsigned> compMap;
+    std::map<std::string, unsigned> aggrMap;
 
     unsigned Update(
-      const MoveNumberStruct& mnos,
+      const AggrMoveType& mno,
       const bool newFlag,
       const unsigned ret = 0);
 
-    unsigned PairToNo(
-      const MoveNumberStruct& mnos);
+    unsigned AggrToNo(
+      const AggrMoveType& mno);
 
-    void SetPairNo(
-      const MoveNumberStruct& mnos);
+    void SetAggr(
+      const AggrMoveType& mno);
+
+    void PrintMovesByList(
+      std::ostream& out,
+      const std::vector<AggrMoveType>& list);
 
     void Extend();
 
@@ -60,12 +57,12 @@ class MoveList
 
     ~MoveList();
 
-    unsigned AddMoves(
+    unsigned AddMove(
       DefList& def, 
       const Holding& holding,
       bool& newFlag);
 
-    unsigned AddMoves(
+    unsigned AddMove(
       DefList& def1, 
       DefList& def2, 
       const Holding& holding,
@@ -74,22 +71,26 @@ class MoveList
     unsigned GetMaxRank(
       const unsigned no);
 
+    unsigned GetSymmTricks(
+      const unsigned no);
+
     DefList GetCombinedMove(
       const unsigned no);
 
     void Print(
       const unsigned no) const;
 
-    void PrintMoveList(
+    void PrintMovesByOrder(
       std::ostream& out = std::cout);
 
-    void PrintMoveListByKeys(
+    void PrintMovesByKeys();
+
+    void PrintMovesByCount(
       std::ostream& out = std::cout);
 
     void PrintStats() const;
     
-    void PrintLists(
-      std::ostream& out = std::cout) const;
+    void PrintLists() const;
 };
 
 #endif

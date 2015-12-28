@@ -1,7 +1,7 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -9,14 +9,34 @@
 
 #include <assert.h>
 
-#include "cst.h"
+#include "Trick.h"
 #include "AltList.h"
+#include "TrickList.h"
+#include "AltMatrix1D.h"
+#include "AltMatrix2D.h"
+#include "Holding.h"
+#include "Header.h"
+#include "files.h"
+#include "options.h"
 
 using namespace std;
 
 
-extern bool debugAltList;
+extern FilesType files;
+extern OptionsType options;
 extern unsigned highestAltNo;
+
+
+const bool cmpDetailToGE[SDS_HEADER_CMP_SIZE] =
+{
+  true,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false
+};
 
 
 AltList::AltList()
@@ -95,7 +115,7 @@ unsigned AltList::GetLength() const
 }
 
 
-cmpDetailType AltList::Compare(
+CmpDetailType AltList::Compare(
   const AltList& aNew) const
 {
   unsigned numOld = len;
@@ -108,7 +128,7 @@ cmpDetailType AltList::Compare(
     for (unsigned lNew = 0; lNew < numNew; lNew++)
       comp.SetValue(lOld, lNew, list[lOld].Compare(aNew.list[lNew]));
 
-  cmpDetailType c = comp.Compare();
+  CmpDetailType c = comp.Compare();
   if (c != SDS_HEADER_PLAY_DIFFERENT && c != SDS_HEADER_RANK_DIFFERENT)
     return c;
 
@@ -121,7 +141,7 @@ cmpDetailType AltList::Compare(
 }
 
 
-cmpDetailType AltList::CompareHard(
+CmpDetailType AltList::CompareHard(
   const AltList& aNew) const
 {
   unsigned numOld = len;
@@ -195,10 +215,10 @@ AltList AltList::operator + (
   AltList aOld = * this;
   AltList aNew = aRight;
 
-  if (debugAltList)
+  if (options.debugAlt)
   {
-    aOld.Print(cout, "AltList::++ aOld");
-    aNew.Print(cout, "AltList::++ aNew");
+    aOld.Print(files.debug, "AltList::++ aOld");
+    aNew.Print(files.debug, "AltList::++ aNew");
   }
 
   vector<bool> softX(aOld.len, true);
@@ -225,8 +245,8 @@ AltList AltList::operator + (
 
   aOld.Reduce();
 
-  if (debugAltList)
-    aOld.Print(cout, "AltList::++ result");
+  if (options.debugAlt)
+    aOld.Print(files.debug, "AltList::++ result");
 
   return aOld;
 }
@@ -289,10 +309,10 @@ void AltList::Backtrack1D(
   AltMatrix1D& comp, 
   const unsigned dimFixed, 
   const unsigned dimVar, 
-  vector<fixType>& fixVector)
+  vector<FixType>& fixVector)
 {
-  fixType fix1, fix2;
-  cmpDetailType c;
+  FixType fix1, fix2;
+  CmpDetailType c;
  
   if (fixVector[dimFixed] == SDS_FIX_STRONGER)
   {
@@ -356,15 +376,15 @@ void AltList::Backtrack1D(
     }
   }
 
-  if (debugAltList)
-    cout << "Backtrack1D done\n";
+  if (options.debugAlt)
+    files.debug << "Backtrack1D done\n";
 }
 
 
 void AltList::FillMatrix1D(
   AltMatrix1D& comp)
 {
-  fixType fix1, fix2;
+  FixType fix1, fix2;
 
   for (unsigned a1 = 0; a1 < len-1; a1++)
   {
@@ -382,7 +402,7 @@ void AltList::FillMatrix1D(
         comp.Purge(a2);
       else if (fix2 == SDS_FIX_STRONGER || fix2 == SDS_FIX_WEAKER)
       {
-        vector<fixType> fixVector(len, SDS_FIX_UNCHANGED);
+        vector<FixType> fixVector(len, SDS_FIX_UNCHANGED);
 	fixVector[a2] = fix2;
 
 	AltList::Backtrack1D(comp, a2, a1, fixVector);
@@ -392,7 +412,7 @@ void AltList::FillMatrix1D(
         comp.Purge(a1);
       else if (fix1 == SDS_FIX_STRONGER || fix1 == SDS_FIX_WEAKER)
       {
-        vector<fixType> fixVector(len, SDS_FIX_UNCHANGED);
+        vector<FixType> fixVector(len, SDS_FIX_UNCHANGED);
 	fixVector[a1] = fix1;
 
 	AltList::Backtrack1D(comp, a1, a2, fixVector);
@@ -415,7 +435,7 @@ void AltList::FillMatrix2D(
   // The soft lists are true for those entries that have just
   // been weakened or strengthened.
 
-  fixType fix1, fix2;
+  FixType fix1, fix2;
 
   vector<bool> nextSoftX(len, false);
   vector<bool> nextSoftY(aNew.len, false);
@@ -439,7 +459,7 @@ void AltList::FillMatrix2D(
       else if (fix2 == SDS_FIX_STRONGER || fix2 == SDS_FIX_WEAKER)
       {
         nextSoftY[a2] = true;
-        vector<fixType> fixVector(aNew.len, SDS_FIX_UNCHANGED);
+        vector<FixType> fixVector(aNew.len, SDS_FIX_UNCHANGED);
         fixVector[a2] = fix2;
 
         aNew.Backtrack1D(compY, a2, aNew.len, fixVector);
@@ -453,7 +473,7 @@ void AltList::FillMatrix2D(
       else if (fix1 == SDS_FIX_STRONGER || fix1 == SDS_FIX_WEAKER)
       {
         nextSoftX[a1] = true;
-        vector<fixType> fixVector(len, SDS_FIX_UNCHANGED);
+        vector<FixType> fixVector(len, SDS_FIX_UNCHANGED);
         fixVector[a1] = fix1;
 
         AltList::Backtrack1D(compX, a1, len, fixVector);
@@ -528,12 +548,12 @@ void AltList::PurgeList(
 
 void AltList::PunchOut(
   const AltList * alist,
-  const unsigned int purgeNo,
+  const unsigned purgeNo,
   const vector<bool>& purgeList,
-  const int pstart)
+  const PosType pstart)
 {
   len = 0;
-  for (unsigned int a = 0; a < alist->len; a++)
+  for (unsigned a = 0; a < alist->len; a++)
   {
     if (a == purgeNo || 
         purgeList[a] || 
@@ -547,10 +567,10 @@ void AltList::PunchOut(
 
 void AltList::PunchOut(
   const AltList * alist,
-  const int pstart)
+  const PosType pstart)
 {
   len = 0;
-  for (unsigned int a = 0; a < alist->len; a++)
+  for (unsigned a = 0; a < alist->len; a++)
   {
     if (alist->list[a].GetFirstStart() == SDS_PARTNER[pstart])
       continue;
@@ -565,8 +585,8 @@ void AltList::Reduce()
   if (len <= 1)
     return;
 
-  if (debugAltList)
-    AltList::Print(cout, "AltList::Reduce before");
+  if (options.debugAlt)
+    AltList::Print(files.debug, "AltList::Reduce before");
 
   AltMatrix1D comp;
   comp.SetDimension(len);
@@ -577,8 +597,8 @@ void AltList::Reduce()
 
   AltList::PurgeMulti();
 
-  if (debugAltList)
-    AltList::Print(cout, "AltList::Reduce after");
+  if (options.debugAlt)
+    AltList::Print(files.debug, "AltList::Reduce after");
 }
 
 
@@ -593,7 +613,7 @@ void AltList::PurgeMulti()
   for (unsigned a = 0; a < len; a++)
   {
     tlist = list[a];
-    posType pstart = tlist.GetFirstStart();
+    PosType pstart = tlist.GetFirstStart();
     if (tlist.GetLength() == 1 || pstart == QT_BOTH)
       continue;
 
@@ -609,7 +629,7 @@ void AltList::PurgeMulti()
 }
 
 
-cmpDetailType AltList::CompareMulti(
+CmpDetailType AltList::CompareMulti(
   const TrickList& tref) const
 {
   if (len < 2)
@@ -617,7 +637,7 @@ cmpDetailType AltList::CompareMulti(
 
   AltList aRed;
   TrickList tlist = tref;
-  posType pstart = tlist.GetFirstStart();
+  PosType pstart = tlist.GetFirstStart();
   if (pstart == QT_BOTH)
     return SDS_HEADER_PLAY_DIFFERENT;
 
@@ -630,12 +650,12 @@ cmpDetailType AltList::CompareMulti(
 
 
 bool AltList::CompareMultiSide(
-  const posType sideToLose,
+  const PosType sideToLose,
   const AltMatrix2D& comp,
   const AltList& altToLose) const
 {
   bool use[SDS_MAX_ALT];
-  cmpDetailType cRunning;
+  CmpDetailType cRunning;
   if (! comp.CandList(sideToLose, use, cRunning))
     return false;
 
@@ -644,7 +664,7 @@ bool AltList::CompareMultiSide(
     if (! use[a])
       continue;
 
-    cmpDetailType c = AltList::CompareMulti(altToLose.list[a]);
+    CmpDetailType c = AltList::CompareMulti(altToLose.list[a]);
     if (c == SDS_HEADER_PLAY_DIFFERENT)
       return false;
     else
@@ -654,7 +674,7 @@ bool AltList::CompareMultiSide(
 }
 
 
-cmpDetailType AltList::CompareMultiTrickList(
+CmpDetailType AltList::CompareMultiTrickList(
   TrickList& tlist)
 {
   // Both AltList and tlist are modified in this call!
@@ -664,24 +684,24 @@ cmpDetailType AltList::CompareMultiTrickList(
   // The comparison is done one segment at a time, then
   // connecting up the segments.
 
-  unsigned int tlen = tlist.GetLength();
+  unsigned tlen = tlist.GetLength();
 
-  cmpDetailType cRunning = SDS_HEADER_SAME;
+  CmpDetailType cRunning = SDS_HEADER_SAME;
   for (unsigned s = 0; s < tlen; s++)
   {
-    cmpDetailType c = AltList::FrontIsGE(tlist);
+    CmpDetailType c = AltList::FrontIsGE(tlist);
     if (c == SDS_HEADER_PLAY_DIFFERENT)
       return SDS_HEADER_PLAY_DIFFERENT;
     cRunning = cmpDetailMatrix[cRunning][c];
     
-    posType pend = tlist.ConnectFirst();
+    PosType pend = tlist.ConnectFirst();
     AltList::ConnectFirst(pend);
   }
   return cRunning;
 }
 
 
-cmpDetailType AltList::FrontIsGE(
+CmpDetailType AltList::FrontIsGE(
   const TrickList& tlist) const
 {
   // Uses same return values as below.
@@ -691,13 +711,13 @@ cmpDetailType AltList::FrontIsGE(
   if (htrick.GetEnd() == QT_BOTH)
   {
     htrick.SetEnd(QT_ACE);
-    cmpDetailType ca = AltList::FrontIsGE(htrick);
+    CmpDetailType ca = AltList::FrontIsGE(htrick);
 
     if (ca == SDS_HEADER_PLAY_DIFFERENT)
       return SDS_HEADER_PLAY_DIFFERENT;
 
     htrick.SetEnd(QT_PARD);
-    cmpDetailType cp = FrontIsGE(htrick);
+    CmpDetailType cp = FrontIsGE(htrick);
     if (cp == SDS_HEADER_PLAY_DIFFERENT)
       return SDS_HEADER_PLAY_DIFFERENT;
 
@@ -708,7 +728,7 @@ cmpDetailType AltList::FrontIsGE(
 }
 
 
-cmpDetailType AltList::FrontIsGE(
+CmpDetailType AltList::FrontIsGE(
   const Trick& trick) const
 {
   // Only uses SDS_HEADER_SAME, SDS_HEADER_PLAY_OLD_BETTER,
@@ -730,6 +750,7 @@ cmpDetailType AltList::FrontIsGE(
       case SDS_HEADER_PLAY_NEW_BETTER:
       case SDS_HEADER_PLAY_DIFFERENT:
       case SDS_HEADER_RANK_DIFFERENT:
+      default:
         break;
     }
   }
@@ -739,7 +760,7 @@ cmpDetailType AltList::FrontIsGE(
 
 
 void AltList::ConnectFirst(
-  const posType pend)
+  const PosType pend)
 {
   for (unsigned a = 0; a < len; a++)
     list[a].ConnectFirst(pend);
@@ -753,7 +774,7 @@ void AltList::RegisterSize(
     return;
 
   highestAltNo = len;
-  cout << text << ": " << len << "\n";
+  files.track << text << ": " << len << "\n";
 
   if (len > SDS_MAX_ALT)
   {

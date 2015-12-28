@@ -1,34 +1,44 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
-#include <iomanip>
 #include <sstream>
 #include <algorithm>
+#include <assert.h>
+
+#include "Header.h"
+#include "MoveList.h"
+#include "files.h"
 
 using namespace std;
 
-#include <assert.h>
-
-#include "cst.h"
-#include "MoveList.h"
-#include "misc.h"
-
 #define MOVE_CHUNK_SIZE 1000
+
+extern FilesType files;
 
 
 MoveList::MoveList()
 {
-  noToComponents.clear();
+  noToAggr.clear();
 
-  noLen = MOVE_CHUNK_SIZE;
-  noToComponents.resize(MOVE_CHUNK_SIZE);
-  noCount = 1;
+  len = MOVE_CHUNK_SIZE;
+  noToAggr.resize(MOVE_CHUNK_SIZE);
+  count = 1;
+
+  for (unsigned i = 0; i < len; i++)
+    noToAggr[i].count = 0;
+
+  noToAggr[0].noComb = 0;
+  noToAggr[0].no1 = 0;
+  noToAggr[0].no2 = 0;
+  noToAggr[0].keyComb = 0;
+  noToAggr[0].key1 = 0;
+  noToAggr[0].key2 = 0;
+  noToAggr[0].number = 0;
 }
 
 
@@ -39,25 +49,29 @@ MoveList::~MoveList()
 
 void MoveList::Extend()
 {
-  noLen += MOVE_CHUNK_SIZE;
-  noToComponents.resize(noLen);
+  len += MOVE_CHUNK_SIZE;
+  noToAggr.resize(len);
+
+  for (unsigned i = count; i < len; i++)
+    noToAggr[i].count = 0;
 }
 
 
 unsigned MoveList::Update(
-  const MoveNumberStruct& mnos,
+  const AggrMoveType& mno,
   const bool newFlag,
   const unsigned ret)
 {
   unsigned r;
   if (newFlag)
   {
-    if (noCount == noLen)
+    if (count == len)
       MoveList::Extend();
 
-    noToComponents[noCount] = mnos;
-    MoveList::SetPairNo(mnos);
-    r = noCount++;
+    noToAggr[count] = mno;
+    noToAggr[count].number = count;
+    MoveList::SetAggr(mno);
+    r = count++;
   }
   else if (ret)
   {
@@ -66,66 +80,83 @@ unsigned MoveList::Update(
   }
   else
   {
-    r = MoveList::PairToNo(mnos);
+    r = MoveList::AggrToNo(mno);
     assert(r > 0);
   }
+
+  noToAggr[r].count++;
   return r;
 }
 
 
-unsigned MoveList::AddMoves(
+unsigned MoveList::AddMove(
   DefList& def, 
   const Holding& holding, 
   bool& newFlag)
 {
-  unsigned no = sideComb.AddMoves(def, holding, newFlag);
+  unsigned hashKey;
+  unsigned no = sideComb.AddMove(def, holding, newFlag, hashKey);
   unsigned ret;
 
-  MoveNumberStruct mnos;
-  mnos.noComb = no;
-  mnos.no1 = 0;
-  mnos.no2 = 0;
+  AggrMoveType mno;
+  mno.noComb = no;
+  mno.no1 = 0;
+  mno.no2 = 0;
+  mno.keyComb = hashKey;
+  mno.key1 = 0;
+  mno.key2 = 0;
+  mno.count = 0;
 
-  return MoveList::Update(mnos, newFlag);
+  return MoveList::Update(mno, newFlag);
 }
 
 
-unsigned MoveList::AddMoves(
-  DefList& defAB,
-  DefList& defP,
+unsigned MoveList::AddMove(
+  DefList& def1,
+  DefList& def2,
   const Holding& holding, 
   bool& newFlag)
 {
-  MoveNumberStruct mnos;
+  AggrMoveType mno;
   DefList def;
   unsigned ret;
 
-  if (def.MergeSidesSoft(defAB, defP))
-    return MoveList::AddMoves(def, holding, newFlag);
+  if (def.MergeSidesSoft(def1, def2))
+    return MoveList::AddMove(def, holding, newFlag);
   else
   {
-    def.MergeSidesHard(defAB, defP);
-    return MoveList::AddMoves(def, holding, newFlag);
+    // This is a forced merge.
+    def.MergeSidesHard(def1, def2);
+    return MoveList::AddMove(def, holding, newFlag);
 
+    // This keeps the moves separate.
+    unsigned key1;
+    unsigned key2;
     bool newFlag1 = false;
     bool newFlag2 = false;
 
-    mnos.noComb = 0;
-    mnos.no1 = sideList1.AddMoves(defAB, holding, newFlag1);
-    mnos.no2 = sideList2.AddMoves(defP, holding, newFlag2);
+    mno.noComb = 0;
+    mno.no1 = sideList1.AddMove(def1, holding, newFlag1, key1);
+    mno.no2 = sideList2.AddMove(def2, holding, newFlag2, key2);
+    mno.keyComb = 0;
+    mno.key1 = key1;
+    mno.key2 = key2;
+    mno.count = 0;
    
-    if (newFlag1 || newFlag2 || ! (ret = MoveList::PairToNo(mnos)))
+    if (newFlag1 || newFlag2 || ! (ret = MoveList::AggrToNo(mno)))
       newFlag = true;
     else
       newFlag = false;
 
-    return MoveList::Update(mnos, newFlag, ret);
+    return MoveList::Update(mno, newFlag, ret);
   }
+
+  // For checking whether merged defense becomes simpler.
 
   /*
   unsigned d1, d2, dm, a;
-  defAB.GetHeader().GetAD(d1, a);
-  defP.GetHeader().GetAD(d2, a);
+  def1.GetHeader().GetAD(d1, a);
+  def2.GetHeader().GetAD(d2, a);
   def.GetHeader().GetAD(dm, a);
   if (d1*d2 != dm)
     cout << "defMerged " << dm << " != " << d1 << " * " << d2 << "\n";
@@ -135,37 +166,53 @@ unsigned MoveList::AddMoves(
 
 #define u2s(x) static_cast<ostringstream *>(&(ostringstream() << (x)))->str()
 
-unsigned MoveList::PairToNo(
-  const MoveNumberStruct& mnos)
+unsigned MoveList::AggrToNo(
+  const AggrMoveType& mno)
 {
-  string str = u2s(mnos.noComb) + '.' + u2s(mnos.no1) + '.' + u2s(mnos.no2);
-  map<string, unsigned>::iterator it = compMap.find(str);
-  if (it == compMap.end())
+  string str = u2s(mno.noComb) + '.' + u2s(mno.no1) + '.' + u2s(mno.no2);
+  map<string, unsigned>::iterator it = aggrMap.find(str);
+  if (it == aggrMap.end())
     return 0;
   else
-    return compMap[str];
+    return aggrMap[str];
 }
 
 
-void MoveList::SetPairNo(
-  const MoveNumberStruct& mnos)
+void MoveList::SetAggr(
+  const AggrMoveType& mno)
 {
-  string str = u2s(mnos.noComb) + '.' + u2s(mnos.no1) + '.' + u2s(mnos.no2);
-  compMap[str] = noCount;
+  string str = u2s(mno.noComb) + '.' + u2s(mno.no1) + '.' + u2s(mno.no2);
+  aggrMap[str] = count;
 }
 
 
 unsigned MoveList::GetMaxRank(
   const unsigned no)
 {
-  if (noToComponents[no].noComb)
-    return sideComb.GetMaxRank(noToComponents[no].noComb);
+  if (noToAggr[no].noComb)
+    return sideComb.GetMaxRank(noToAggr[no].noComb);
   else
   {
     // Very rare differences from merged move rank.
-    unsigned n1 = sideList1.GetMaxRank(noToComponents[no].no1);
-    unsigned n2 = sideList2.GetMaxRank(noToComponents[no].no2);
+    unsigned n1 = sideList1.GetMaxRank(noToAggr[no].no1);
+    unsigned n2 = sideList2.GetMaxRank(noToAggr[no].no2);
     return Min(n1, n2);
+  }
+}
+
+unsigned MoveList::GetSymmTricks(
+  const unsigned no)
+{
+  if (noToAggr[no].noComb)
+    return sideComb.GetSymmTricks(noToAggr[no].noComb);
+  else
+  {
+    unsigned t1 = sideList1.GetSymmTricks(noToAggr[no].no1);
+    unsigned t2 = sideList2.GetSymmTricks(noToAggr[no].no2);
+    if (t1 == 0 || t2 == 0 || t1 != t2)
+      return 0;
+    else
+      return t1;
   }
 }
 
@@ -173,67 +220,113 @@ unsigned MoveList::GetMaxRank(
 DefList MoveList::GetCombinedMove(
   const unsigned no)
 {
-  if (noToComponents[no].noComb)
-    return sideComb.GetMove(noToComponents[no].noComb);
+  if (noToAggr[no].noComb)
+    return sideComb.GetMove(noToAggr[no].noComb);
   else
   {
-    DefList def1 = sideList1.GetMove(noToComponents[no].no1);
-    DefList def2 = sideList2.GetMove(noToComponents[no].no2);
+    DefList def1 = sideList1.GetMove(noToAggr[no].no1);
+    DefList def2 = sideList2.GetMove(noToAggr[no].no2);
     DefList defMerged;
     defMerged.MergeSidesHard(def1, def2);
     return defMerged;
   }
 }
 
+extern int globalTrigger;
 
 void MoveList::Print(
   const unsigned no) const
 {
-  if (noToComponents[no].noComb)
-    sideComb.Print(noToComponents[no].noComb);
+  if (noToAggr[no].noComb)
+    sideComb.Print(noToAggr[no].noComb);
   else
   {
-    sideList1.Print(noToComponents[no].no1);
-    sideList2.Print(noToComponents[no].no2);
+    sideList1.Print(noToAggr[no].no1);
+    sideList2.Print(noToAggr[no].no2);
   }
 }
 
 
-void MoveList::PrintMoveList(
-  ostream& out)
+void MoveList::PrintMovesByList(
+  ostream& out,
+  const vector<AggrMoveType>& list)
 {
-  for (unsigned i = 1; i < noCount; i++)
+  for (unsigned i = 1; i < count; i++)
   {
-    if (noToComponents[i].noComb)
-      sideComb.PrintMove(out, noToComponents[i].noComb);
+    if (list[i].noComb)
+      sideComb.PrintMove(out, list[i].noComb);
     else
     {
-      sideList1.PrintMove(out, noToComponents[i].no1);
-      sideList2.PrintMove(out, noToComponents[i].no2);
+      sideList1.PrintMove(out, list[i].no1);
+      sideList2.PrintMove(out, list[i].no2);
     }
   }
 }
 
 
-void MoveList::PrintMoveListByKeys(
-  ostream& fout)
+void MoveList::PrintMovesByOrder(
+  ostream& out)
 {
-  sideComb.PrintMoveListByKeys(fout);
+  MoveList::PrintMovesByList(out, noToAggr);
 }
 
 
-void MoveList::PrintLists(
-  ostream& out) const
+void MoveList::PrintMovesByKeys()
 {
-  sideComb.PrintLists(out, "Combined");
-  sideList1.PrintLists(out, "Side 1");
-  sideList2.PrintLists(out, "Side 2");
+  vector<AggrMoveType> sortList = noToAggr;
+  sort(sortList.begin()+1, sortList.begin()+count, SortKeyIsGreater);
+
+  const string divider(52, '=');
+  for (unsigned i = 1; i < count; i++)
+  {
+    if (sortList[i].keyComb != sortList[i-1].keyComb || i == 1)
+    {
+      sideComb.GetMove(sortList[i].number).GetHeader().PrintKey(
+        files.movesAll, sortList[i].keyComb);
+      files.movesAll << divider << "\n\n";
+    }
+
+    if (sortList[i].noComb)
+      sideComb.PrintMove(files.movesAll, sortList[i].noComb);
+    else
+    {
+      sideList1.PrintMove(files.movesAll, sortList[i].no1);
+      sideList2.PrintMove(files.movesAll, sortList[i].no2);
+    }
+  }
+
+  sideComb.PrintMoveListByKeys(files.movesComb);
+  sideList1.PrintMoveListByKeys(files.movesA);
+  sideList2.PrintMoveListByKeys(files.movesP);
+}
+
+
+void MoveList::PrintMovesByCount(
+  ostream& out)
+{
+  vector<AggrMoveType> sortList = noToAggr;
+  sort(sortList.begin()+1, sortList.begin()+count, SortCountIsGreater);
+
+  MoveList::PrintMovesByList(out, sortList);
+
+  sideComb.PrintMoveListByCount(files.movesComb);
+  sideList1.PrintMoveListByCount(files.movesA);
+  sideList2.PrintMoveListByCount(files.movesP);
 }
 
 
 void MoveList::PrintStats() const
 {
-  sideComb.PrintStats("Combined");
-  sideList1.PrintStats("Side 1");
-  sideList2.PrintStats("Side 2");
+  sideComb.PrintStats(files.statsComb);
+  sideList1.PrintStats(files.statsA);
+  sideList2.PrintStats(files.statsP);
 }
+
+
+void MoveList::PrintLists() const
+{
+  sideComb.PrintLists(files.movesComb);
+  sideList1.PrintLists(files.movesA);
+  sideList2.PrintLists(files.movesP);
+}
+

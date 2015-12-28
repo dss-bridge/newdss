@@ -1,13 +1,13 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
 
-
 #include <iostream>
+#include <iomanip>
 #include <assert.h>
 
 #include "Header.h"
@@ -15,8 +15,6 @@
 
 using namespace std;
 
-
-extern unsigned headerStats[4];
 
 Header::Header()
 {
@@ -66,7 +64,7 @@ void Header::Set(
   maxRanks = trick.GetRanks();
   minRanks = maxRanks;
 
-  for (int h = 0; h < DDS_HANDS; h++)
+  for (unsigned h = 0; h < SDS_HANDS; h++)
   {
     cashTricks[h] = 0;
     cashRanks[h] = 0;
@@ -175,7 +173,7 @@ void Header::MergeMax(const Header& newHeader)
   if (newHeader.minRanks < minRanks && newHeader.minRanks > 0)
     minRanks = newHeader.minRanks;
     
-  for (int h = 0; h < DDS_HANDS; h++)
+  for (unsigned h = 0; h < SDS_HANDS; h++)
   {
     if (newHeader.cashTricks[h] > cashTricks[h])
     {
@@ -232,15 +230,6 @@ void Header::MergeMin(const Header& newHeader)
   assert(sCum >= aCum);
   assert(tCum >= sCum);
 
-  if (dCum > headerStats[0]) 
-    headerStats[0] = dCum;
-  if (aCum-dCum > headerStats[1]) 
-    headerStats[1] = aCum-dCum;
-  if (sCum-aCum > headerStats[2]) 
-    headerStats[2] = sCum-aCum;
-  if (tCum-sCum > headerStats[3]) 
-    headerStats[3] = tCum-sCum;
-
   if (newHeader.maxTricks < maxTricks)
   {
     maxTricks = newHeader.maxTricks;
@@ -256,7 +245,7 @@ void Header::MergeMin(const Header& newHeader)
   if (newHeader.minRanks < minRanks && newHeader.minRanks > 0)
     minRanks = newHeader.minRanks;
     
-  for (int h = 0; h < DDS_HANDS; h++)
+  for (unsigned h = 0; h < SDS_HANDS; h++)
   {
     if (newHeader.cashTricks[h] < cashTricks[h])
     {
@@ -280,16 +269,21 @@ void Header::GetAD(
   asum = aCum;
 }
 
-
-unsigned Header::CheckManual() const
+unsigned Header::GetSymmTricks() const
 {
-  if (cashTricks[QT_ACE] == cashTricks[QT_PARD] &&
-      maxTricks == cashTricks[QT_ACE] &&
-      cashRanks[QT_ACE] == cashRanks[QT_PARD] &&
-      maxRanks == cashRanks[QT_ACE])
-    return maxTricks;
-  else
+  if (cashTricks[QT_ACE] != cashTricks[QT_PARD] &&
+      cashTricks[QT_ACE] != 0 &&
+      cashTricks[QT_PARD] != 0)
     return 0;
+
+  if (cashTricks[QT_ACE] == 0)
+    return (maxTricks == cashTricks[QT_PARD] ? maxTricks : 0);
+  else if (cashTricks[QT_PARD] == 0)
+    return (maxTricks == cashTricks[QT_ACE] ? maxTricks : 0);
+  else if (cashRanks[QT_ACE] != cashRanks[QT_PARD])
+    return 0;
+  else
+    return (maxTricks == cashTricks[QT_ACE] ? maxTricks: 0);
 }
 
 
@@ -299,16 +293,17 @@ unsigned Header::GetKeyNew() const
 }
 
 
-int Header::GetTrickKey() const
+unsigned Header::GetTrickKey() const
 {
-  return (maxTricks << 8) | (cashTricks[QT_ACE] << 4) | cashTricks[QT_PARD];
+  return static_cast<unsigned>(
+    (maxTricks << 8) | (cashTricks[QT_ACE] << 4) | cashTricks[QT_PARD]);
 }
 
 
-int Header::GetRankKey() const
+unsigned Header::GetRankKey() const
 {
-  return (minRanks << 12) | (maxRanks << 8) | 
-         (cashRanks[QT_ACE] << 4) | cashRanks[QT_PARD];
+  return static_cast<unsigned>((minRanks << 12) | (maxRanks << 8) | 
+         (cashRanks[QT_ACE] << 4) | cashRanks[QT_PARD]);
 }
 
 
@@ -320,7 +315,7 @@ unsigned Header::GetMaxRank() const
 
 void Header::PrintKey(
   ostream& out,
-  const int key) const
+  const unsigned key) const
 {
   out << "\n\nKey " <<
     setw(6) << key <<
@@ -337,10 +332,11 @@ void Header::Print(
   const bool skipMax) const
 {
   if (! skipMax)
-    out << "maxTricks " << static_cast<unsigned>(maxTricks) <<
-      ", maxRanks '" << SDS_RANK_NAMES[maxRanks] <<
-      "' start '" << POS_NAMES[start] <<
-      "' reach '" << REACH_NAMES[posToReach[end]] << "'\n";
+  {
+    Trick t;
+    t.Set(start, end, maxRanks, maxTricks);
+    t.Print(out);
+  }
 
   out <<
     setw(10) << "cashTricks" <<

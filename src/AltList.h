@@ -1,11 +1,10 @@
 /* 
    SDS, a bridge single-suit double-dummy quick-trick solver.
 
-   Copyright (C) 2015 by Soren Hein.
+   Copyright (C) 2015-16 by Soren Hein.
 
    See LICENSE and README.
 */
-
 
 #ifndef SDS_ALTLIST_H
 #define SDS_ALTLIST_H
@@ -14,8 +13,14 @@
 #include <vector>
 
 #include "TrickList.h"
-#include "AltMatrix1D.h"
-#include "AltMatrix2D.h"
+#include "compare.h"
+#include "const.h"
+
+class AltMatrix1D;
+class AltMatrix2D;
+class Holding;
+class Header;
+class Trick;
 
 
 class AltList
@@ -29,7 +34,7 @@ class AltList
       AltMatrix1D& comp,
       const unsigned dimFixed,
       const unsigned dimVar,
-      std::vector<fixType>& fixVector);
+      std::vector<FixType>& fixVector);
 
     void FillMatrix1D(
       AltMatrix1D& comp);
@@ -53,37 +58,37 @@ class AltList
 
     void PunchOut(
       const AltList * alist,
-      const unsigned int purgeNo,
+      const unsigned purgeNo,
       const std::vector<bool>& purgeList,
-      const int pstart);
+      const PosType pstart);
 
     void PunchOut(
       const AltList * alist,
-      const int pstart);
+      const PosType pstart);
 
     void Reduce();
 
     void PurgeMulti();
 
-    cmpDetailType CompareMulti(
+    CmpDetailType CompareMulti(
       const TrickList& tref) const;
 
     bool CompareMultiSide(
-      const posType sideToLose,
+      const PosType sideToLose,
       const AltMatrix2D& comp,
       const AltList& altToLose) const;
 
-    cmpDetailType CompareMultiTrickList(
+    CmpDetailType CompareMultiTrickList(
       TrickList& tlist);
 
-    cmpDetailType FrontIsGE(
+    CmpDetailType FrontIsGE(
       const TrickList& tlist) const;
 
-    cmpDetailType FrontIsGE(
+    CmpDetailType FrontIsGE(
       const Trick& trick) const;
 
     void ConnectFirst(
-      const posType pend);
+      const PosType pend);
 
     void RegisterSize(
       const std::string& text);
@@ -118,10 +123,10 @@ class AltList
 
     unsigned GetLength() const;
 
-    cmpDetailType Compare(
+    CmpDetailType Compare(
       const AltList& aNew) const;
 
-    cmpDetailType CompareHard(
+    CmpDetailType CompareHard(
       const AltList& aNew) const;
 
     bool operator == (
