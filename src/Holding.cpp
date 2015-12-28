@@ -689,24 +689,24 @@ unsigned Holding::FlipTops(
   unsigned cFlipped = counter;
   unsigned maskFull = (1u << (2*(suitLength-1))) - 1u;
 
+  // Flip the ace cards to partner.
   for (unsigned n = 0; n < suitLength-1; n++)
   {
     unsigned mask = 0x3u << (2*n);
-    unsigned p = counter & mask;
-    // TODO: This look wrong! Only works for bottom bit?
+    unsigned p = (counter >> (2*n)) & 0x3u;
     if (p == QT_ACE)
       cFlipped = (cFlipped & (maskFull ^ mask)) | 
         (static_cast<unsigned>(QT_PARD) << (2*n));
   }
 
-  // Ace is implicit
+  // Ace is implicit.  Expand the rest of the mask, so each single
+  // bit becomes doubled up.
   unsigned expMask = 0;
   for (unsigned n = 0; n < numTops-1u; n++)
   {
     if (nMask & (1u << n))
       expMask |= (0x3u << (2*n));
   }
-
   expMask = (expMask << 2*(suitLength-numTops));
 
   if (nMask & (1u << (numTops-1))) // Ace also to be flipped
