@@ -48,6 +48,10 @@ class Holding
     PosType winSide;
     unsigned winRank;
 
+    int cardListLo[SDS_HANDS][SDS_MAX_RANKS];
+    int cardListHi[SDS_HANDS][SDS_MAX_RANKS];
+    unsigned cardNo[SDS_HANDS];
+
     unsigned rankMap[14];
     bool aceFlip;
     bool mergeSpecialFlag;
@@ -59,17 +63,16 @@ class Holding
       const unsigned listLen[SDS_HANDS],
       const std::string text ="",
       std::ostream& out = std::cout) const;
+
+    void AdjustWinRank();
     
+
   protected:
 
     unsigned suitLength;
     unsigned counter;
-
-    int cardListLo[SDS_HANDS][SDS_MAX_RANKS];
-    int cardListHi[SDS_HANDS][SDS_MAX_RANKS];
-    unsigned cardNo[SDS_HANDS];
-    unsigned completeList[SDS_HANDS][SDS_MAX_RANKS];
     unsigned length[SDS_HANDS];
+    unsigned completeList[SDS_HANDS][SDS_MAX_RANKS];
 
     unsigned ListToRank(
       const unsigned listValue) const;
@@ -77,8 +80,6 @@ class Holding
     unsigned TopsOverRank(
       const PosType& player,
       const unsigned rank) const;
-
-    void AdjustWinRank();
 
 
   public:

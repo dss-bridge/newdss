@@ -289,12 +289,9 @@ bool LoopHold::CashoutBoth(
   }
   else
   {
-    int mlhi = cardListHi[QT_LHO][0];
-    int mllo = cardListLo[QT_LHO][0];
-    int mrhi = cardListHi[QT_RHO][0];
-    int mrlo = cardListLo[QT_RHO][0];
+    PosType bestOpp = Holding::GetOppBest();
 
-    if (mlhi+1 == mrlo || mrhi+1 == mllo)
+    if (bestOpp == QT_BOTH)
     {
       // Really the same rank: Ignore the shorter opponent.
       if (length[QT_LHO] >= length[QT_RHO])
@@ -312,7 +309,7 @@ bool LoopHold::CashoutBoth(
         lenOppLowest = 0;
       }
     }
-    else if (mlhi > mrhi)
+    else if (bestOpp == QT_LHO)
     {
       if (length[QT_RHO] <= length[QT_LHO])
       {
@@ -878,8 +875,7 @@ return false;
 }
 
 
-void LoopHold::SetDetails(
-  HoldingDetails& hdet)
+void LoopHold::SetDetails()
 {
   hdet.declLen = static_cast<int>(length[QT_ACE] + length[QT_PARD]);
 
@@ -924,23 +920,7 @@ void LoopHold::SetDetails(
   int maxCardOpps = (hdet.lenMaxOpp == 0 ? -1 :
     static_cast<int>(Max(completeList[QT_LHO][0], completeList[QT_RHO][0])));
 
-  LoopHold::UpdateDetailsForOpp(hdet, maxCardOpps, false, QT_ACE);
-}
-
-
-int LoopHold::ShiftTops(
-  const HoldingDetails& hdet,
-  const int moveNumTops)
-{
-  // Effectively, first flip the entire ACE/PARD holdings, and 
-  // then flip a number of tops back to ACE.  So one might say that
-  // the defenders have been swapped relative to the starting point,
-  // but it doesn't matter.
-
-  int maskTop = ((1 << (2*(moveNumTops-1))) - 1) << 
-    (2*(static_cast<int>(suitLength)-moveNumTops));
-
-  return (maskTop & static_cast<int>(counter)) | ((hdet.maskFull ^ maskTop) & hdet.cFlipped);
+  LoopHold::UpdateDetailsForOpp(maxCardOpps, false, QT_ACE);
 }
 
 
@@ -1011,7 +991,6 @@ bool LoopHold::GetAsymmRanks(
 
 
 void LoopHold::UpdateDetailsForOpp(
-  HoldingDetails& hdet,
   const int& oppRank,
   const bool oppSkippedFlag,
   const PosType& oppSkipped)
@@ -1087,8 +1066,7 @@ void LoopHold::UpdateDetailsForOpp(
 }
 
 
-void LoopHold::PrintDetails(
-  const HoldingDetails& hdet)
+void LoopHold::PrintDetails()
 {
   cout << "Long player " << static_cast<int>(hdet.pLong) << 
     ", short " << static_cast<int>(hdet.pShort) << "\n";
@@ -1104,7 +1082,6 @@ void LoopHold::PrintDetails(
 
 
 void LoopHold::SolveCrashTricks(
-  HoldingDetails& hdet,
   const PosType& oppBest,
   PosType& bend,
   PosType& cend,
@@ -1116,9 +1093,11 @@ void LoopHold::SolveCrashTricks(
   int& rtricks,
   int& ctricks)
 {
+  LoopHold::SetDetails();
+
   if (oppBest == QT_BOTH)
   {
-    LoopHold::SolveCrashTricksHand(hdet, hdet.lenMaxOpp,
+    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
     // See explanation below.
@@ -1127,7 +1106,7 @@ void LoopHold::SolveCrashTricks(
   }
   else if (oppBest == QT_LHO && length[QT_LHO] >= length[QT_RHO])
   {
-    LoopHold::SolveCrashTricksHand(hdet, static_cast<int>(length[QT_LHO]),
+    LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_LHO]),
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
     // See explanation below.
@@ -1136,7 +1115,7 @@ void LoopHold::SolveCrashTricks(
   }
   else if (oppBest == QT_RHO && length[QT_RHO] >= length[QT_LHO])
   {
-    LoopHold::SolveCrashTricksHand(hdet, static_cast<int>(length[QT_RHO]),
+    LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_RHO]),
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
     // See explanation below.
@@ -1148,11 +1127,11 @@ void LoopHold::SolveCrashTricks(
 // if (suitLength == 13 && counter == 0xa405ff)
  // cout << "LHO " << completeList[QT_LHO][0] <<
  //   << " RHO " << completeList[QT_RHO][0]) << "\n";
-    LoopHold::UpdateDetailsForOpp(hdet, 
+    LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_LHO][0]),
       true, QT_RHO);
 // LoopHold::PrintDetails(hdet);
-    LoopHold::SolveCrashTricksHand(hdet, static_cast<int>(length[QT_LHO]),
+    LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_LHO]),
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
 // cout << "LHO before shift back " << bend << " " << cend << " " <<
@@ -1174,11 +1153,11 @@ void LoopHold::SolveCrashTricks(
 // }
     PosType bend2, cend2;
     int brank2, rrank2, crank2, crank22, btricks2, rtricks2, ctricks2;
-    LoopHold::UpdateDetailsForOpp(hdet, 
+    LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_RHO][0]),
       true, QT_LHO);
 // LoopHold::PrintDetails(hdet);
-    LoopHold::SolveCrashTricksHand(hdet, static_cast<int>(length[QT_RHO]),
+    LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_RHO]),
       bend2, cend2, brank2, rrank2, crank2, crank22,
       btricks2, rtricks2, ctricks2);
 
@@ -1247,7 +1226,6 @@ void LoopHold::SolveCrashTricks(
 
 
 void LoopHold::SolveCrashTricksHand(
-  const HoldingDetails& hdet,
   const int& lenOpp,
   PosType& bend,
   PosType& cend,

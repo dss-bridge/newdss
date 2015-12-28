@@ -61,7 +61,6 @@ void MakeSimpleMoves()
 // So we don't create and destroy all the time...
 HoldingSimpleMove zhmove;
 LoopHold zhNew;
-HoldingDetails zhdetNew;
 Trick ztrick, ztrick2, ztrick3;
 
 inline bool MakeSimpleSingleMove(
@@ -129,10 +128,8 @@ inline bool MakeSimpleSingleMove(
       if (zhNew.GetNumTops() == zhNew.GetLength(QT_ACE))
         continue;
 
-      zhNew.SetDetails(zhdetNew);
-
       PosType blocked, bend, cend;
-      zhNew.SolveCrashTricks(zhdetNew, oppBest, bend, cend,
+      zhNew.SolveCrashTricks(oppBest, bend, cend,
         brank, rrank, crank, crank2, btricks, rtricks, ctricks);
 
       if (rtricks == 0 && crank2 != SDS_VOID && crank != crank2)

@@ -16,36 +16,6 @@
 #define SDS_MAX_RANKS 14
 
 
-struct HoldingDetails
-{
-  int cFlipped;
-  int cFlippedUp; // All partner cards flipped to ace side
-  int maskFull;
-  int declLen;
-
-  PosType pLong;
-  PosType pShort;
-
-  int numTopsAll;
-  int numTopsLong;
-  int numTopsShort;
-
-  int lenLong;
-  int lenShort;
-  int lenMaxOpp;
-
-  int xLong;
-  int xShort;
-
-  int maxTopLong;
-  int minTopLong;
-  int maxTopShort;
-  int minTopShort;
-
-  int mapRealToShifted[SDS_MAX_RANKS];
-  int mapShiftedToReal[SDS_MAX_RANKS];
-};
-
 struct HoldingSimpleMove
 {
   PosType start;
@@ -76,15 +46,46 @@ class LoopHold: public Holding
     hoppType hopp;
     int distHex;
 
+    struct HoldingDetails
+    {
+      int cFlipped;
+      int cFlippedUp; // All partner cards flipped to ace side
+      int maskFull;
+      int declLen;
+
+      PosType pLong;
+      PosType pShort;
+
+      int numTopsAll;
+      int numTopsLong;
+      int numTopsShort;
+
+      int lenLong;
+      int lenShort;
+      int lenMaxOpp;
+
+      int xLong;
+      int xShort;
+
+      int maxTopLong;
+      int minTopLong;
+      int maxTopShort;
+      int minTopShort;
+
+      int mapRealToShifted[SDS_MAX_RANKS];
+      int mapShiftedToReal[SDS_MAX_RANKS];
+    };
+
+    HoldingDetails hdet;
+
+
 
     void UpdateDetailsForOpp(
-      HoldingDetails& hdet,
       const int& oppRank,
       const bool oppSkippedFlag,
       const PosType& oppSkipped);
 
     void SolveCrashTricksHand(
-      const HoldingDetails& hdet,
       const int& lenOpp,
       PosType& bend,
       PosType& cend,
@@ -102,10 +103,6 @@ class LoopHold: public Holding
       const int cashLength,
       const int toBeat,
       int& lowestRank);
-
-    int ShiftTops(
-      const HoldingDetails& hdet,
-      const int moveNumTops);
 
     bool SetMove(
       HoldingSimpleMove& move,
@@ -174,11 +171,9 @@ class LoopHold: public Holding
      
     bool SolveStopped(HoldingSimpleMove& move);
 
-    void SetDetails(
-      HoldingDetails& hdet);
+    void SetDetails();
 
     void SolveCrashTricks(
-      HoldingDetails& hdet,
       const PosType& oppBest,
       PosType& bend,
       PosType& cend,
@@ -190,8 +185,7 @@ class LoopHold: public Holding
       int& rtricks,
       int& ctricks);
     
-    void PrintDetails(
-      const HoldingDetails& hdet);
+    void PrintDetails();
 };
 
 #endif
