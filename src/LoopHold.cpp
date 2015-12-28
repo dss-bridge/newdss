@@ -1050,21 +1050,6 @@ void LoopHold::UpdateDetailsForOpp(
 }
 
 
-void LoopHold::PrintDetails()
-{
-  cout << "Long player " << static_cast<int>(hdet.pLong) << 
-    ", short " << static_cast<int>(hdet.pShort) << "\n";
-  cout << "Lengths long " << hdet.lenLong << 
-    ", short " << hdet.lenShort << 
-    ", maxOpp " << hdet.lenMaxOpp << "\n";
-  cout << "Tops long " << hdet.numTopsLong <<
-    ", short " << hdet.numTopsShort << 
-    ", together " << hdet.numTopsAll << "\n";
-  cout << "Long " << hdet.minTopLong << "-" << hdet.maxTopLong <<
-    ", short " << hdet.minTopShort << " - " << hdet.maxTopShort << "\n";
-}
-
-
 void LoopHold::SolveCrashTricks(
   PosType& bend,
   PosType& cend,
@@ -1346,6 +1331,21 @@ bool LoopHold::SolveStopped(
   }
   else
     return false;
+}
+
+
+void LoopHold::PrintDetails()
+{
+  cout << "Long player " << static_cast<int>(hdet.pLong) << 
+    ", short " << static_cast<int>(hdet.pShort) << "\n";
+  cout << "Lengths long " << hdet.lenLong << 
+    ", short " << hdet.lenShort << 
+    ", maxOpp " << hdet.lenMaxOpp << "\n";
+  cout << "Tops long " << hdet.numTopsLong <<
+    ", short " << hdet.numTopsShort << 
+    ", together " << hdet.numTopsAll << "\n";
+  cout << "Long " << hdet.minTopLong << "-" << hdet.maxTopLong <<
+    ", short " << hdet.minTopShort << " - " << hdet.maxTopShort << "\n";
 }
 
 
