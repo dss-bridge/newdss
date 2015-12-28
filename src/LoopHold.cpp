@@ -208,6 +208,7 @@ bool LoopHold::CashoutAceSideBlocked(
 
 
 void LoopHold::CashAceShort(
+  DefList& def,
   unsigned& rank) const
 {
   const unsigned opps = Max(length[QT_LHO], length[QT_RHO]);
@@ -223,6 +224,10 @@ void LoopHold::CashAceShort(
     tops = Min(opps+1, length[QT_ACE]);
 
   rank = SDS_VOID - tops;
+  Trick trick;
+  trick.Set(length[QT_PARD] ? QT_BOTH : QT_ACE, 
+    QT_ACE, rank, length[QT_ACE]);
+  def.Set1(trick);
 }
 
 
@@ -236,6 +241,27 @@ void LoopHold::CashoutAce(
 
   unsigned numCashingLho = static_cast<unsigned>(LoopHold::GetNumTopsOverOpp(QT_LHO));
   unsigned numCashingRho = static_cast<unsigned>(LoopHold::GetNumTopsOverOpp(QT_RHO));
+
+/*
+unsigned nl = Holding::TopsOverRank(QT_ACE, completeList[QT_LHO][0]);
+unsigned nr = Holding::TopsOverRank(QT_ACE, completeList[QT_RHO][0]);
+if (numCashingLho != nl)
+{
+  LoopHold::Print();
+  cout << "nl " << nl << " numC " << numCashingLho << "\n";
+  cout << "nr " << nr << " numR " << numCashingRho << "\n";
+  cout << endl;
+  assert(false);
+}
+if (numCashingRho != nr)
+{
+  LoopHold::Print();
+  cout << "nl " << nl << " numC " << numCashingLho << "\n";
+  cout << "nr " << nr << " numR " << numCashingRho << "\n";
+  cout << endl;
+  assert(false);
+}
+*/
 
   unsigned tricksOverLho = (numCashingLho >= ll ? la : numCashingLho);
   unsigned tricksOverRho = (numCashingRho >= lr ? la : numCashingRho);

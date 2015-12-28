@@ -753,7 +753,7 @@ bool Holding::GetMergeType() const
 
 unsigned Holding::TopsOverRank(
   const PosType& player,
-  const unsigned& rank) const
+  const unsigned rank) const
 {
   unsigned c = 0;
   for (; c < length[player]; c++)

@@ -158,7 +158,13 @@ class LoopHold: public Holding
 
     ~LoopHold();
 
+    bool CashoutAceSideBlocked(
+      DefList& def,
+      unsigned& ranks) const;
+
+
     void CashAceShort(
+      DefList& def,
       unsigned& rank) const;
 
     bool SolveStopped(HoldingSimpleMove& move);
@@ -166,10 +172,6 @@ class LoopHold: public Holding
     void CashoutAce(
       unsigned& tricks,
       unsigned& ranks);
-
-    bool CashoutAceSideBlocked(
-      DefList& def,
-      unsigned& ranks) const;
 
     bool CashoutBoth(
       DefList& def,

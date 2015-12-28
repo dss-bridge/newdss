@@ -73,7 +73,7 @@ class Holding
 
     unsigned TopsOverRank(
       const PosType& player,
-      const unsigned& rank) const;
+      const unsigned rank) const;
 
     void AdjustWinRank();
 

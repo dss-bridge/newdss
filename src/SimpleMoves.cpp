@@ -91,11 +91,11 @@ inline bool MakeSimpleSingleMove(
       // or whose cards are too low to yield more tricks.
       // Examples:  AK / xx / x / - or AK / Qxx / JT9 / -.
 
-      holding.CashAceShort(r);
+      holding.CashAceShort(def, r);
 
-      Trick trick;
-      trick.Set(lenPard ? QT_BOTH : QT_ACE, QT_ACE, r, lenAce);
-      def.Set1(trick);
+      // Trick trick;
+      // trick.Set(lenPard ? QT_BOTH : QT_ACE, QT_ACE, r, lenAce);
+      // def.Set1(trick);
 
       unsigned mno = moveList.AddMove(def, holding, newFlag);
       SetAllPermutations(sl, c, mno, holding, r, HIST_ACE_SHORT, newFlag);
