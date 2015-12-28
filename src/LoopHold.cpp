@@ -1123,7 +1123,6 @@ void LoopHold::SolveCrashTricks(
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_LHO][0]),
       true, QT_RHO);
-// LoopHold::PrintDetails(hdet);
     LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_LHO]),
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
@@ -1149,7 +1148,6 @@ void LoopHold::SolveCrashTricks(
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_RHO][0]),
       true, QT_LHO);
-// LoopHold::PrintDetails(hdet);
     LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_RHO]),
       bend2, cend2, brank2, rrank2, crank2, crank22,
       btricks2, rtricks2, ctricks2);
@@ -1345,7 +1343,9 @@ void LoopHold::SolveCrashTricksHand(
 
 
 bool LoopHold::SolveStopped(
-  HoldingSimpleMove& move)
+  DefList& def,
+  unsigned& rank)
+  // HoldingSimpleMove& move)
 {
   assert(suitLength >= 4);
   assert(length[QT_PARD] > 0);
@@ -1364,16 +1364,28 @@ bool LoopHold::SolveStopped(
   hopp.N = (htop.N == QT_LHO || htop.N == QT_RHO ? true : false);
   hopp.E = (htop.E == QT_LHO || htop.E == QT_RHO ? true : false);
 
-  distHex = static_cast<int>((length[QT_ACE] << 12) | (length[QT_LHO] << 8) |
-    (length[QT_PARD] << 4) | length[QT_RHO]);
+  distHex = (length[QT_ACE] << 12) | (length[QT_LHO] << 8) |
+    (length[QT_PARD] << 4) | length[QT_RHO];
 
-  pickFlag = false;
+  // pickFlag = false;
   // if (! hopp.K && htop.Q == QT_RHO && htop.J == QT_RHO)
     // pickFlag = true;
   pickFlag = true;
 
   int topIndex = (counter >> (2*(suitLength-4))) & 0x3f;
-  return (this->*SolveStoppedFunction[topIndex])(move);
+  HoldingSimpleMove move;
+  if ((this->*SolveStoppedFunction[topIndex])(move))
+  {
+    Trick trick;
+    trick.Set(move.start, move.end,
+      static_cast<unsigned>(move.rank),
+      static_cast<unsigned>(move.tricks));
+    def.Set1(trick);
+    rank = static_cast<unsigned>(move.rank);
+    return true;
+  }
+  else
+    return false;
 }
 
 

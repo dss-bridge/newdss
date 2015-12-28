@@ -74,6 +74,8 @@ class Holding
     unsigned length[SDS_HANDS];
     unsigned completeList[SDS_HANDS][SDS_MAX_RANKS];
 
+    PosType GetOppBest();
+
     unsigned ListToRank(
       const unsigned listValue) const;
 
@@ -118,7 +120,6 @@ class Holding
     bool IsAATrick() const;
 
     unsigned GetNumTops();
-    PosType GetOppBest();
 
     bool MakePlay(
       unsigned& slNew,

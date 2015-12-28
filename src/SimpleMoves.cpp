@@ -59,9 +59,9 @@ void MakeSimpleMoves()
 
 
 // So we don't create and destroy all the time...
-HoldingSimpleMove zhmove;
-LoopHold zhNew;
-Trick ztrick, ztrick2, ztrick3;
+// HoldingSimpleMove zhmove;
+// LoopHold zhNew;
+// Trick ztrick, ztrick2, ztrick3;
 
 inline bool MakeSimpleSingleMove(
   const unsigned sl,
@@ -123,6 +123,7 @@ inline bool MakeSimpleSingleMove(
       if (singles[sl][cNew].moveNo)
         continue;
 
+      LoopHold zhNew;
       zhNew.Set(sl, cNew);
       // No complete blocks.
       if (zhNew.GetNumTops() == zhNew.GetLength(QT_ACE))
@@ -137,6 +138,8 @@ inline bool MakeSimpleSingleMove(
       {
         assert(crank < crank2);
 
+        Trick ztrick, ztrick2;
+        ;
         ztrick.Set(QT_BOTH, QT_ACE, static_cast<unsigned>(crank2), 
           static_cast<unsigned>(ctricks));
         ztrick2.Set(QT_ACE, QT_PARD, static_cast<unsigned>(crank), 
@@ -151,6 +154,8 @@ inline bool MakeSimpleSingleMove(
       }
       else if (rtricks <= 0)
       {
+        Trick ztrick;
+
         ztrick.Set(QT_BOTH, cend, static_cast<unsigned>(crank), 
           static_cast<unsigned>(ctricks));
         def.Set1(ztrick);
@@ -165,6 +170,8 @@ inline bool MakeSimpleSingleMove(
       {
         blocked = (bend == QT_ACE ? QT_PARD : QT_ACE);
         PosType bstart = (btricks + rtricks > ctricks ? QT_BOTH : bend);
+
+        Trick ztrick, ztrick2, ztrick3;
 
         if (bstart == QT_BOTH &&
             ctricks <= btricks &&
@@ -202,29 +209,21 @@ inline bool MakeSimpleSingleMove(
   if (singles[sl][c].moveNo)
     return true;
 
-  int t;
   unsigned r;
-  if (holding.SolveStopped(zhmove))
+  if (holding.SolveStopped(def, r))
   {
     // Opponents have enough tops and length to hold declarer to
     // a number of tricks, often 1.  (For instance LHO has Kx.)
 
-    // >>>>> Need to turn zhmove into a trick to begin with!
-    ztrick.Set(zhmove.start, zhmove.end, static_cast<unsigned>(zhmove.rank), 
-      static_cast<unsigned>(zhmove.tricks));
-    def.Set1(ztrick);
-
     unsigned mno = moveList.AddMove(def, holding, newFlag);
-    SetAllPermutations(sl, c, mno, holding, static_cast<unsigned>(zhmove.rank), 
-      HIST_SINGLE, newFlag);
+    SetAllPermutations(sl, c, mno, holding, r, HIST_SINGLE, newFlag);
   }
   else if (holding.CashoutBoth(def, r))
   {
     // Suits such as AQx / Kx.
 
     unsigned mno = moveList.AddMove(def, holding, newFlag);
-    SetAllPermutations(sl, c, mno, holding, static_cast<unsigned>(r), 
-      HIST_CASHES, newFlag);
+    SetAllPermutations(sl, c, mno, holding, r, HIST_CASHES, newFlag);
   }
 
   return (singles[sl][c].moveNo > 0);

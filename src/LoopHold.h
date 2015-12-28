@@ -44,7 +44,7 @@ class LoopHold: public Holding
 
     htopType htop;
     hoppType hopp;
-    int distHex;
+    unsigned distHex;
 
     struct HoldingDetails
     {
@@ -118,6 +118,10 @@ class LoopHold: public Holding
       const bool ignoreOtherOpp,
       const PosType anchor);
 
+    void SetDetails();
+
+    void PrintDetails();
+
     bool SolveStopped0(HoldingSimpleMove& move);
     bool SolveStopped1(HoldingSimpleMove& move);
     bool SolveStopped2(HoldingSimpleMove& move);
@@ -164,14 +168,15 @@ class LoopHold: public Holding
       DefList& def,
       unsigned& rank) const;
 
-
     bool CashoutBoth(
       DefList& def,
-      unsigned& lowestRank);
+      unsigned& rank);
      
-    bool SolveStopped(HoldingSimpleMove& move);
-
-    void SetDetails();
+    bool SolveStopped(
+      DefList& def,
+      unsigned& rank);
+      
+      // HoldingSimpleMove& move);
 
     void SolveCrashTricks(
       const PosType StupidCompiler,
@@ -184,8 +189,6 @@ class LoopHold: public Holding
       int& btricks,
       int& rtricks,
       int& ctricks);
-    
-    void PrintDetails();
 };
 
 #endif
