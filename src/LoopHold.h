@@ -96,9 +96,6 @@ class LoopHold: public Holding
       int& rtricks,
       int& ctricks);
       
-    int GetNumTopsOverOpp(
-      const PosType opp) const;
-
     bool GetAsymmRanks(
       const int plong,
       const int pShort,
@@ -160,23 +157,23 @@ class LoopHold: public Holding
 
     bool CashoutAceSideBlocked(
       DefList& def,
-      unsigned& ranks) const;
-
+      unsigned& rank) const;
 
     void CashAceShort(
       DefList& def,
       unsigned& rank) const;
 
-    bool SolveStopped(HoldingSimpleMove& move);
-
     void CashoutAce(
-      unsigned& tricks,
-      unsigned& ranks);
+      DefList& def,
+      unsigned& rank) const;
+
 
     bool CashoutBoth(
       DefList& def,
       int& lowestRank);
      
+    bool SolveStopped(HoldingSimpleMove& move);
+
     void SetDetails(
       HoldingDetails& hdet);
 

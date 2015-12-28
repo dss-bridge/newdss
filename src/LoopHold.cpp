@@ -111,29 +111,6 @@ LoopHold::~LoopHold()
 }
 
 
-int LoopHold::GetNumTopsOverOpp(
-  const PosType opp) const
-{
-  if (length[opp] == 0)
-    return 0;
-
-  unsigned oppRank = completeList[opp][0];
-    
-  int aceOverOpp = 0;
-  bool found = false;
-
-  for (int i = 0; i < static_cast<int>(length[QT_ACE]) && ! found; i++)
-  {
-    if (completeList[QT_ACE][i] > oppRank)
-      aceOverOpp++;
-    else
-      found = true;
-  }
-
-  return Min(aceOverOpp, static_cast<int>(length[opp]));
-}
-
-
 bool LoopHold::CashoutAceSideBlocked(
   DefList& def,
   unsigned& rank) const
@@ -232,8 +209,8 @@ void LoopHold::CashAceShort(
 
 
 void LoopHold::CashoutAce(
-  unsigned& tricks,
-  unsigned& ranks)
+  DefList& def,
+  unsigned& rank) const
 {
   const unsigned la = length[QT_ACE];
   const unsigned ll = length[QT_LHO];
@@ -241,7 +218,7 @@ void LoopHold::CashoutAce(
 
   unsigned nLho = Holding::TopsOverRank(QT_ACE, completeList[QT_LHO][0]);
   unsigned nRho = Holding::TopsOverRank(QT_ACE, completeList[QT_RHO][0]);
-  unsigned numCashing;
+  unsigned numCashing, tricks;
 
   if (nLho >= ll && nRho >= lr)
   {
@@ -264,12 +241,14 @@ void LoopHold::CashoutAce(
     tricks = numCashing;
   }
 
-  ranks = Holding::ListToRank(completeList[QT_ACE][numCashing-1]);
+  rank = Holding::ListToRank(completeList[QT_ACE][numCashing-1]);
+
+  Trick trick;
+  trick.Set(QT_ACE, QT_ACE, rank, tricks);
+  def.Set1(trick);
 }
 
 
-#define SLF 14
-#define COF 0x9002aa
 
 bool LoopHold::CashoutBoth(
   DefList& def,

@@ -72,31 +72,26 @@ inline bool MakeSimpleSingleMove(
 {
   unsigned lenAce = holding.GetLength(QT_ACE);
   unsigned lenPard = holding.GetLength(QT_PARD);
+  bool newFlag;
 
   if (lenAce == holding.GetNumTops())
   {
-    unsigned r, t;
-    bool newFlag;
+    unsigned r;
 
     if (lenPard > lenAce && holding.CashoutAceSideBlocked(def, r))
     {
-      // Aceholder has blocking tops that count: AK / JT9.
+      // Aceholder has blocking tops: AK / Qx / JT9 / xx.
+      // Partner can cash afterwards.
 
-       unsigned mno = moveList.AddMove(def, holding, newFlag);
+      unsigned mno = moveList.AddMove(def, holding, newFlag);
       SetAllPermutations(sl, c, mno, holding, r, HIST_BLOCKED, newFlag);
     }
     else
     {
-      // Tops opposite partner who is either cashed out,
-      // or whose cards are too low to yield more tricks.
-      // Examples:  AK / xx / x / - or AK / Qxx / JT9 / -.
+      // Aceholder has blocking tops: AK / Qxx / JT9 / xx.
+      // Partner cannot cash afterwards.
 
       holding.CashAceShort(def, r);
-
-      // Trick trick;
-      // trick.Set(lenPard ? QT_BOTH : QT_ACE, QT_ACE, r, lenAce);
-      // def.Set1(trick);
-
       unsigned mno = moveList.AddMove(def, holding, newFlag);
       SetAllPermutations(sl, c, mno, holding, r, HIST_ACE_SHORT, newFlag);
     }
@@ -104,27 +99,21 @@ inline bool MakeSimpleSingleMove(
 
   if (singles[sl][c].minLen == 0)
   {
-    bool newFlag;
-    PosType start, end;
-    unsigned r, t;
-    int brank, rrank, crank, crank2, btricks, rtricks, ctricks;
+    unsigned r;
 
     if (singles[sl][c].moveNo == 0)
     {
       // Partner is void.  Cash maximum from aceholder.
 
-      holding.CashoutAce(t, r);
-
-      ztrick.Set(QT_ACE, QT_ACE, static_cast<unsigned>(r), 
-        static_cast<unsigned>(t));
-      def.Set1(ztrick);
+      holding.CashoutAce(def, r);
       unsigned mno = moveList.AddMove(def, holding, newFlag);
-      SetAllPermutations(sl, c, mno, holding, static_cast<unsigned>(r), 
-        HIST_PARD_VOID, newFlag);
+      SetAllPermutations(sl, c, mno, holding, r, HIST_PARD_VOID, newFlag);
     }
 
     // Can also make some crash positions out of this, e.g. AQ / K.
 
+    PosType start, end;
+    int brank, rrank, crank, crank2, btricks, rtricks, ctricks;
     unsigned numTops = holding.GetNumTops();
     PosType oppBest = holding.GetOppBest();
 
@@ -215,7 +204,6 @@ inline bool MakeSimpleSingleMove(
   if (singles[sl][c].moveNo)
     return true;
 
-  bool newFlag;
   int r, t;
   if (holding.SolveStopped(zhmove))
   {
