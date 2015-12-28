@@ -58,10 +58,10 @@ class LoopHold: public Holding
       int xLong;
       int xShort;
 
-      int maxTopLong;
-      int minTopLong;
-      int maxTopShort;
-      int minTopShort;
+      unsigned maxTopLong;
+      unsigned minTopLong;
+      unsigned maxTopShort;
+      unsigned minTopShort;
 
       unsigned mapRealToShifted[SDS_MAX_RANKS];
       unsigned mapShiftedToReal[SDS_MAX_RANKS];

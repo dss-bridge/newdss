@@ -986,7 +986,7 @@ void LoopHold::UpdateDetailsForOpp(
   while (i < static_cast<int>(hdet.lenLong) && static_cast<int>(completeList[hdet.pLong][i]) > oppRank)
   {
     hdet.numTopsLong++;
-    hdet.minTopLong = static_cast<int>(completeList[hdet.pLong][i]);
+    hdet.minTopLong = completeList[hdet.pLong][i];
     i++;
   }
 
@@ -994,7 +994,7 @@ void LoopHold::UpdateDetailsForOpp(
   while (i < static_cast<int>(hdet.lenShort) && static_cast<int>(completeList[hdet.pShort][i]) > oppRank)
   {
     hdet.numTopsShort++;
-    hdet.minTopShort = static_cast<int>(completeList[hdet.pShort][i]);
+    hdet.minTopShort = completeList[hdet.pShort][i];
     i++;
   }
 
@@ -1005,9 +1005,9 @@ void LoopHold::UpdateDetailsForOpp(
 
     int used[SDS_MAX_RANKS] = {0};
     i = 0;
-    int m = Min(hdet.minTopLong, hdet.minTopShort);
+    unsigned m = Min(hdet.minTopLong, hdet.minTopShort);
     while (i < static_cast<int>(length[oppSkipped]) && 
-      static_cast<int>(completeList[oppSkipped][i]) > m)
+      completeList[oppSkipped][i] > m)
     {
       used[completeList[oppSkipped][i]] = 1;
       i++;
@@ -1029,16 +1029,16 @@ void LoopHold::UpdateDetailsForOpp(
         i--;
       }
     }
-    while (i >= m);
+    while (i >= static_cast<int>(m));
 
-    hdet.minTopLong = static_cast<int>(hdet.mapRealToShifted[hdet.minTopLong]);
-    hdet.minTopShort = static_cast<int>(hdet.mapRealToShifted[hdet.minTopShort]);
+    hdet.minTopLong = hdet.mapRealToShifted[hdet.minTopLong];
+    hdet.minTopShort = hdet.mapRealToShifted[hdet.minTopShort];
   }
 
-  hdet.maxTopLong = static_cast<int>(completeList[hdet.pLong][0]);
-  hdet.maxTopShort = static_cast<int>(completeList[hdet.pShort][0]);
+  hdet.maxTopLong = completeList[hdet.pLong][0];
+  hdet.maxTopShort = completeList[hdet.pShort][0];
 
-  int delta = SDS_VOID - static_cast<int>(suitLength);
+  unsigned delta = SDS_VOID - suitLength;
   hdet.maxTopLong += delta;
   hdet.minTopLong += delta;
   hdet.maxTopShort += delta;
@@ -1197,7 +1197,7 @@ void LoopHold::SolveCrashTricksHand(
   unsigned ccash = SDS_VOID - Min(ocash, ctricks);
 
   unsigned cextra = ccash;
-  if ((static_cast<int>(ccash) <= hdet.minTopShort && hdet.xShort == 0) || 
+  if ((ccash <= hdet.minTopShort && hdet.xShort == 0) || 
      (hdet.lenShort >= 2 && lenOpp <= 1))
     cextra--;
 
@@ -1236,8 +1236,8 @@ void LoopHold::SolveCrashTricksHand(
   }
   else if (length[QT_ACE] > length[QT_PARD] &&
       length[QT_PARD] >= 2 &&
-      hdet.maxTopShort <= SDS_ACE - static_cast<int>(length[QT_PARD]) &&
-      lenOpp <= SDS_ACE - hdet.maxTopShort)
+      hdet.maxTopShort <= SDS_ACE - length[QT_PARD] &&
+      static_cast<unsigned>(lenOpp) <= SDS_ACE - hdet.maxTopShort)
   {
     crank2 = Holding::ListToRank(
       completeList[QT_ACE][Max(lenOpp, static_cast<int>(length[QT_PARD])) - 1]);
@@ -1256,7 +1256,7 @@ void LoopHold::SolveCrashTricksHand(
      hdet.minTopLong < hdet.maxTopShort) ?  true : false);
 
   bool must = ((hdet.numTopsAll <= Min(static_cast<unsigned>(lenOpp), hdet.lenLong) ||
-    (hdet.xShort == 0 && hdet.minTopShort > static_cast<int>(crank)) ) &&
+    (hdet.xShort == 0 && hdet.minTopShort > crank) ) &&
     hdet.lenLong > hdet.lenShort ? true : false);
 
   if ((! poss) || (hdet.lenShort > 1 && ! must))
@@ -1282,7 +1282,7 @@ void LoopHold::SolveCrashTricksHand(
     rrank = SDS_VOID;
   else
   {
-    unsigned x = (hdet.minTopLong >= static_cast<int>(brank) ? SDS_VOID : static_cast<unsigned>(hdet.minTopLong));
+    unsigned x = (hdet.minTopLong >= brank ? SDS_VOID : hdet.minTopLong);
     rrank = Max(ocash, x);
   }
 }
