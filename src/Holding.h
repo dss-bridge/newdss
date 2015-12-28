@@ -54,9 +54,12 @@ class Holding
 
     void MakeRanks();
 
-    void ToText(
-      std::ostream&) const;
-
+    void PrintRanksList(
+      const unsigned list[][SDS_MAX_RANKS],
+      const unsigned listLen[SDS_HANDS],
+      const std::string text ="",
+      std::ostream& out = std::cout) const;
+    
   protected:
 
     unsigned suitLength;
@@ -135,12 +138,11 @@ class Holding
       std::ostream& out = std::cout,
       const bool showBinary = true) const;
 
-    void PrintRanks() const;
+    void PrintRanks(
+      std::ostream& out = std::cout) const;
     
-    void PrintPlay();
-
-    void PrintPlayNew(
-      std::ostream& pout);
+    void PrintPlay(
+      std::ostream& out = std::cout) const;
 };
 
 #endif

@@ -487,7 +487,7 @@ bool BestMoveAfterPard(
     if (options.debugFlow)
     {
       DumpStatus(def, "BestMoveAfterPard: Simple play");
-      holding.PrintPlayNew(files.debug);
+      holding.PrintPlay(files.debug);
     }
 
     return true;
@@ -532,7 +532,7 @@ bool BestMoveAfterPard(
     Holding htmp;
     htmp.Set(slNew, cNew);
     htmp.Print(files.debug);
-    holding.PrintPlayNew(files.debug);
+    holding.PrintPlay(files.debug);
   }
 
   def += holding;

@@ -810,45 +810,35 @@ void Holding::Print(
 {
   if (showBinary)
     out << "sl " << suitLength << " c " << hex << counter << dec << "\n";
-  Holding::ToText(out);
-}
 
-
-void Holding::ToText(
-  ostream& out) const
-{
-  assert(suitLength < 14);
-
-  char text[4][20];
-  char * p[4];
-  for (int i = 0; i < 4; i++)
+  char text[SDS_HANDS][20];
+  char * p[SDS_HANDS];
+  unsigned h;
+  for (h = 0; h < SDS_HANDS; h++)
   {
-    strcpy(text[i], "");
-    p[i] = text[i];
+    strcpy(text[h], "");
+    p[h] = text[h];
   }
 
-  int r = SDS_ACE;
-  * p[QT_ACE] = SDS_RANK_NAMES[r];
+  * p[QT_ACE] = SDS_RANK_NAMES[SDS_ACE];
   p[QT_ACE]++;
-  r--;
+  unsigned r = SDS_ACE - 1;
 
-  int pl;
-  for (int m = static_cast<int>(suitLength)-2; m >= 0; m--)
+  for (unsigned m = 0; m < suitLength-1; m++)
   {
-    pl = (static_cast<int>(counter) >> (2*m)) & 3;
-    * p[pl] = SDS_RANK_NAMES[r];
-    p[pl]++;
-    r--;
+    h = (counter >> (2*(suitLength-2-m))) & 0x3;
+    * p[h] = SDS_RANK_NAMES[r--];
+    p[h]++;
   }
 
-  for (pl = 0; pl < 4; pl++)
+  for (h = 0; h < SDS_HANDS; h++)
   {
-    if (p[pl] == text[pl])
+    if (p[h] == text[h])
     {
-      * p[pl] = '-';
-      p[pl]++;
+      * p[h] = '-';
+      p[h]++;
     }
-    * p[pl] = '\0';
+    * p[h] = '\0';
   }
 
   out <<
@@ -859,54 +849,58 @@ void Holding::ToText(
 }
 
 
-void Holding::PrintRanks() const
+void Holding::PrintRanksList(
+  const unsigned list[][SDS_MAX_RANKS],
+  const unsigned listLen[SDS_HANDS],
+  const string text,
+  std::ostream& out) const
 {
-  cout << "Lowest new ranks\n";
+  if (text != "")
+    out << text << "\n";
+
   for (unsigned i = 0; i < SDS_HANDS; i++)
   {
-    if (cardNo[i] > 13)
-    {
-      cout << "i " << i << " cardNo " << cardNo[i] << endl;
-      assert(false);
-    }
-
-    cout << i << ": " << setw(2) << cardNo[i] << ", ";
-    for (unsigned j = 0; j < cardNo[i]; j++)
-      cout << cardListLo[i][j] << "-";
-    cout << "\n";
+    out << i << ": " << setw(2) << listLen[i] << ", ";
+    for (unsigned j = 0; j < listLen[i]; j++)
+      out << list[i][j] << "-";
+    out << "\n";
   }
-  cout << "\n";
-
-  cout << "Highest new ranks\n";
-  for (unsigned i = 0; i < SDS_HANDS; i++)
-  {
-    cout << i << ": " << setw(2) << cardNo[i] << ", ";
-    for (unsigned j = 0; j < cardNo[i]; j++)
-      cout << cardListHi[i][j] << "-";
-    cout << "\n";
-  }
-  cout << "\n";
-
-  cout << "Complete ranks\n";
-  for (unsigned i = 0; i < SDS_HANDS; i++)
-  {
-    cout << i << ": " << setw(2) << length[i] << ", ";
-    for (unsigned j = 0; j < length[i]; j++)
-      cout << completeList[i][j] << "-";
-    cout << "\n";
-  }
-  cout << "\n";
+  out << "\n";
 }
 
 
-void Holding::PrintPlay()
+void Holding::PrintRanks(
+  std::ostream& out) const
 {
-assert(false);
+  // Later on, chen cardList is unsigned, switch these as well.
+
+  out << "Lowest new ranks\n";
+  for (unsigned i = 0; i < SDS_HANDS; i++)
+  {
+    assert(cardNo[i] <= 13);
+    out << i << ": " << setw(2) << cardNo[i] << ", ";
+    for (unsigned j = 0; j < cardNo[i]; j++)
+      out << cardListLo[i][j] << "-";
+    out << "\n";
+  }
+  out << "\n";
+
+  out << "Highest new ranks\n";
+  for (unsigned i = 0; i < SDS_HANDS; i++)
+  {
+    out << i << ": " << setw(2) << cardNo[i] << ", ";
+    for (unsigned j = 0; j < cardNo[i]; j++)
+      out << cardListHi[i][j] << "-";
+    out << "\n";
+  }
+  out << "\n";
+
+  Holding::PrintRanksList(completeList, length, "Complete ranks", out);
 }
 
 
-void Holding::PrintPlayNew(
-  std::ostream& out)
+void Holding::PrintPlay(
+  std::ostream& out) const
 {
   out << "side " << 
     static_cast<int>(side) << " trick " << leadRank <<
