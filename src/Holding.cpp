@@ -41,6 +41,72 @@ void Holding::Set(
 }
 
 
+void Holding::MakeRanks()
+{
+  unsigned h, p, r;
+
+  for (h = 0; h < SDS_HANDS; h++)
+  {
+    cardNo[h] = 0;
+    length[h] = 0;
+    for (r = 0; r < SDS_MAX_RANKS; r++)
+    {
+      cardListLo[h][r] = 0;
+      cardListHi[h][r] = 0;
+      completeList[h][r] = 0;
+    }
+  }
+
+  cardNo[QT_ACE] = 1;
+  cardListLo[QT_ACE][0] = static_cast<int>(suitLength-1);
+  cardListHi[QT_ACE][0] = static_cast<int>(suitLength-1);
+
+  length[QT_ACE] = 1;
+  completeList[QT_ACE][0] = suitLength-1;
+
+  unsigned hlast = QT_ACE;
+
+  for (int m = static_cast<int>(suitLength)-2; m >= 0; m--)
+  {
+    p = (counter >> (2*static_cast<unsigned>(m))) & 3;
+
+    // Play lowest of equals, other than the ace.
+    if (p == hlast)
+    {
+      if (cardListLo[p][cardNo[p]-1] != static_cast<int>(suitLength)-1)
+        cardListLo[p][cardNo[p]-1] = m;
+    }
+    else
+    {
+      cardListLo[p][cardNo[p]] = m;
+      cardListHi[p][cardNo[p]] = m;
+      cardNo[p]++;
+    }
+
+    hlast = p;
+
+    completeList[p][length[p]] = static_cast<unsigned>(m);
+    length[p]++;
+  }
+
+  for (h = 0; h < SDS_HANDS; h++)
+  {
+    if (cardNo[h])
+      continue;
+    
+    cardListLo[h][0] = -1;
+    cardListHi[h][0] = -1;
+
+    cardNo[h] = 1;
+  }
+
+  for (h = 0; h < SDS_HANDS; h++)
+    minRank[h] = cardListLo[h][cardNo[h]-1];
+
+  maxDef = Max(cardListLo[QT_LHO][0], cardListLo[QT_RHO][0]);
+}
+
+
 void Holding::SetSide(
   const PosType sideVal)
 {
@@ -89,9 +155,6 @@ void Holding::RewindLead()
     int lrLo = cardListLo[side][l];
     int m = Max(maxPard, lrHi);
 
-    multiLead[lrHi] = false;
-    multiLead[lrLo] = false;
-      
     if (m < maxDef)
     {
       // Will lose trick.
@@ -320,7 +383,7 @@ PosType Holding::GetSide() const
 }
 
 
-PosType Holding::GetWinSide()
+PosType Holding::GetWinSide() const
 {
   return winSide;
 }
@@ -355,7 +418,7 @@ unsigned Holding::GetLHOMaxRank() const
 }
 
 
-unsigned Holding::GetMaxOppRank()
+unsigned Holding::GetMaxOppRank() const
 {
   unsigned m = static_cast<unsigned>(
     Max(cardListHi[QT_LHO][0], cardListHi[QT_RHO][0]));
@@ -364,7 +427,7 @@ unsigned Holding::GetMaxOppRank()
 }
 
 
-const Trick Holding::GetTrick() const
+Trick Holding::GetTrick() const
 {
   Trick trick;
   trick.Set(side, winSide, Holding::GetPrependRank(), 1);
@@ -372,79 +435,8 @@ const Trick Holding::GetTrick() const
 }
 
 
-bool Holding::IsAATrick() const
-{
-  return (side == QT_ACE && winSide == QT_ACE);
-}
 
-
-void Holding::MakeRanks()
-{
-  unsigned h, p, r;
-
-  for (h = 0; h < SDS_HANDS; h++)
-  {
-    cardNo[h] = 0;
-    length[h] = 0;
-    for (r = 0; r < SDS_MAX_RANKS; r++)
-    {
-      cardListLo[h][r] = 0;
-      cardListHi[h][r] = 0;
-      completeList[h][r] = 0;
-    }
-  }
-
-  cardNo[QT_ACE] = 1;
-  cardListLo[QT_ACE][0] = static_cast<int>(suitLength-1);
-  cardListHi[QT_ACE][0] = static_cast<int>(suitLength-1);
-
-  length[QT_ACE] = 1;
-  completeList[QT_ACE][0] = suitLength-1;
-
-  unsigned hlast = QT_ACE;
-
-  for (int m = static_cast<int>(suitLength)-2; m >= 0; m--)
-  {
-    p = (counter >> (2*static_cast<unsigned>(m))) & 3;
-
-    // Play lowest of equals, other than the ace.
-    if (p == hlast)
-    {
-      if (cardListLo[p][cardNo[p]-1] != static_cast<int>(suitLength)-1)
-        cardListLo[p][cardNo[p]-1] = m;
-    }
-    else
-    {
-      cardListLo[p][cardNo[p]] = m;
-      cardListHi[p][cardNo[p]] = m;
-      cardNo[p]++;
-    }
-
-    hlast = p;
-
-    completeList[p][length[p]] = static_cast<unsigned>(m);
-    length[p]++;
-  }
-
-  for (h = 0; h < SDS_HANDS; h++)
-  {
-    if (cardNo[h])
-      continue;
-    
-    cardListLo[h][0] = -1;
-    cardListHi[h][0] = -1;
-
-    cardNo[h] = 1;
-  }
-
-  for (h = 0; h < SDS_HANDS; h++)
-    minRank[h] = cardListLo[h][cardNo[h]-1];
-
-  maxDef = Max(cardListLo[QT_LHO][0], cardListLo[QT_RHO][0]);
-}
-
-
-unsigned Holding::GetNumTops()
+unsigned Holding::GetNumTops() const
 {
   unsigned n = 1;
   while (n < length[QT_ACE] &&
@@ -455,7 +447,7 @@ unsigned Holding::GetNumTops()
 }
 
 
-PosType Holding::GetOppBest()
+PosType Holding::GetOppBest() const
 {
   if (length[QT_LHO] == 0)
     return QT_RHO;
@@ -475,6 +467,11 @@ PosType Holding::GetOppBest()
   }
 }
 
+
+bool Holding::IsAATrick() const
+{
+  return (side == QT_ACE && winSide == QT_ACE);
+}
 
 const unsigned loMask[13] =
 {

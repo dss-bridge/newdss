@@ -26,14 +26,13 @@ class Holding
     PosType pard;
     PosType rho;
 
-    int numLeads;
-    int numLhos;
-    int numPards;
-    int leadCurrIndex;
-    int lhoCurrIndex;
-    int pardCurrIndex;
-    int leadList[SDS_MAX_RANKS]; // Too large
-    bool multiLead[SDS_MAX_RANKS]; // Set if certain touching honors
+    unsigned numLeads;
+    unsigned numLhos;
+    unsigned numPards;
+    unsigned leadCurrIndex;
+    unsigned lhoCurrIndex;
+    unsigned pardCurrIndex;
+    int leadList[SDS_MAX_RANKS];
     int lhoList[SDS_MAX_RANKS];
     int pardList[SDS_MAX_RANKS];
 
@@ -58,14 +57,14 @@ class Holding
 
     void MakeRanks();
 
+    void AdjustWinRank();
+    
     void PrintRanksList(
       const unsigned list[][SDS_MAX_RANKS],
       const unsigned listLen[SDS_HANDS],
       const std::string text ="",
       std::ostream& out = std::cout) const;
 
-    void AdjustWinRank();
-    
 
   protected:
 
@@ -74,7 +73,7 @@ class Holding
     unsigned length[SDS_HANDS];
     unsigned completeList[SDS_HANDS][SDS_MAX_RANKS];
 
-    PosType GetOppBest();
+    PosType GetOppBest() const;
 
     unsigned ListToRank(
       const unsigned listValue) const;
@@ -106,21 +105,19 @@ class Holding
     bool NextPard();
     void SetRhoNo();
 
-    PosType GetSide() const;
-    PosType GetWinSide();
-
-    const Trick GetTrick() const;
-
-    unsigned GetPrependRank() const;
-    unsigned GetMaxOppRank();
     unsigned GetSuitLength() const;
     unsigned GetCounter() const;
+    PosType GetSide() const;
+    PosType GetWinSide() const;
     unsigned GetLength(const int player) const;
     unsigned GetMinDeclLength() const;
+    unsigned GetPrependRank() const;
     unsigned GetLHOMaxRank() const;
-    bool IsAATrick() const;
+    unsigned GetMaxOppRank() const;
+    Trick GetTrick() const;
+    unsigned GetNumTops() const;
 
-    unsigned GetNumTops();
+    bool IsAATrick() const;
 
     bool MakePlay(
       unsigned& slNew,
