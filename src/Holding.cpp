@@ -323,22 +323,16 @@ PosType Holding::GetWinSide()
 
 unsigned Holding::GetPrependRank() const
 {
-  return static_cast<unsigned>
-    (SDS_ACE - (suitLength - static_cast<unsigned>(winRank) - 1));
+  return Holding::ListToRank(winRank);
 }
 
 
-int Holding::GetMaxOppRank()
+unsigned Holding::GetMaxOppRank()
 {
-  int m = Max(cardListHi[QT_LHO][0], cardListHi[QT_RHO][0]);
-  //return m;
+  unsigned m = static_cast<unsigned>(
+    Max(cardListHi[QT_LHO][0], cardListHi[QT_RHO][0]));
 
-  /*
-  if (m == -1)
-    return 0;
-  else
-  */
-    return SDS_VOID - (static_cast<int>(suitLength) - m);
+  return Holding::ListToRank(m);
 }
 
 
@@ -354,7 +348,8 @@ unsigned Holding::GetCounter() const
 }
 
 
-unsigned Holding::GetLength(const int player) const
+unsigned Holding::GetLength(
+  const int player) const
 {
   assert(player >= 0 && player < SDS_HANDS);
   return length[player];
@@ -367,20 +362,12 @@ unsigned Holding::GetMinDeclLength() const
 }
 
 
-bool Holding::LHOIsVoid() const
-{
-  return (length[QT_LHO] == 0);
-}
-
-
 unsigned Holding::GetLHOMaxRank() const
 {
-  int m = cardListHi[QT_LHO][0];
-  if (m == -1)
+  if (length[QT_LHO] == 0)
     return 0;
   else
-    return static_cast<unsigned>(
-      SDS_VOID - (static_cast<int>(suitLength) - m));
+    return Holding::ListToRank(static_cast<unsigned>(cardListHi[QT_LHO][0]));
 }
 
 

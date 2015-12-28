@@ -108,12 +108,11 @@ class Holding
     const Trick GetTrick() const;
 
     unsigned GetPrependRank() const;
-    int GetMaxOppRank();
+    unsigned GetMaxOppRank();
     unsigned GetSuitLength() const;
     unsigned GetCounter() const;
     unsigned GetLength(const int player) const;
     unsigned GetMinDeclLength() const;
-    bool LHOIsVoid() const;
     unsigned GetLHOMaxRank() const;
     bool IsAATrick() const;
 

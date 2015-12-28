@@ -236,7 +236,7 @@ bool Segment::Prepend(
       {
         list[1] = mergingMove;
         len = 2;
-        if (holding.LHOIsVoid())
+        if (holding.GetLength(QT_LHO) == 0)
           Segment::PrependFix(lastFlag);
       }
       else if (len == 2)

@@ -319,7 +319,7 @@ void TrickList::operator += (
     if (list[len-1].GetLength() == 2 &&
         holding.GetLength(QT_PARD) == 2 &&
         holding.GetLength(QT_RHO) >= 2 &&
-        holding.LHOIsVoid() && 
+        holding.GetLength(QT_LHO) == 0 && 
         holding.IsAATrick())
     {
       // Essentially AKx / - / Qx / xx.  Conservative.
