@@ -961,7 +961,8 @@ bool LoopHold::GetAsymmRanks(
 
   if (length[pShort] <= cashLength)
   {
-    unsigned m = Min(completeList[pShort][shortStop-1],
+    unsigned m = Min(
+      completeList[pShort][shortStop-1],
       completeList[pLong][longStop-1]);
     lowestRank = Holding::ListToRank(m);
   }
@@ -1014,13 +1015,13 @@ void LoopHold::UpdateDetailsForOpp(
 
     i = static_cast<int>(suitLength)-1;
     int c = static_cast<int>(suitLength)-1;
-    hdet.mapRealToShifted[suitLength] = static_cast<int>(suitLength); // Void
-    hdet.mapShiftedToReal[suitLength] = static_cast<int>(suitLength); // Void
+    hdet.mapRealToShifted[suitLength] = suitLength; // Void
+    hdet.mapShiftedToReal[suitLength] = suitLength; // Void
 
     do
     {
-      hdet.mapRealToShifted[i] = c;
-      hdet.mapShiftedToReal[c] = i;
+      hdet.mapRealToShifted[i] = static_cast<unsigned>(c);
+      hdet.mapShiftedToReal[c] = static_cast<unsigned>(i);
       c--;
       i--;
       while (used[i])
@@ -1030,8 +1031,8 @@ void LoopHold::UpdateDetailsForOpp(
     }
     while (i >= m);
 
-    hdet.minTopLong = hdet.mapRealToShifted[hdet.minTopLong];
-    hdet.minTopShort = hdet.mapRealToShifted[hdet.minTopShort];
+    hdet.minTopLong = static_cast<int>(hdet.mapRealToShifted[hdet.minTopLong]);
+    hdet.minTopShort = static_cast<int>(hdet.mapRealToShifted[hdet.minTopShort]);
   }
 
   hdet.maxTopLong = static_cast<int>(completeList[hdet.pLong][0]);
@@ -1064,21 +1065,17 @@ void LoopHold::PrintDetails()
 }
 
 
-#include "portab.h"
-
 void LoopHold::SolveCrashTricks(
-  const PosType StupidCompiler,
   PosType& bend,
   PosType& cend,
-  int& brank,
-  int& rrank,
-  int& crank,
-  int& crankr2,
-  int& btricks,
-  int& rtricks,
-  int& ctricks)
+  unsigned& brank,
+  unsigned& rrank,
+  unsigned& crank,
+  unsigned& crankr2,
+  unsigned& btricks,
+  unsigned& rtricks,
+  unsigned& ctricks)
 {
-  UNUSED(StupidCompiler);
   LoopHold::SetDetails();
   PosType oppBest = Holding::GetOppBest();
 
@@ -1111,34 +1108,20 @@ void LoopHold::SolveCrashTricks(
   }
   else
   {
-// if (suitLength == 13 && counter == 0xa405ff)
- // cout << "LHO " << completeList[QT_LHO][0] <<
- //   << " RHO " << completeList[QT_RHO][0]) << "\n";
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_LHO][0]),
       true, QT_RHO);
     LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_LHO]),
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
-// cout << "LHO before shift back " << bend << " " << cend << " " <<
-  // ", " << brank << " " << rrank << " " << crank <<
-  // ", " << btricks << " " << rtricks << " " << ctricks << "\n";
-      int delta = SDS_VOID - static_cast<int>(suitLength);
+      unsigned delta = SDS_VOID - suitLength;
       brank = hdet.mapShiftedToReal[brank-delta] + delta;
       rrank = hdet.mapShiftedToReal[rrank-delta] + delta;
       crank = hdet.mapShiftedToReal[crank-delta] + delta;
       crankr2 = hdet.mapShiftedToReal[crankr2-delta] + delta;
 
-// cout << "LHO bend " << bend << endl;
-// if (suitLength == 13 && counter == 0xa405ff)
-// {
-// cout << "LHO before shift back " << bend << " " << cend << " " <<
-  // ", " << brank << " " << rrank << " " << crank <<
-  // ", " << btricks << " " << rtricks << " " << ctricks << "\n";
-  // cout << "maxTopShort " << hdet.maxTopShort << "\n";
-// }
     PosType bend2, cend2;
-    int brank2, rrank2, crank2, crank22, btricks2, rtricks2, ctricks2;
+    unsigned brank2, rrank2, crank2, crank22, btricks2, rtricks2, ctricks2;
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_RHO][0]),
       true, QT_LHO);
@@ -1150,15 +1133,6 @@ void LoopHold::SolveCrashTricks(
       rrank2 = hdet.mapShiftedToReal[rrank2-delta] + delta;
       crank2 = hdet.mapShiftedToReal[crank2-delta] + delta;
       crank22 = hdet.mapShiftedToReal[crank22-delta] + delta;
-
-
-// if (suitLength == 13 && counter == 0xa405ff)
-// {
- // cout << "RHO " << bend2 << " " << cend2 <<
-   // ", " << brank2 << " " << rrank2 << " " << crank2 << " " <<
-   // ", " << btricks2 << " " << rtricks2 << " " << ctricks2 << "\n";
-  // cout << "maxTopShort " << hdet.maxTopShort << "\n";
-// }
 
     if (ctricks2 < ctricks || (ctricks2 == ctricks && crank2 < crank))
     {
@@ -1172,16 +1146,11 @@ void LoopHold::SolveCrashTricks(
     else if (crankr2 != SDS_VOID)
       crankr2 = Min(crank22, crankr2);
 
-    // if (rtricks2 == 0)
-      // return;
-
     if (rtricks2 > 0)
     {
 
-    int m = Min(brank, rrank);
-    int m2 = Min(brank2, rrank2);
-// cout << "m " << m << " m2 " << m2 << "\n";
-// cout << "bend " << bend << " bend2 " << bend2 << endl;
+    unsigned m = Min(brank, rrank);
+    unsigned m2 = Min(brank2, rrank2);
     if (rtricks == 0 || rtricks2+btricks2 < rtricks+btricks ||
        (rtricks2+btricks2 == rtricks+btricks && m2 < m))
 
@@ -1214,23 +1183,23 @@ void LoopHold::SolveCrashTricksHand(
   const int& lenOpp,
   PosType& bend,
   PosType& cend,
-  int& brank,
-  int& rrank,
-  int& crank,
-  int& crank2,
-  int& btricks,
-  int& rtricks,
-  int& ctricks)
+  unsigned& brank,
+  unsigned& rrank,
+  unsigned& crank,
+  unsigned& crank2,
+  unsigned& btricks,
+  unsigned& rtricks,
+  unsigned& ctricks)
 {
   // The crash trick, always present.
 
   if (static_cast<int>(hdet.numTopsAll) >= lenOpp+1)
-    ctricks = static_cast<int>(hdet.lenLong);
+    ctricks = hdet.lenLong;
   else
   {
-    ctricks = static_cast<int>(hdet.numTopsLong);
+    ctricks = hdet.numTopsLong;
     if (hdet.lenShort >= 2 && hdet.numTopsAll < hdet.declLen)
-      ctricks += Min(static_cast<int>(hdet.lenShort)-1, hdet.xLong);
+      ctricks += static_cast<unsigned>(Min(static_cast<int>(hdet.lenShort)-1, hdet.xLong));
   }
 
   if (hdet.lenShort == 1 || 
@@ -1239,25 +1208,23 @@ void LoopHold::SolveCrashTricksHand(
   else
     cend = QT_BOTH;
 
-  int ocash = Max(lenOpp, 1);
-  int ccash = SDS_VOID - Min(ocash, ctricks);
+  unsigned ocash = static_cast<unsigned>(Max(lenOpp, 1));
+  unsigned ccash = SDS_VOID - Min(ocash, ctricks);
 
-  int cextra = ccash;
-  if ((ccash <= hdet.minTopShort && hdet.xShort == 0) || 
+  unsigned cextra = ccash;
+  if ((static_cast<int>(ccash) <= hdet.minTopShort && hdet.xShort == 0) || 
      (hdet.lenShort >= 2 && lenOpp <= 1))
     cextra--;
 
-  int cspecial = SDS_VOID;
+  unsigned cspecial = SDS_VOID;
   if (hdet.lenLong > hdet.lenShort && hdet.lenShort >= 3 &&
       lenOpp < static_cast<int>(hdet.lenShort))
-    cspecial = SDS_VOID - (lenOpp+1);
-      // lenOpp == hdet.lenShort-1)
-    // cspecial = SDS_VOID - hdet.lenShort;
+    cspecial = SDS_VOID - (static_cast<unsigned>(lenOpp)+1);
 
   crank = Min(cextra, cspecial);
   if (cend == QT_BOTH)
   {
-    int minMaxTops = Min(hdet.maxTopShort, hdet.maxTopLong);
+    unsigned minMaxTops = static_cast<unsigned>(Min(hdet.maxTopShort, hdet.maxTopLong));
     crank = Min(crank, minMaxTops);
   }
 
@@ -1280,15 +1247,15 @@ void LoopHold::SolveCrashTricksHand(
     completeList[QT_ACE][lenOpp-1] > completeList[QT_PARD][0])
   {
     // AKJ / 87 / QT9 / -.
-    crank2 = SDS_VOID - lenOpp;
+    crank2 = SDS_VOID - static_cast<unsigned>(lenOpp);
   }
   else if (length[QT_ACE] > length[QT_PARD] &&
       length[QT_PARD] >= 2 &&
       hdet.maxTopShort <= SDS_ACE - static_cast<int>(length[QT_PARD]) &&
       lenOpp <= SDS_ACE - hdet.maxTopShort)
   {
-    crank2 = static_cast<int>(Holding::ListToRank(
-      completeList[QT_ACE][Max(lenOpp, static_cast<int>(length[QT_PARD])) - 1]));
+    crank2 = Holding::ListToRank(
+      completeList[QT_ACE][Max(lenOpp, static_cast<int>(length[QT_PARD])) - 1]);
   }
 
 
@@ -1304,7 +1271,7 @@ void LoopHold::SolveCrashTricksHand(
      hdet.minTopLong < hdet.maxTopShort) ?  true : false);
 
   bool must = ((hdet.numTopsAll <= Min(static_cast<unsigned>(lenOpp), hdet.lenLong) ||
-    (hdet.xShort == 0 && static_cast<int>(hdet.minTopShort) > crank) ) &&
+    (hdet.xShort == 0 && hdet.minTopShort > static_cast<int>(crank)) ) &&
     hdet.lenLong > hdet.lenShort ? true : false);
 
   if ((! poss) || (hdet.lenShort > 1 && ! must))
@@ -1316,21 +1283,21 @@ void LoopHold::SolveCrashTricksHand(
 
   // So now there is a trick.
 
-  btricks = static_cast<int>(hdet.lenShort);
-  brank = static_cast<int>(hdet.minTopShort);
+  btricks = static_cast<unsigned>(hdet.lenShort);
+  brank = static_cast<unsigned>(hdet.minTopShort);
   bend = hdet.pLong;
 
-  if (static_cast<int>(hdet.numTopsAll) >= lenOpp)
-    rtricks = static_cast<int>(hdet.lenLong - hdet.numTopsShort);
+  if (hdet.numTopsAll >= static_cast<unsigned>(lenOpp))
+    rtricks = hdet.lenLong - hdet.numTopsShort;
   else
-    rtricks = static_cast<int>(Min(hdet.numTopsLong, hdet.lenLong - hdet.numTopsShort));
+    rtricks = Min(hdet.numTopsLong, hdet.lenLong - hdet.numTopsShort);
 
-  ocash = SDS_VOID - Min(lenOpp, static_cast<int>(hdet.lenLong));
+  ocash = SDS_VOID - Min(static_cast<unsigned>(lenOpp), hdet.lenLong);
   if (ocash >= brank)
     rrank = SDS_VOID;
   else
   {
-    int x = (hdet.minTopLong >= brank ? SDS_VOID : hdet.minTopLong);
+    unsigned x = (hdet.minTopLong >= static_cast<int>(brank) ? SDS_VOID : static_cast<unsigned>(hdet.minTopLong));
     rrank = Max(ocash, x);
   }
 }

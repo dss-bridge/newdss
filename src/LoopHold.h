@@ -63,8 +63,8 @@ class LoopHold: public Holding
       int maxTopShort;
       int minTopShort;
 
-      int mapRealToShifted[SDS_MAX_RANKS];
-      int mapShiftedToReal[SDS_MAX_RANKS];
+      unsigned mapRealToShifted[SDS_MAX_RANKS];
+      unsigned mapShiftedToReal[SDS_MAX_RANKS];
     };
 
     HoldingDetails hdet;
@@ -80,13 +80,13 @@ class LoopHold: public Holding
       const int& lenOpp,
       PosType& bend,
       PosType& cend,
-      int& brank,
-      int& rrank,
-      int& crank,
-      int& crank2,
-      int& btricks,
-      int& rtricks,
-      int& ctricks);
+      unsigned& brank,
+      unsigned& rrank,
+      unsigned& crank,
+      unsigned& crank2,
+      unsigned& btricks,
+      unsigned& rtricks,
+      unsigned& ctricks);
       
     bool GetAsymmRanks(
       const PosType plong,
@@ -161,16 +161,15 @@ class LoopHold: public Holding
       unsigned& rank);
       
     void SolveCrashTricks(
-      const PosType StupidCompiler,
       PosType& bend,
       PosType& cend,
-      int& brank,
-      int& rrank,
-      int& crank,
-      int& crank2,
-      int& btricks,
-      int& rtricks,
-      int& ctricks);
+      unsigned& brank,
+      unsigned& rrank,
+      unsigned& crank,
+      unsigned& crank2,
+      unsigned& btricks,
+      unsigned& rtricks,
+      unsigned& ctricks);
 };
 
 #endif

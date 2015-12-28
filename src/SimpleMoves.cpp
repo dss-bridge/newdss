@@ -107,9 +107,8 @@ inline bool MakeSimpleSingleMove(
     // Can also make some crash positions out of this, e.g. AQ / K.
 
     PosType start, end;
-    int brank, rrank, crank, crank2, btricks, rtricks, ctricks;
+    unsigned brank, rrank, crank, crank2, btricks, rtricks, ctricks;
     unsigned numTops = holding.GetNumTops();
-    PosType StupidCompiler = holding.GetSide();
 
     for (unsigned nMask = 1; nMask < (1u << numTops)-1u; nMask++)
     {
@@ -126,7 +125,6 @@ inline bool MakeSimpleSingleMove(
 
       PosType blocked, bend, cend;
       zhNew.SolveCrashTricks(
-        StupidCompiler, 
         bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
 
       if (rtricks == 0 && crank2 != SDS_VOID && crank != crank2)
@@ -147,7 +145,7 @@ inline bool MakeSimpleSingleMove(
 
         SetAllLowCards(sl, cNew, mno, r, HIST_CRASH, newFlag);
       }
-      else if (rtricks <= 0)
+      else if (rtricks == 0)
       {
         Trick ztrick;
 
@@ -195,8 +193,7 @@ inline bool MakeSimpleSingleMove(
         r = static_cast<unsigned>(Min(brank, rrank));
         r = Min(r, static_cast<unsigned>(crank));
         unsigned mno = moveList.AddMove(def, zhNew, newFlag);
-        SetAllPermutations(sl, static_cast<unsigned>(cNew), mno, zhNew, 
-          r, HIST_CRASH, newFlag);
+        SetAllPermutations(sl, cNew, mno, zhNew, r, HIST_CRASH, newFlag);
       }
     }
   }
