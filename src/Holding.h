@@ -94,6 +94,9 @@ class Holding
       const unsigned suitLength,
       const unsigned counter);
 
+    void SetSide(
+      const PosType side);
+
     void RewindLead();
     void RewindLho();
     void RewindPard();
@@ -102,8 +105,6 @@ class Holding
     bool NextLho();
     bool NextPard();
     void SetRhoNo();
-
-    void SetSide(const int side);
 
     PosType GetSide() const;
     PosType GetWinSide();

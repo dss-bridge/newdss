@@ -41,7 +41,8 @@ void Holding::Set(
 }
 
 
-void Holding::SetSide(const int sideVal)
+void Holding::SetSide(
+  const PosType sideVal)
 {
   if (sideVal == QT_ACE)
   {
@@ -73,14 +74,6 @@ void Holding::SetSide(const int sideVal)
   }
   else
     assert(false);
-}
-
-
-const Trick Holding::GetTrick() const
-{
-  Trick trick;
-  trick.Set(side, winSide, Holding::GetPrependRank(), 1);
-  return trick;
 }
 
 
@@ -309,33 +302,6 @@ void Holding::SetRhoNo()
 }
 
 
-PosType Holding::GetSide() const
-{
-  return side;
-}
-
-
-PosType Holding::GetWinSide()
-{
-  return winSide;
-}
-
-
-unsigned Holding::GetPrependRank() const
-{
-  return Holding::ListToRank(winRank);
-}
-
-
-unsigned Holding::GetMaxOppRank()
-{
-  unsigned m = static_cast<unsigned>(
-    Max(cardListHi[QT_LHO][0], cardListHi[QT_RHO][0]));
-
-  return Holding::ListToRank(m);
-}
-
-
 unsigned Holding::GetSuitLength() const
 {
   return suitLength;
@@ -345,6 +311,18 @@ unsigned Holding::GetSuitLength() const
 unsigned Holding::GetCounter() const
 {
   return counter;
+}
+
+
+PosType Holding::GetSide() const
+{
+  return side;
+}
+
+
+PosType Holding::GetWinSide()
+{
+  return winSide;
 }
 
 
@@ -362,12 +340,35 @@ unsigned Holding::GetMinDeclLength() const
 }
 
 
+unsigned Holding::GetPrependRank() const
+{
+  return Holding::ListToRank(winRank);
+}
+
+
 unsigned Holding::GetLHOMaxRank() const
 {
   if (length[QT_LHO] == 0)
     return 0;
   else
     return Holding::ListToRank(static_cast<unsigned>(cardListHi[QT_LHO][0]));
+}
+
+
+unsigned Holding::GetMaxOppRank()
+{
+  unsigned m = static_cast<unsigned>(
+    Max(cardListHi[QT_LHO][0], cardListHi[QT_RHO][0]));
+
+  return Holding::ListToRank(m);
+}
+
+
+const Trick Holding::GetTrick() const
+{
+  Trick trick;
+  trick.Set(side, winSide, Holding::GetPrependRank(), 1);
+  return trick;
 }
 
 
@@ -673,7 +674,6 @@ bool Holding::MakePlay(
   mergeSpecialFlag = false;
   if ((length[QT_LHO] == 0 && length[QT_RHO] == 0 &&
       length[QT_ACE] >= length[QT_PARD] && length[QT_PARD] >= 2) ||
-      // length[QT_ACE] >= 2 && length[QT_PARD] >= 2) ||
      (length[QT_ACE] == length[QT_PARD] && 
       length[QT_LHO] <= 1 && length[QT_RHO] <= 1))
     mergeSpecialFlag = true;
