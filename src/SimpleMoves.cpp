@@ -110,7 +110,7 @@ inline bool MakeSimpleSingleMove(
     unsigned brank, rrank, crank, crank2, btricks, rtricks, ctricks;
     unsigned numTops = holding.GetNumTops();
 
-    for (unsigned nMask = 1; nMask < (1u << numTops)-1u; nMask++)
+    for (unsigned nMask = 1; nMask < (1u << numTops); nMask++)
     {
       // This also takes care of the surely-blocked flips from above.
       unsigned cNew = holding.FlipTops(numTops, nMask);
