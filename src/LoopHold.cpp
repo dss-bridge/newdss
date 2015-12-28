@@ -1044,8 +1044,11 @@ void LoopHold::UpdateDetailsForOpp(
   hdet.maxTopShort += delta;
   hdet.minTopShort += delta;
 
-  hdet.xLong = static_cast<int>(hdet.lenLong - hdet.numTopsLong);
-  hdet.xShort = static_cast<int>(hdet.lenShort - hdet.numTopsShort);
+  assert(hdet.lenLong >= hdet.numTopsLong);
+  assert(hdet.lenShort >= hdet.numTopsShort);
+
+  hdet.xLong = hdet.lenLong - hdet.numTopsLong;
+  hdet.xShort = hdet.lenShort - hdet.numTopsShort;
   hdet.numTopsAll = hdet.numTopsLong + hdet.numTopsShort;
 }
 
@@ -1066,7 +1069,7 @@ void LoopHold::SolveCrashTricks(
 
   if (oppBest == QT_BOTH)
   {
-    LoopHold::SolveCrashTricksHand(static_cast<int>(hdet.lenMaxOpp),
+    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
     // See explanation below.
@@ -1075,7 +1078,7 @@ void LoopHold::SolveCrashTricks(
   }
   else if (oppBest == QT_LHO && length[QT_LHO] >= length[QT_RHO])
   {
-    LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_LHO]),
+    LoopHold::SolveCrashTricksHand(length[QT_LHO],
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
     // See explanation below.
@@ -1084,7 +1087,7 @@ void LoopHold::SolveCrashTricks(
   }
   else if (oppBest == QT_RHO && length[QT_RHO] >= length[QT_LHO])
   {
-    LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_RHO]),
+    LoopHold::SolveCrashTricksHand(length[QT_RHO],
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
     // See explanation below.
@@ -1096,7 +1099,7 @@ void LoopHold::SolveCrashTricks(
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_LHO][0]),
       true, QT_RHO);
-    LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_LHO]),
+    LoopHold::SolveCrashTricksHand(length[QT_LHO],
       bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
 
       unsigned delta = SDS_VOID - suitLength;
@@ -1110,7 +1113,7 @@ void LoopHold::SolveCrashTricks(
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_RHO][0]),
       true, QT_LHO);
-    LoopHold::SolveCrashTricksHand(static_cast<int>(length[QT_RHO]),
+    LoopHold::SolveCrashTricksHand(length[QT_RHO],
       bend2, cend2, brank2, rrank2, crank2, crank22,
       btricks2, rtricks2, ctricks2);
 
@@ -1165,7 +1168,7 @@ void LoopHold::SolveCrashTricks(
 
 
 void LoopHold::SolveCrashTricksHand(
-  const int& lenOpp,
+  const unsigned& lenOpp,
   PosType& bend,
   PosType& cend,
   unsigned& brank,
@@ -1178,13 +1181,13 @@ void LoopHold::SolveCrashTricksHand(
 {
   // The crash trick, always present.
 
-  if (static_cast<int>(hdet.numTopsAll) >= lenOpp+1)
+  if (hdet.numTopsAll >= lenOpp+1)
     ctricks = hdet.lenLong;
   else
   {
     ctricks = hdet.numTopsLong;
     if (hdet.lenShort >= 2 && hdet.numTopsAll < hdet.declLen)
-      ctricks += static_cast<unsigned>(Min(static_cast<int>(hdet.lenShort)-1, hdet.xLong));
+      ctricks += Min(hdet.lenShort-1, hdet.xLong);
   }
 
   if (hdet.lenShort == 1 || 
@@ -1203,7 +1206,7 @@ void LoopHold::SolveCrashTricksHand(
 
   unsigned cspecial = SDS_VOID;
   if (hdet.lenLong > hdet.lenShort && hdet.lenShort >= 3 &&
-      lenOpp < static_cast<int>(hdet.lenShort))
+      lenOpp < hdet.lenShort)
     cspecial = SDS_VOID - (static_cast<unsigned>(lenOpp)+1);
 
   crank = Min(cextra, cspecial);
@@ -1227,7 +1230,7 @@ void LoopHold::SolveCrashTricksHand(
     // from partner's side.  Example AJT9 / Q / K876 / x.
     crank2 = SDS_VOID - 1;
   }
-  else if (lenOpp > 0 && lenOpp < static_cast<int>(length[QT_ACE]) &&
+  else if (lenOpp > 0 && lenOpp < length[QT_ACE] &&
     length[QT_ACE] == length[QT_PARD] &&
     completeList[QT_ACE][lenOpp-1] > completeList[QT_PARD][0])
   {
@@ -1240,7 +1243,7 @@ void LoopHold::SolveCrashTricksHand(
       static_cast<unsigned>(lenOpp) <= SDS_ACE - hdet.maxTopShort)
   {
     crank2 = Holding::ListToRank(
-      completeList[QT_ACE][Max(lenOpp, static_cast<int>(length[QT_PARD])) - 1]);
+      completeList[QT_ACE][Max(lenOpp, length[QT_PARD]) - 1]);
   }
 
 

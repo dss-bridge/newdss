@@ -55,8 +55,8 @@ class LoopHold: public Holding
       unsigned lenShort;
       unsigned lenMaxOpp;
 
-      int xLong;
-      int xShort;
+      unsigned xLong;
+      unsigned xShort;
 
       unsigned maxTopLong;
       unsigned minTopLong;
@@ -77,7 +77,7 @@ class LoopHold: public Holding
       const PosType& oppSkipped);
 
     void SolveCrashTricksHand(
-      const int& lenOpp,
+      const unsigned& lenOpp,
       PosType& bend,
       PosType& cend,
       unsigned& brank,
