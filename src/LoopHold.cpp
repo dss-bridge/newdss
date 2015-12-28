@@ -1345,7 +1345,6 @@ void LoopHold::SolveCrashTricksHand(
 bool LoopHold::SolveStopped(
   DefList& def,
   unsigned& rank)
-  // HoldingSimpleMove& move)
 {
   assert(suitLength >= 4);
   assert(length[QT_PARD] > 0);
@@ -1373,15 +1372,15 @@ bool LoopHold::SolveStopped(
   pickFlag = true;
 
   int topIndex = (counter >> (2*(suitLength-4))) & 0x3f;
-  HoldingSimpleMove move;
-  if ((this->*SolveStoppedFunction[topIndex])(move))
+  Trick trick;
+  if ((this->*SolveStoppedFunction[topIndex])(trick))
   {
-    Trick trick;
-    trick.Set(move.start, move.end,
-      static_cast<unsigned>(move.rank),
-      static_cast<unsigned>(move.tricks));
+    // Trick trick;
+    // trick.Set(move.start, move.end,
+      // static_cast<unsigned>(move.rank),
+      // static_cast<unsigned>(move.tricks));
     def.Set1(trick);
-    rank = static_cast<unsigned>(move.rank);
+    rank = trick.GetRanks();
     return true;
   }
   else
@@ -1547,7 +1546,7 @@ bool LoopHold::StopFinesse(
 }
 
 
-bool LoopHold::SolveStopped0(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped0(Trick& move)
 {
   // ==== G0 ===========================================================
   //      AKQJ+
@@ -1566,7 +1565,7 @@ bool LoopHold::SolveStopped0(HoldingSimpleMove& move)
       // AKQJTx / 9xxxxx / x / -.
       // AKQJTx / - / x / 9xxxxx.
       if (pickFlag) holdCtr[0]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-5, 5);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-5, 5);
     }
   }
   else if (length[QT_LHO] >= 5)
@@ -1578,7 +1577,7 @@ bool LoopHold::SolveStopped0(HoldingSimpleMove& move)
       // AKQJx+ / xxxxx+ / x+ / ?.
       // AKQJx+ / 8xxxx / 9 / T(x).
       if (pickFlag) holdCtr[1]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 4);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 4);
     }
   }
   else if (length[QT_RHO] >= 5)
@@ -1592,7 +1591,7 @@ bool LoopHold::SolveStopped0(HoldingSimpleMove& move)
       {
         // AKQJx+ / ? / x / xxxxx+.
         if (pickFlag) holdCtr[2]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 4);
+        return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 4);
       }
     }
     else if (length[QT_PARD] == 2)
@@ -1604,28 +1603,28 @@ bool LoopHold::SolveStopped0(HoldingSimpleMove& move)
         {
           // AKQJx+ / ? / x / xxxxx+.
           if (pickFlag) holdCtr[3]++;
-          return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 4);
+          return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 4);
         }
       }
       else if (LoopHold::StopFinesse(2, 4, 0, true, QT_ACE))
       {
         // AKQJx+ / ? / x / xxxxx+.
         if (pickFlag) holdCtr[4]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 4);
+        return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 4);
       }
     }
     else if (LoopHold::StopFinesse(3, 4, 0, false, QT_ACE))
     {
       // AKQJx+ / ? / x / xxxxx+.
       if (pickFlag) holdCtr[5]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 4);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 4);
     }
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped1(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped1(Trick& move)
 {
   // ==== G1 ================= G4 ================= G16 ================
   //      AQJ+       |         AKJ+       |         AKQ+
@@ -1633,25 +1632,25 @@ bool LoopHold::SolveStopped1(HoldingSimpleMove& move)
   //      +          |         +          |         + 
   // ==== G1 ================= G4 ================= G16 ================
 
-  int r3 = (htop.J == QT_LHO ? SDS_VOID-3 : SDS_VOID-4);
+  unsigned r3 = (htop.J == QT_LHO ? SDS_VOID-3 : SDS_VOID-4);
 
   if (htop.K == QT_LHO && length[QT_LHO] >= 2)
   {
     // Protected K behind the ace.
     if (pickFlag) holdCtr[10]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
   }
   else if (htop.Q == QT_LHO && length[QT_LHO] >= 3)
   {
     // Protected queen behind AK.
     if (pickFlag) holdCtr[11]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
   }
   else if (htop.J == QT_LHO && length[QT_LHO] >= 4)
   {
     // Protected jack behind AKQ.
     if (pickFlag) holdCtr[12]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 3);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 3);
   }
 
   if (length[QT_RHO] <= 3)
@@ -1669,8 +1668,8 @@ bool LoopHold::SolveStopped1(HoldingSimpleMove& move)
       // AKJ9+ / Qx / x(x) / xxxxx+.
       // AKQ9+ / Jx / x(x) / xxxxx+.
       if (pickFlag) holdCtr[13]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][3]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 4);
+      unsigned r = Holding::ListToRank(completeList[QT_ACE][3]);
+      return move.Set(QT_BOTH, QT_ACE, r, 4);
     }
     else if (completeList[QT_RHO][0] < completeList[QT_ACE][2] &&
       completeList[QT_RHO][0] > completeList[QT_ACE][3])
@@ -1679,7 +1678,7 @@ bool LoopHold::SolveStopped1(HoldingSimpleMove& move)
       // AHH+ / H / T / 9xxx.
       // AHHx / Hx / x(x) / xxxx.
       if (pickFlag) holdCtr[14]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r3, 3);
+      return move.Set(QT_BOTH, QT_ACE, r3, 3);
     }
   }
   else if (length[QT_ACE] == 3)
@@ -1688,7 +1687,7 @@ bool LoopHold::SolveStopped1(HoldingSimpleMove& move)
     {
       // AHH / H / ? / Txxx.
       if (pickFlag) holdCtr[15]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r3, 3);
+      return move.Set(QT_BOTH, QT_ACE, r3, 3);
     }
   }
   else if (length[QT_PARD] == 2)
@@ -1698,14 +1697,14 @@ bool LoopHold::SolveStopped1(HoldingSimpleMove& move)
     {
       // AHHT+ / H / xx / 9xxxx+.
       if (pickFlag) holdCtr[16]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-5, 4);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-5, 4);
     }
     else if (htop.T == QT_RHO &&
       LoopHold::StopFinesse(1, 3, 0, false, QT_ACE))
     {
       // AHHx+ / H / xx / Txxx+.
       if (pickFlag) holdCtr[17]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r3, 3);
+      return move.Set(QT_BOTH, QT_ACE, r3, 3);
     }
   }
   else if (htop.K == QT_LHO && htop.T == QT_RHO &&
@@ -1713,14 +1712,14 @@ bool LoopHold::SolveStopped1(HoldingSimpleMove& move)
   {
     // AHHx / H / xxx+ / Txxx.
     if (pickFlag) holdCtr[18]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r3, 3);
+    return move.Set(QT_BOTH, QT_ACE, r3, 3);
   }
   else if (htop.K == QT_ACE && length[QT_LHO] == 1 &&
     LoopHold::StopFinesse(3, 3, 0, false, QT_ACE))
   {
     // AKHx+ / H / xx+ / xxxx+.
     if (pickFlag) holdCtr[19]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r3, 3);
+    return move.Set(QT_BOTH, QT_ACE, r3, 3);
   }
   else if (distHex == 0x4234 && htop.K == QT_ACE &&
     completeList[QT_RHO][1] > completeList[QT_ACE][3] &&
@@ -1728,13 +1727,13 @@ bool LoopHold::SolveStopped1(HoldingSimpleMove& move)
   {
     // AKHx / Hx / xxX / xxxx.
     if (pickFlag) holdCtr[40]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r3, 3);
+    return move.Set(QT_BOTH, QT_ACE, r3, 3);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped2(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped2(Trick& move)
 {
   // ==== G2 ================= G8 ================= G32 ================
   //      AQJ+       |         AKJ+       |         AKQ+
@@ -1775,7 +1774,7 @@ bool LoopHold::SolveStopped2(HoldingSimpleMove& move)
           // AHHxx+ / ? / Hx / hxxxx+.
           // AHxxx / - / HHx / Txxxx.
           if (pickFlag) holdCtr[20]++;
-          return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
+          return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
         }
       }
       else if (distHex == 0x5035 &&
@@ -1783,7 +1782,7 @@ bool LoopHold::SolveStopped2(HoldingSimpleMove& move)
       {
         // AHHxx / - / Hxx / Txxxx.
         if (pickFlag) holdCtr[21]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
       }
     }
     else if (length[QT_LHO] >= 5)
@@ -1795,14 +1794,14 @@ bool LoopHold::SolveStopped2(HoldingSimpleMove& move)
       {
         // AHHxx / Txxxx / Hxx / -.
         if (pickFlag) holdCtr[22]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
       }
       else if (pardTops == 2 && 
         LoopHold::StopFinesse(2, 2, 2, true, QT_PARD))
       {
         // AHxxx / Txxxx / HHx / -.
         if (pickFlag) holdCtr[23]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
       }
     }
   }
@@ -1818,7 +1817,7 @@ bool LoopHold::SolveStopped2(HoldingSimpleMove& move)
           // AHx / Txxxx / HHxxx / -.
           // Ax / xxxxx / KQJxx / ?.
           if (pickFlag) holdCtr[24]++;
-          return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
+          return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
         }
       }
       else if (distHex == 0x3550 &&
@@ -1826,7 +1825,7 @@ bool LoopHold::SolveStopped2(HoldingSimpleMove& move)
       {
         // Axx / Txxxx / KQJxx / -.
         if (pickFlag) holdCtr[25]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
       }
     }
     else if (length[QT_RHO] >= 5)
@@ -1838,14 +1837,14 @@ bool LoopHold::SolveStopped2(HoldingSimpleMove& move)
       {
         // Ax / ? / KQJxx / Txxxx.
         if (pickFlag) holdCtr[26]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
       }
       else if (pardTops == 2 && 
         LoopHold::StopFinesse(2, 2, 2, true, QT_ACE))
       {
         // AHx / - / HHxxx / Txxxx.
         if (pickFlag) holdCtr[27]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 4);
       }
     }
   }
@@ -1853,7 +1852,7 @@ bool LoopHold::SolveStopped2(HoldingSimpleMove& move)
 }
 
 
-bool LoopHold::SolveStopped3(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped3(Trick& move)
 {
   // ==== G3 ===========================================================
   //      AQJ+
@@ -1869,7 +1868,7 @@ bool LoopHold::SolveStopped3(HoldingSimpleMove& move)
     // AQJ+ / Txxx+ / x+ / K.
     // AQJ+ / 9xxx+ / T / K.
     if (pickFlag) holdCtr[30]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 3);
   }
 
   if (length[QT_LHO] == 4)
@@ -1879,7 +1878,7 @@ bool LoopHold::SolveStopped3(HoldingSimpleMove& move)
   {
     // AQJT+ / 9xxxx+ / x+ / K.
     if (pickFlag) holdCtr[31]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-5, 4);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-5, 4);
   }
   else if (! hopp.T && ! hopp.N && htop.T != htop.N && hopp.E &&
     length[QT_PARD] == 1)
@@ -1887,14 +1886,14 @@ bool LoopHold::SolveStopped3(HoldingSimpleMove& move)
     // AQJT+ / 8xxxx+ / 9 / K.
     // AQJ9+ / 8xxxx+ / T / K.
     if (pickFlag) holdCtr[32]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][3]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 4);
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][3]);
+    return move.Set(QT_BOTH, QT_ACE, r, 4);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped5(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped5(Trick& move)
 {
   // ==== G5 ============== G21 =========== G37 =========== G53 ========
   //      AJ+        |      A+       |      A+       |      A+
@@ -1903,11 +1902,11 @@ bool LoopHold::SolveStopped5(HoldingSimpleMove& move)
   // ==== G5 ============== G21 =========== G37 =========== G53 ========
 
   if (pickFlag) holdCtr[50]++;
-  return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+  return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
 }
 
 
-bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped6(Trick& move)
 {
   // ==== G6 ================= G46 =====================================
   //      AJ+        |         A+
@@ -1940,8 +1939,8 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     // AJT+ / Q9xx+ / Kxx+ / +.
     // AJ9+ / Q8xx+ / Kxx+ / T.
     if (pickFlag) holdCtr[59]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[pa][2]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 3);
+    unsigned r = Holding::ListToRank(completeList[pa][2]);
+    return move.Set(QT_BOTH, QT_BOTH, r, 3);
   }
   else if (((length[pa] == 3 && length[pp] == 3 && length[pl] >= 3) ||
     (length[pa] == 4 && length[pp] == 4 && length[pl] == 3)) &&
@@ -1953,18 +1952,16 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     // AJ9 / Q+ / Kxx / T, Tx.
     // AJ8 / Q+ / Kxx / T9.
     if (pickFlag) holdCtr[58]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[pa][2]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 
-      static_cast<int>(length[pa]));
+    unsigned r = Holding::ListToRank(completeList[pa][2]);
+    return move.Set(QT_BOTH, QT_BOTH, r, length[pa]);
   }
   else if (length[pa] >= 4 && length[pp] == length[pa] &&
     length[pl] == 3 && length[pr] <= 3 && htop.T == pa)
   {
     // AJTx+ / Q(xx) / Kxxx+ / (xxx).
     if (pickFlag) holdCtr[57]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[pa][2]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 
-      static_cast<int>(length[pa]));
+    unsigned r = Holding::ListToRank(completeList[pa][2]);
+    return move.Set(QT_BOTH, QT_BOTH, r, length[pa]);
   }
   else if (length[pa] == 4 && length[pl] >= 4 && length[pp] == 4 &&
     htop.T == pa && htop.N == pa)
@@ -1974,7 +1971,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     // AJT9 / Qxxx+ / Kxxx / +.
     // AJ9x / Qxxx+ / KTxx / +.
     if (pickFlag) holdCtr[56]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
   }
   else if (length[pa] == 4 && length[pr] == 4 && 
     length[pp] == 4 && length[pl] == 1 &&
@@ -1983,7 +1980,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     // AJxx / Q / K98x / Txxx.
     // A98x / Txxx / KJxx / Q.
     if (pickFlag) holdCtr[55]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   else if (length[pa] == 4 && length[pp] == 4 && 
     length[pr] == 1 && length[pl] == 4 &&
@@ -1996,7 +1993,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     // A9xx / T / KJ8x / Qxxx.
     // A8xx / T / KJ9x / Qxxx.
     if (pickFlag) holdCtr[54]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   else if (length[pa] == 4 && length[pp] == 4 && 
     length[pr] == 1 && length[pl] == 4 &&
@@ -2009,7 +2006,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     // ATxx / 9 / KJ8x / Qxxx.
     // A8xx / 9 / KJTx / Qxxx.
     if (pickFlag) holdCtr[53]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
 
 
@@ -2024,7 +2021,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
         {
           // AJTxx / Q / Kx / 9xxxx.
           if (pickFlag) holdCtr[60]++;
-          return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
+          return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
         }
       }
       else if (length[pa] >= 3 && 
@@ -2033,7 +2030,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
       {
         // AJx+ / Q / Kx / Txxx+.
         if (pickFlag) holdCtr[61]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
       }
     }
     else if (length[pl] == 2)
@@ -2045,7 +2042,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
       {
         // AJx+ / Qx / Kx / Txxx+.
         if (pickFlag) holdCtr[62]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
       }
     }
     else if (completeList[pl][1] > completeList[pa][2] &&
@@ -2054,14 +2051,14 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     {
       // AJx / Qxx+ / Kx / Tx+.
       if (pickFlag) holdCtr[63]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
     else if (length[pr] >= 3 && htop.T == pr &&
       completeList[pr][1] > completeList[pa][2])
     {
       // AJx / Qxx / Kx / Txx.
       if (pickFlag) holdCtr[64]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
 
     return false;
@@ -2073,14 +2070,14 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     {
       // AJ / QTx+ / K+ / ?.
       if (pickFlag) holdCtr[65]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
     else if (length[pl] >= 2 && length[pr] >= 3 &&
       completeList[pr][0] > completeList[pp][1])
     {
       // AJ / Qx+ / K+ / Txx+.
       if (pickFlag) holdCtr[66]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
     else if (length[pl] == 2 && length[pr] >= 4 &&
       completeList[pr][0] < completeList[pp][1] &&
@@ -2088,8 +2085,8 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     {
       // AJ / Qx / Kxx+ / xxxx.
       if (pickFlag) holdCtr[67]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[pp][1]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 3);
+      unsigned r = Holding::ListToRank(completeList[pp][1]);
+      return move.Set(QT_BOTH, QT_BOTH, r, 3);
     }
 
     return false;
@@ -2109,7 +2106,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
         {
           // AJx / Q / Kxxx+ / Txxx+.
           if (pickFlag) holdCtr[68]++;
-          return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+          return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
         }
       }
       else if ((pa == QT_ACE && LoopHold::StopFinesse(2, 2, 1, true, pa))
@@ -2117,7 +2114,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
       {
         // AJx+ / Q / Kxx+ / T98x+, T97x+, T87x, etc.
         if (pickFlag) holdCtr[69]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
       }
     }
 
@@ -2133,14 +2130,14 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     {
       // AJx / Qx / Kxx / ?.
       if (pickFlag) holdCtr[460]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
     else if (length[pa] == 3 && length[pp] == 4 &&
     completeList[pr][0] > completeList[pp][1])
     {
       // AJx / Qx / Kxxx / 9xxx or so.
       if (pickFlag) holdCtr[461]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
     else if (length[pa] == 4 && length[pp] == 3 &&
       completeList[pr][1] > completeList[pa][2] &&
@@ -2148,7 +2145,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     {
       // AJxx / Qx / Kxx / T9xx.
       if (pickFlag) holdCtr[462]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
 
     return false;
@@ -2160,7 +2157,7 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     // AJ+ / QTx+ / Kxx+ / ?.
     // AJ+ / Q9x+ / Kxx+ / T+.
     if (pickFlag) holdCtr[463]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
   }
 
   if (htop.T != pr)
@@ -2175,8 +2172,8 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     {
       // AJ9 / Q8xx / Kxxx / Tx.
       if (pickFlag) holdCtr[464]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[pa][2]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 3);
+      unsigned r = Holding::ListToRank(completeList[pa][2]);
+      return move.Set(QT_BOTH, QT_BOTH, r, 3);
     }
     else if (((htop.Q == QT_LHO && distHex == 0x4432) ||
       (htop.Q == QT_RHO && distHex == 0x3244)) && 
@@ -2185,8 +2182,8 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
     {
       // AJxx / Qxxx / Kxx / Tx.
       if (pickFlag) holdCtr[465]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[pa][2]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 3);
+      unsigned r = Holding::ListToRank(completeList[pa][2]);
+      return move.Set(QT_BOTH, QT_BOTH, r, 3);
     }
   }
   else if (length[pr] >= 3)
@@ -2197,14 +2194,14 @@ bool LoopHold::SolveStopped6(HoldingSimpleMove& move)
       // AJ+ / Q8x+ / K9x+ / Txx+.
       // AJ+ / Qxx+ / Kxx+ / T9x+.
       if (pickFlag) holdCtr[466]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped7(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped7(Trick& move)
 {
   // ==== G7 ============== G13 =========== G39 =========== G45 ========
   //      AJ+        |      AJ+      |      A+       |      A+
@@ -2215,15 +2212,14 @@ bool LoopHold::SolveStopped7(HoldingSimpleMove& move)
   if (length[QT_LHO] >= 2 || length[QT_RHO] >= 2)
   {
     if (pickFlag) holdCtr[70]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
   }
   else if (length[QT_PARD] == 1)
   {
     // Ax / K / x / x.
     // This and the following are tops, not real stops.
     if (pickFlag) holdCtr[71]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 
-      static_cast<int>(length[QT_ACE]));
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, length[QT_ACE]);
   }
   else if (length[QT_ACE] == 2 && length[QT_PARD] == 2)
   {
@@ -2231,22 +2227,22 @@ bool LoopHold::SolveStopped7(HoldingSimpleMove& move)
     {
       // AJ / K / xx / Q.
       if (pickFlag) holdCtr[72]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 2);
-      // return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 2);
+      // return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 2);
     }
     else if (htop.T == QT_PARD)
     {
       return false;
       // A9 / K / JT / Q.
       if (pickFlag) holdCtr[73]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 2);
     }
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped9(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped9(Trick& move)
 {
   // ==== G9 ================= G33 =====================================
   //      AJ+        |         AQ+    
@@ -2258,7 +2254,7 @@ bool LoopHold::SolveStopped9(HoldingSimpleMove& move)
   {
     // Protected K behind the ace.
     if (pickFlag) holdCtr[90]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_ACE, 1);
+    return move.Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
   }
 
   if (length[QT_ACE] == 2 && length[QT_PARD] <= 2 && htop.Q == QT_ACE)
@@ -2267,13 +2263,13 @@ bool LoopHold::SolveStopped9(HoldingSimpleMove& move)
     {
       // AQ / K / J(x) / xx+.
       if (pickFlag) holdCtr[91]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 2);
     }
     else
     {
       // AQ / K / J(x) / (x).
       if (pickFlag) holdCtr[92]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 2);
     }
   }
 
@@ -2283,21 +2279,21 @@ bool LoopHold::SolveStopped9(HoldingSimpleMove& move)
     {
       // AJ+ / K / Q / Txx+.
       if (pickFlag) holdCtr[93]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][1]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 2);
+      unsigned r = Holding::ListToRank(completeList[QT_ACE][1]);
+      return move.Set(QT_BOTH, QT_ACE, r, 2);
     }
     else if (htop.T == QT_ACE && htop.N == QT_RHO && length[QT_RHO] >= 4)
     {
       // AJT+ / K / Q / 9xxx+.
       if (pickFlag) holdCtr[94]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-5, 3);
     }
     else if (htop.T == QT_ACE && htop.N == QT_ACE &&
       htop.E == QT_RHO && length[QT_RHO] >= 5)
     {
       // AJT9+ / K / Q / 8xxxx+.
       if (pickFlag) holdCtr[95]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-6, 4);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-6, 4);
     }
 
     return false;
@@ -2311,7 +2307,7 @@ bool LoopHold::SolveStopped9(HoldingSimpleMove& move)
   {
     // AQxx / K / J98x / Txxx.
     if (pickFlag) holdCtr[96]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   else if ((length[QT_ACE] == 3 && length[QT_PARD] == 3) ||
     LoopHold::StopFinesse(1, 2, 1, false, QT_ACE))
@@ -2320,13 +2316,13 @@ bool LoopHold::SolveStopped9(HoldingSimpleMove& move)
     // AJxx / K / Qxxx / Txxx.
     // AJxxx / K / Qxx / Txxx.
     if (pickFlag) holdCtr[97]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped11(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped11(Trick& move)
 {
   // ==== G11 ================ G35 =====================================
   //      AJ+        |         AQ+    
@@ -2342,12 +2338,12 @@ bool LoopHold::SolveStopped11(HoldingSimpleMove& move)
     if (length[QT_LHO] >= 2)
     {
       if (pickFlag) holdCtr[110]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 2);
     }
     else
     {
       if (pickFlag) holdCtr[111]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 2);
     }
   }
 
@@ -2358,19 +2354,18 @@ return false;
 // Probably simplifies to 2=1 with AJ+ / Q.
     // AQ / + / J(x) / K.
     if (pickFlag) holdCtr[110]++;
-    int r = (length[QT_LHO] <= 1 && length[QT_PARD] <= 1 ?
+    unsigned r = (length[QT_LHO] <= 1 && length[QT_PARD] <= 1 ?
       SDS_VOID-1 : SDS_VOID - (htop.Q == QT_ACE ? 3 : 4));
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 2);
+    return move.Set(QT_BOTH, QT_ACE, r, 2);
   }
   else if (length[QT_LHO] <= 2 && length[QT_PARD] == 1 && 
     htop.Q == QT_ACE)
   {
     // AQ+ / x(x) / J(x) / K.
     if (pickFlag) holdCtr[111]++;
-    int r = (length[QT_LHO] <= 1 && length[QT_PARD] <= 1 ?
+    unsigned r = (length[QT_LHO] <= 1 && length[QT_PARD] <= 1 ?
       SDS_VOID-1 : SDS_VOID-3);
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 
-      static_cast<int>(length[QT_ACE]));
+    return move.Set(QT_BOTH, QT_ACE, r, length[QT_ACE]);
   }
   else if (length[QT_PARD] == 1)
   {
@@ -2378,30 +2373,29 @@ return false;
     {
       // AH / (x) / H / H.
       if (pickFlag) holdCtr[112]++;
-      int r = (length[QT_LHO] == 2 ? 
-        static_cast<int>(Holding::ListToRank(completeList[QT_ACE][1])) : SDS_VOID-1);
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 
-        static_cast<int>(length[QT_ACE]));
+      unsigned r = (length[QT_LHO] == 2 ? 
+        Holding::ListToRank(completeList[QT_ACE][1]) : SDS_VOID-1);
+      return move.Set(QT_BOTH, QT_ACE, r, length[QT_ACE]);
     }
     else if (htop.T == QT_LHO)
     {
       // AH+ / Txx+ / H / K.
       if (pickFlag) holdCtr[113]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][1]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 2);
+      unsigned r = Holding::ListToRank(completeList[QT_ACE][1]);
+      return move.Set(QT_BOTH, QT_ACE, r, 2);
     }
     else if (htop.T == QT_ACE && htop.N == QT_LHO && length[QT_LHO] >= 4)
     {
       // AQT+ / K / J / 9xxx+.
       if (pickFlag) holdCtr[114]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-5, 3);
     }
     else if (htop.T == QT_ACE && htop.N == QT_ACE &&
       htop.E == QT_LHO && length[QT_LHO] >= 5)
     {
       // AQT9+ / K / J / 8xxxx+.
       if (pickFlag) holdCtr[115]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-6, 4);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-6, 4);
     }
   }
   else if (distHex == 0x4441 && htop.T == QT_LHO && 
@@ -2411,8 +2405,8 @@ return false;
     // AJ9x / Txxx / Q8xx / K.
     // AJ98 / Txxx / Qxxx / K.
     if (pickFlag) holdCtr[116]++;
-    int r = (htop.N == QT_PARD ? SDS_VOID-6 : SDS_VOID-7);
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 4);
+    unsigned r = (htop.N == QT_PARD ? SDS_VOID-6 : SDS_VOID-7);
+    return move.Set(QT_BOTH, QT_BOTH, r, 4);
   }
   else if (length[QT_ACE] >= 3 && length[QT_LHO] >= 4 &&
     length[QT_PARD] >= 3 && htop.T == QT_LHO &&
@@ -2420,13 +2414,13 @@ return false;
   {
     // AHxx / Txxx / Hxx / K.
     if (pickFlag) holdCtr[117]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped12(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped12(Trick& move)
 {
   // ==== G12 ==========================================================
   //      AKJ+    
@@ -2444,7 +2438,7 @@ bool LoopHold::SolveStopped12(HoldingSimpleMove& move)
     {
       // AKJ / xxxx+ / ? / Q+.
       if (pickFlag) holdCtr[120]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 3);
     }
   }
   else if (completeList[QT_LHO][0] > completeList[QT_ACE][3])
@@ -2454,14 +2448,14 @@ bool LoopHold::SolveStopped12(HoldingSimpleMove& move)
     {
       // AKJx+ / Txxx+ / ? / Q(x).
       if (pickFlag) holdCtr[121]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 3);
     }
     else if (length[QT_PARD] == 2 && length[QT_RHO] == 2 &&
       (hopp.T || hopp.N))
     {
       // AKJx+ / Txxx+ / xx / Qx.
       if (pickFlag) holdCtr[122]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-4, 3);
     }
   }
   else if (completeList[QT_LHO][0] > completeList[QT_ACE][4])
@@ -2472,15 +2466,15 @@ bool LoopHold::SolveStopped12(HoldingSimpleMove& move)
     {
       // AKJxx / xxxxx / x / Q(x).
       if (pickFlag) holdCtr[123]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][3]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 4);
+      unsigned r = Holding::ListToRank(completeList[QT_ACE][3]);
+      return move.Set(QT_BOTH, QT_ACE, r, 4);
     }
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped14(Trick& move)
 {
   // ==== G14 ================ G38 =====================================
   //      AJ+        |         A+
@@ -2510,7 +2504,7 @@ bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
     // We're going to limit this one for now.
     // AJxx / + / KT9x / Q+.
     // if (pickFlag) holdCtr[146]++;
-    // return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
+    // return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
     return false;
   }
   else if (length[pa] == 4 && length[pl] == 1 && length[pp] == 4 &&
@@ -2519,7 +2513,7 @@ bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
     return false;
     // AJxx / T / K98x / Qxxx.
     if (pickFlag) holdCtr[148]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   else if (length[pa] == 4 && length[pl] == 1 && length[pp] == 4 &&
     length[pr] == 4 && htop.T == pp && htop.N == pl && htop.E == pp)
@@ -2528,7 +2522,7 @@ bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
     // AT8x / Qxxx / KJxx / 9.
     // AJxx / 9 / KT8x / Qxxx.
     if (pickFlag) holdCtr[381]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
 
   if (length[pa] <= 2 || length[pr] >= 3 || length[pl] <= 3)
@@ -2542,14 +2536,14 @@ bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
       {
         // AJx+ / Q / Kx / Txxx+.
         if (pickFlag) holdCtr[140]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
       }
       else if (htop.T == pl &&
         (htop.N == pl || (htop.N == pa && htop.E == pl)))
       {
          // AJ9x / T8xx / Kxx / Q.
         if (pickFlag) holdCtr[141]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
       }
       else if (length[pa] == 4 && length[pp] == 4 && length[pl] == 4 &&
         ! hopp.N)
@@ -2558,14 +2552,14 @@ bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
         {
           // AJxx / T8xx / K9xx / Q.
           if (pickFlag) holdCtr[380]++;
-          return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
+          return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
         }
         else if (! hopp.E)
         {
           // AJ9x / Txxx / K8xx / Q.
           // AJ8x / Txxx / K9xx / Q.
           if (pickFlag) holdCtr[147]++;
-          return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+          return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
         }
       }
     }
@@ -2573,7 +2567,7 @@ bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
     {
       // AJTxx / 9xxxx / Kx / Q.
       if (pickFlag) holdCtr[142]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
     }
   }
   else if (htop.T == pl || (htop.T == pr && htop.N == pl))
@@ -2582,13 +2576,13 @@ bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
     {
       // AJ65 / T743 / K98 / Q2.
       if (pickFlag) holdCtr[143]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
     else if (length[pa] == 3 && completeList[pl][1] > completeList[pp][1])
     {
       // AJ9 / T654 / K732 / Q8.
       if (pickFlag) holdCtr[144]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
   else if (length[pa] >= 4 && length[pp] == 2 &&
@@ -2596,13 +2590,13 @@ bool LoopHold::SolveStopped14(HoldingSimpleMove& move)
   {
     // AJxx / 9xxx / KT / Qx, etc.
     if (pickFlag) holdCtr[145]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped15(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped15(Trick& move)
 {
   // ==== G15 ================ G17 ================ G23 ================
   //      AJ+        |         AQ+        |         A+  
@@ -2636,21 +2630,21 @@ bool LoopHold::SolveStopped15(HoldingSimpleMove& move)
   if (fourTops == 1)
   {
     if (pickFlag) holdCtr[150]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
   }
   else if (fourTops == 2 && hopp.K)
   {
     if (htop.K == QT_LHO && htop.J == QT_LHO)
     {
       if (pickFlag) holdCtr[151]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
     }
     else if (htop.K == QT_RHO)
     {
       if (htop.Q == QT_RHO || (htop.Q == QT_PARD && htop.J == QT_RHO))
       {
         if (pickFlag) holdCtr[152]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+        return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
       }
     }
   }
@@ -2659,7 +2653,7 @@ bool LoopHold::SolveStopped15(HoldingSimpleMove& move)
 }
 
 
-bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped18(Trick& move)
 {
   // ==== G18 ================ G24 ================ G58 ================
   //      AQ+        |         AK+        |         A+
@@ -2705,7 +2699,7 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
         {
           // AQTxx / J / Kx / 9xxxx.
           if (pickFlag) holdCtr[180]++;
-          return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
+          return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
         }
       }
       else if (hopp.T && 
@@ -2713,7 +2707,7 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
       {
         // AHxx+ / h / Hx / hxxx+ with enough middle cards.
         if (pickFlag) holdCtr[181]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
       }
     }
     else if (length[pa] == 3)
@@ -2722,7 +2716,7 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
       {
         // AHx / h / Hxxx+ / hxxx+.
         if (pickFlag) holdCtr[182]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
       }
     }
     else if (length[pa] == 4 && length[pl] == 1 && length[pp] == 4 &&
@@ -2730,13 +2724,13 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
     {
       // AKxx / J / Q98x / Txxx.
       if (pickFlag) holdCtr[244]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
     }
     else if (hopp.T && LoopHold::StopFinesse(2, 2, 1, true, QT_ACE))
     {
       // AHxx+ / h / Hxx+ / hxxx+.
       if (pickFlag) holdCtr[183]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
   }
   else if (length[pl] == 2)
@@ -2752,7 +2746,7 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
         // AHx / hx / Hxxx / hxxx.
         // AHx+ / hx / Hx / hxxx.
         if (pickFlag) holdCtr[184]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
       }
     }
     else if (length[pp] == 2 && length[pr] >= 4 &&
@@ -2760,7 +2754,7 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
     {
       // AKxx / JT / Q9 / 8xxx.
       if (pickFlag) holdCtr[185]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
   }
   else if (length[pa] == 4 && length[pp] == 4 && length[pl] >= 4 && 
@@ -2771,13 +2765,13 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
     // AK9x / Jxxx+ / QTxx / +.
     // Reset numbers.
     if (pickFlag) holdCtr[249]++;
-    int r;
+    unsigned r;
     if (htop.T == pa && htop.N == pa)
       r = SDS_VOID - 6;
     else
-      r = static_cast<int>(Holding::ListToRank(completeList[pp][1]));
+      r = Holding::ListToRank(completeList[pp][1]);
 
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 4);
+    return move.Set(QT_BOTH, QT_BOTH, r, 4);
   }
   else if (length[pa] == 4 && length[pl] == 4 && length[pp] == 4 &&
     length[pr] == 1 && ! hopp.T && htop.N == pr && ! hopp.E)
@@ -2785,7 +2779,7 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
     // AKTx / Jxxx / Q8xx / 9.
     // AKT8 / Jxxx / Qxxx / 9.
     if (pickFlag) holdCtr[248]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   else if (length[pl] >= 4 && htop.J == pl &&
     (htop.T == pl || (htop.T == pa && htop.N == pl)))
@@ -2793,7 +2787,7 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
     // AHx+ / JTxx+ / Hx+ / ?.
     // AHT+ / J9xx+ / Hx+ / ?.
     if (pickFlag) holdCtr[186]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
   }
   else if (length[pa] >= 4 && length[pl] >= 4 &&
     length[pp] == 2 && length[pr] >= 2 &&
@@ -2803,7 +2797,7 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
   {
     // AKTx / Jxxx / Qx / xx.
     if (pickFlag) holdCtr[187]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
   }
   else if (length[pr] == 1)
   {
@@ -2813,14 +2807,14 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
       {
         // AHxx / hxxx+ / Hx / h.
         if (pickFlag) holdCtr[188]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
       }
       else if ((htop.N == pl || 
         (htop.N == pa && htop.E == pl)))
       {
         // AHxx / hxxx+ / Hxx+ / h.
         if (pickFlag) holdCtr[189]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
       }
     }
   }
@@ -2830,20 +2824,20 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
     {
       // AHx+ / hxx+ / Hx+ / hxx+.
       if (pickFlag) holdCtr[240]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
     else if (length[pp] <= 3)
     {
       // AHxx / hxxx / Hx / hx.
       // AHxx / hxxx / Hxx / hx.
       if (pickFlag) holdCtr[241]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
     else if (completeList[pl][1] > completeList[pp][1])
     {
       // AHx / hxxx / Hxxx / hx.
       if (pickFlag) holdCtr[242]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
   }
   else if (length[pp] == 2)
@@ -2854,14 +2848,14 @@ bool LoopHold::SolveStopped18(HoldingSimpleMove& move)
     {
       // AKxx / Jxx / Qx / xxxx.
       if (pickFlag) holdCtr[243]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped19(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped19(Trick& move)
 {
   // ==== G19 ==========================================================
   //      AQ+    
@@ -2876,27 +2870,25 @@ bool LoopHold::SolveStopped19(HoldingSimpleMove& move)
   {
     // AQ+ / Jxx / ? / K.
     if (pickFlag) holdCtr[190]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 2);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 2);
   }
   else if (length[QT_PARD] <= 1)
   {
     if (pickFlag) holdCtr[191]++;
-    int r = static_cast<int>(length[QT_LHO] <= 1 ? SDS_VOID-1 : SDS_VOID-3);
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 
-      static_cast<int>(length[QT_ACE]));
+    unsigned r = (length[QT_LHO] <= 1 ? SDS_VOID-1 : SDS_VOID-3);
+    return move.Set(QT_BOTH, QT_ACE, r, length[QT_ACE]);
   }
   else if (length[QT_PARD] == 2 && length[QT_ACE] == 2)
   {
     if (pickFlag) holdCtr[192]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][length[QT_LHO]-1]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 
-      static_cast<int>(length[QT_ACE]));
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][length[QT_LHO]-1]);
+    return move.Set(QT_BOTH, QT_ACE, r, length[QT_ACE]);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped20(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped20(Trick& move)
 {
   // ==== G20 ============= G22 ========================================
   //      AK+        |      A+     
@@ -2914,7 +2906,7 @@ bool LoopHold::SolveStopped20(HoldingSimpleMove& move)
           completeList[QT_RHO][0] > completeList[QT_PARD][1])))))
   {
     if (pickFlag) holdCtr[200]++;
-    return LoopHold::SetMove(move, QT_BOTH, pend, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
   }
   else if (length[QT_ACE] >= 3 &&
     length[QT_PARD] <= 2 && length[QT_RHO] >= 4 && 
@@ -2924,8 +2916,8 @@ bool LoopHold::SolveStopped20(HoldingSimpleMove& move)
     // AKxx / QJ / xx / xxxx.
     // Axxx / QJ / Kx / xxxx.
     if (pickFlag) holdCtr[201]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][x]));
-    return LoopHold::SetMove(move, QT_BOTH, pend, r, 3);
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][x]);
+    return move.Set(QT_BOTH, pend, r, 3);
   }
   else if (length[QT_ACE] >= 4 &&
     length[QT_PARD] <= 2 && length[QT_RHO] >= 5 &&
@@ -2935,8 +2927,8 @@ bool LoopHold::SolveStopped20(HoldingSimpleMove& move)
     // AKT9x / QJ / xx / 8xxxx.
     // AT9xx / QJ / Kx / 8xxxx.
     if (pickFlag) holdCtr[202]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][x+1]));
-    return LoopHold::SetMove(move, QT_BOTH, pend, r, 4);
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][x+1]);
+    return move.Set(QT_BOTH, pend, r, 4);
   }
 
   if (length[QT_RHO] <= 3)
@@ -2953,7 +2945,7 @@ bool LoopHold::SolveStopped20(HoldingSimpleMove& move)
       // AKxx / QJ / Txx / xxxx.
       // Axxx / QJ / KTx / xxxx.
       if (pickFlag) holdCtr[203]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 3);
     }
     else if (htop.T == QT_ACE && htop.N == QT_RHO &&
       ((htop.K == QT_ACE &&
@@ -2964,7 +2956,7 @@ bool LoopHold::SolveStopped20(HoldingSimpleMove& move)
       // AKTx / QJ / xxx / 9xxx.
       // ATxx / QJ / Kxx / 9xxx.
       if (pickFlag) holdCtr[204]++;
-      return LoopHold::SetMove(move, QT_BOTH, pend, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, pend, SDS_VOID-5, 3);
     }
   }
   else if (length[QT_PARD] >= 4 && htop.K == QT_PARD)
@@ -2977,15 +2969,15 @@ bool LoopHold::SolveStopped20(HoldingSimpleMove& move)
       // Ax / QJ / KTxx / 9xxx.
       // Axx / QJ / KTxx / 9xxx.
       if (pickFlag) holdCtr[205]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[QT_PARD][1]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 3);
+      unsigned r = Holding::ListToRank(completeList[QT_PARD][1]);
+      return move.Set(QT_BOTH, QT_BOTH, r, 3);
     }
     else if (length[QT_ACE] == 3 && htop.T == QT_ACE &&
       completeList[QT_RHO][0] > completeList[QT_PARD][1])
     {
       // ATx / QJ / Kxxx / 9xxx.
       if (pickFlag) holdCtr[206]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 3);
     }
   }
   else if (distHex == 0x3244 && htop.K == QT_ACE && ! hopp.T && hopp.N)
@@ -2994,13 +2986,13 @@ bool LoopHold::SolveStopped20(HoldingSimpleMove& move)
     // AKx / QJ / Txxx / 9xxx.
     if (pickFlag) holdCtr[207]++;
     PosType e = (htop.T == QT_ACE ? QT_ACE : QT_BOTH);
-    return LoopHold::SetMove(move, QT_BOTH, e, SDS_VOID-5, 3);
+    return move.Set(QT_BOTH, e, SDS_VOID-5, 3);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped26(Trick& move)
 {
   // ==== G26 ================ G50 ================ G56 ================
   //      A+         |         AQ+        |         AK+ 
@@ -3034,7 +3026,7 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
     // AKTxx / 9xxxx / Qx / J.
     // Ax / J / KQTxx / 9xxxx.
     if (pickFlag) holdCtr[260]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
   }
 
   if (length[pa] == 2)
@@ -3047,7 +3039,7 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
     {
       // Single defender, e.g. JTxx, J9xx over T.
       if (pickFlag) holdCtr[261]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
     else if (length[pr] >= 4 &&
       completeList[pr][0] > completeList[pp][2] &&
@@ -3055,7 +3047,7 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
     {
       // AT / Jx+ / KQxx / 9xxx.
       if (pickFlag) holdCtr[262]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
   }
   else if (length[pa] == 4 && length[pl] == 4 &&
@@ -3068,7 +3060,7 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
   {
     // AKx / 9x / QTxx / Jxxx.
     if (pickFlag) holdCtr[263]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
   }
   else if (length[pl] >= 4 && length[pr] <= 2 && htop.J == pl && 
     (((pp == QT_ACE && LoopHold::StopFinesse(2, 2, 1, true, pp)) ||
@@ -3076,7 +3068,7 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
   {
     // AT8x / J9xx / KQx / xx.
     if (pickFlag) holdCtr[264]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
   }
   else if (length[pp] == 3)
   {
@@ -3089,7 +3081,7 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
       {
         // AKxx / hxxx / KQx / h.
         if (pickFlag) holdCtr[265]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
       }
     }
     else if (length[pl] >= 4 && length[pr] >= 2 && 
@@ -3097,7 +3089,7 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
     {
       // Axx+ / JTxx / KQx / xx.
       if (pickFlag) holdCtr[266]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 3);
     }
   }
   else if (length[pa] == 4 && length[pp] == 4 && length[pl] >= 4 && 
@@ -3107,8 +3099,8 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
     // AT9x / J+ / KQxx / +.
     // AT8x / J+ / KQxx / 9.
     if (pickFlag) holdCtr[267]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[pa][2]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 4);
+    unsigned r = Holding::ListToRank(completeList[pa][2]);
+    return move.Set(QT_BOTH, QT_BOTH, r, 4);
   }
   else if (length[pa] == 4 && length[pp] == 4 && 
     length[pr] == 4 && length[pl] == 1 && 
@@ -3119,14 +3111,14 @@ bool LoopHold::SolveStopped26(HoldingSimpleMove& move)
     // A9xx / h / KQ8x / h+.
     // A98x / h / KQxx / h+.
     if (pickFlag) holdCtr[268]++;
-    int r = (htop.N == pa ? SDS_VOID - 6 : SDS_VOID - 7);
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 4);
+    unsigned r = (htop.N == pa ? SDS_VOID - 6 : SDS_VOID - 7);
+    return move.Set(QT_BOTH, QT_BOTH, r, 4);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped27(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped27(Trick& move)
 {
   // ==== G27 ==========================================================
   //      A+     
@@ -3140,7 +3132,7 @@ bool LoopHold::SolveStopped27(HoldingSimpleMove& move)
   {
     // AT9+ / J8xx+ / Qxx / K.
     if (pickFlag) holdCtr[270]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
   }
   else if (length[QT_ACE] == 3 && length[QT_LHO] >= 3 &&
     length[QT_PARD] == 3 && length[QT_RHO] == 1 &&
@@ -3148,13 +3140,13 @@ bool LoopHold::SolveStopped27(HoldingSimpleMove& move)
   {
     // AT9 / Jxx+ / Qxx / K.
     if (pickFlag) holdCtr[278]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
   }
   else if (distHex == 0x4341 && htop.T == QT_ACE && htop.N == QT_ACE)
   {
     // AT9x / Jxx / Qxxxx / K.
     if (pickFlag) holdCtr[277]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
   }
   else if (distHex == 0x4441 && ! hopp.T && ! hopp.N && ! hopp.E)
   {
@@ -3170,7 +3162,7 @@ bool LoopHold::SolveStopped27(HoldingSimpleMove& move)
       // AT98 / Jxxx / Qxxx / K.
       // Ahhx / Jxxx / Qhxx / K.
       if (pickFlag) holdCtr[279]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
     }
     else if (rnum == 1 && htop.E == QT_ACE &&
       completeList[QT_ACE][2] > completeList[QT_LHO][1] &&
@@ -3179,7 +3171,7 @@ bool LoopHold::SolveStopped27(HoldingSimpleMove& move)
       return false;
       // A87x / Jxxx / QT9x / K.
       if (pickFlag) holdCtr[276]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-8, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-8, 4);
     }
     // Ahxx / Jxxx / Qh8x / K.
     // A87x / Jxxx / QT9x / K.
@@ -3192,21 +3184,20 @@ bool LoopHold::SolveStopped27(HoldingSimpleMove& move)
     {
       // K not finessable.
       if (pickFlag) holdCtr[271]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_ACE, 1);
+      return move.Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
     }
   }
   else if (length[QT_PARD] == 1 && length[QT_LHO] >= 2)
   {
     // K not finessable.
     if (pickFlag) holdCtr[272]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_ACE, 1);
+    return move.Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
   }
   else if (length[QT_LHO] == 1 && length[QT_PARD] == 1)
   {
     // Ax+ / K / x / J.
     if (pickFlag) holdCtr[273]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_ACE, 
-      static_cast<int>(length[QT_ACE]));
+    return move.Set(QT_BOTH, QT_ACE, SDS_ACE, length[QT_ACE]);
   }
   else if (length[QT_ACE] == 2 && length[QT_PARD] == 2 &&
     length[QT_LHO] >= 2)
@@ -3215,7 +3206,7 @@ bool LoopHold::SolveStopped27(HoldingSimpleMove& move)
     // Ax / J / QT / K.
     // Ax / Jx+ / Qx / K.
     if (pickFlag) holdCtr[274]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
   }
   else if (length[QT_LHO] >= 3 && (length[QT_PARD] == 2 ||
     ((completeList[QT_LHO][1] > completeList[QT_PARD][1]) &&
@@ -3223,13 +3214,13 @@ bool LoopHold::SolveStopped27(HoldingSimpleMove& move)
   {
     // Ax+ / Jxx+ / Qx+ / K.
     if (pickFlag) holdCtr[275]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped28(Trick& move)
 {
   // ==== G28 ============= G30 =========== G52 =========== G54 ========
   //      AK+        |      A+       |      AK+      |      A+
@@ -3253,7 +3244,7 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
   {
     // Axxx / Hxxx / Kxxx / H with T98, T9, T8, 98, T, 9 with ace.
     if (pickFlag) holdCtr[302]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   else if (pend == QT_BOTH && ! hopp.T && htop.T == htop.N &&
     length[QT_ACE] >= 3)
@@ -3263,14 +3254,14 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
     {
       // AT9+ / H8xx+ / Kxx+ / H.
       if (pickFlag) holdCtr[280]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
     }
     else if (htop.T == QT_PARD && htop.E == QT_RHO &&
       length[QT_RHO] >= 4 && length[QT_PARD] >= 3 && length[QT_LHO] == 1)
     {
       // Axx+ / H / KT9+ / H8xx+.
       if (pickFlag) holdCtr[281]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
     }
     else if (length[QT_ACE] == 3 && length[QT_PARD] == 3 &&
       ((htop.T == QT_ACE && length[QT_RHO] == 1 && length[QT_LHO] >= 3) ||
@@ -3279,7 +3270,7 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
       // AT9 / Hxx+ / Kxx / H.
       // Axx / H / KT9 / Hxx+.
       if (pickFlag) holdCtr[282]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 3);
     }
     else if (length[QT_ACE] == 4 && length[QT_PARD] == 4 &&
       ((htop.T == QT_ACE && length[QT_RHO] == 1 && length[QT_LHO] == 3) ||
@@ -3288,14 +3279,14 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
       // AT9x / Hxx / Kxxx / H.
       // Axxx / H / KT9x / Hxx.
       if (pickFlag) holdCtr[301]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 4);
     }
     else if (distHex == 0x4144 && 
       htop.T == QT_PARD && htop.N == QT_PARD && htop.E == QT_PARD)
     {
       // Axxx / H / KT98 / Hxxx.
       if (pickFlag) holdCtr[302]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
     }
     else if (distHex == 0x4144 &&
       htop.T == QT_ACE && htop.N == QT_ACE && htop.E == QT_PARD &&
@@ -3305,7 +3296,7 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
       return false;
       // AT9x / H / K87x / Hxxx.
       if (pickFlag) holdCtr[303]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-8, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-8, 4);
     }
     else if (distHex == 0x4441 &&
       htop.T == QT_PARD && htop.N == QT_PARD && htop.E == QT_ACE &&
@@ -3315,7 +3306,7 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
       return false;
       // A87x / Hxxx / KT9x / H.
       if (pickFlag) holdCtr[305]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-8, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-8, 4);
     }
   }
   else if (pend == QT_BOTH && 
@@ -3328,7 +3319,7 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
       // AT8x / H+ / K9xx / H.
       // A98x / H+ / KTxx / H.
       if (pickFlag) holdCtr[302]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
     }
     else if (length[QT_LHO] == 1 && htop.T != htop.E && htop.E == QT_PARD)
     {
@@ -3336,7 +3327,7 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
       // A9xx / H / KT8x / H+.
       // ATxx / H / K98x / H+.
       if (pickFlag) holdCtr[303]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
     }
   }
   else if (pend == QT_BOTH && distHex == 0x4144 &&
@@ -3347,7 +3338,7 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
     // ATxx / H / K98x / Jxxx.
     // A9xx / H / KT8x / Jxxx.
     if (pickFlag) holdCtr[304]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
 
   if (length[QT_LHO] >= 2 && length[QT_RHO] >= 2 &&
@@ -3356,20 +3347,20 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
     // Axx / Hxx / Kxx / Hx.
     // Axx / Hx / Kxx / Hxx.
     if (pickFlag) holdCtr[283]++;
-    return LoopHold::SetMove(move, QT_BOTH, pend, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
   }
   else if (hopp.T && (length[QT_LHO] >= 3 || length[QT_RHO] >= 3))
   {
     // Axx / H / Kxx / HHx.
     // Axx / HHx / Kxx / H.
     if (pickFlag) holdCtr[284]++;
-    return LoopHold::SetMove(move, QT_BOTH, pend, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
   }
   else if (htop.K == QT_ACE && length[QT_LHO] >= 3)
   {
     // AKx / Hxx / xxx / H.
     if (pickFlag) holdCtr[285]++;
-    return LoopHold::SetMove(move, QT_BOTH, pend, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
   }
   else if (htop.K == QT_ACE && length[QT_RHO] >= 3 &&
     (length[QT_PARD] == 1 ||
@@ -3378,7 +3369,7 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
            completeList[QT_RHO][1] > completeList[QT_PARD][1]))))
   {
     if (pickFlag) holdCtr[286]++;
-    return LoopHold::SetMove(move, QT_BOTH, pend, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
   }
   else if (pend == QT_BOTH)
   {
@@ -3386,32 +3377,32 @@ bool LoopHold::SolveStopped28(HoldingSimpleMove& move)
     {
       // A+ / H / KT+ / H9x+.
       if (pickFlag) holdCtr[287]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
     else if (htop.T == QT_ACE && htop.N == QT_LHO && length[QT_RHO] == 1)
     {
       // AT+ / H9x+ / K+ / H.
       if (pickFlag) holdCtr[288]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
     else if (length[QT_ACE] == 2 && length[QT_RHO] >= 3)
     {
       // Ax / H / Kx+ / Hxx+.
       if (pickFlag) holdCtr[289]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
     else if (length[QT_PARD] == 2 && length[QT_LHO] >= 3)
     {
       // Ax+ / Hxx+ / Kx / H.
       if (pickFlag) holdCtr[300]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-2, 2);
     }
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped36(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped36(Trick& move)
 {
   // ==== G36 ==========================================================
   //      AK+     
@@ -3423,7 +3414,7 @@ bool LoopHold::SolveStopped36(HoldingSimpleMove& move)
   {
     // AKx / Qxx+ / J+ / ?.
     if (pickFlag) holdCtr[360]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
   }
   else if (length[QT_PARD] <= length[QT_LHO] &&
     length[QT_ACE] >= 4 && length[QT_RHO] >= 5 &&
@@ -3432,8 +3423,8 @@ bool LoopHold::SolveStopped36(HoldingSimpleMove& move)
   {
     // AKxxx / xxxxx / x / Q(x).
     if (pickFlag) holdCtr[361]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][3]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 4);
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][3]);
+    return move.Set(QT_BOTH, QT_ACE, r, 4);
   }
   else if (length[QT_LHO] == 2)
   {
@@ -3446,7 +3437,7 @@ bool LoopHold::SolveStopped36(HoldingSimpleMove& move)
         // AKx / Qx / Jx / xxx.
         // AKx / QJ / xx / xxx.
         if (pickFlag) holdCtr[362]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+        return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
       }
       else if (length[QT_RHO] >= 4 &&
         completeList[QT_RHO][0] < completeList[QT_ACE][2] &&
@@ -3454,8 +3445,8 @@ bool LoopHold::SolveStopped36(HoldingSimpleMove& move)
       {
         // AKx+ / Qx / J(x) / xxxx+.
         if (pickFlag) holdCtr[363]++;
-        int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][2]));
-        return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 3);
+        unsigned r = Holding::ListToRank(completeList[QT_ACE][2]);
+        return move.Set(QT_BOTH, QT_ACE, r, 3);
       }
     }
     else if (length[QT_RHO] >= 4 &&
@@ -3465,7 +3456,7 @@ bool LoopHold::SolveStopped36(HoldingSimpleMove& move)
     {
       // AKx+ / Qx / Jxx+ / Txxx.
       if (pickFlag) holdCtr[364]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
   else if (length[QT_PARD] == 1)
@@ -3474,13 +3465,13 @@ bool LoopHold::SolveStopped36(HoldingSimpleMove& move)
     {
       // AKx / Q / J / Txx+.
       if (pickFlag) holdCtr[365]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
     else if (htop.T == QT_ACE && htop.N == QT_RHO && length[QT_RHO] >= 4)
     {
       // AKT+ / 9xxx+ / J / Q.
       if (pickFlag) holdCtr[366]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-5, 3);
     }
   }
   else if (length[QT_PARD] >= 3 && length[QT_RHO] >= 4 &&
@@ -3491,20 +3482,20 @@ bool LoopHold::SolveStopped36(HoldingSimpleMove& move)
   {
     // AKx+ / Q / Jxx+ / Txxx+.
     if (pickFlag) holdCtr[367]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
   else if (distHex == 0x4144 && 
     htop.T == QT_RHO && htop.N == QT_PARD && htop.E == QT_PARD)
   {
     // AKxx / Q / J98x / Txxx.
     if (pickFlag) holdCtr[368]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped41(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped41(Trick& move)
 {
   // ==== G41 ==========================================================
   //      A+      
@@ -3516,7 +3507,7 @@ bool LoopHold::SolveStopped41(HoldingSimpleMove& move)
   {
     // Protected K behind the ace.
     if (pickFlag) holdCtr[410]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_ACE, 1);
+    return move.Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
   }
   else if (length[QT_ACE] == 2)
   {
@@ -3525,20 +3516,20 @@ bool LoopHold::SolveStopped41(HoldingSimpleMove& move)
     {
       // Ax / 9xxxx / QJTxx / K.
       if (pickFlag) holdCtr[411]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
     }
     else if (length[QT_PARD] == 2)
     {
       if (length[QT_RHO] >= 2)
       {
         if (pickFlag) holdCtr[412]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
       }
       else
       {
         return false;
         if (pickFlag) holdCtr[413]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-1, 2);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-1, 2);
       }
     }
     else if (length[QT_RHO] <= 2)
@@ -3546,15 +3537,14 @@ bool LoopHold::SolveStopped41(HoldingSimpleMove& move)
       // Ax / K / QJx+ / xx.
       // Ax / K / QJ+ / xx+.
       if (pickFlag) holdCtr[414]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 
-        static_cast<int>(length[QT_PARD]));
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, length[QT_PARD]);
     }
     else if (length[QT_PARD] == 3 || 
       (length[QT_RHO] >= 4 && htop.T == QT_RHO))
     {
       // Ax / K / QJ+ / Txx+.
       if (pickFlag) holdCtr[415]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
   else if (length[QT_PARD] == 2)
@@ -3563,7 +3553,7 @@ bool LoopHold::SolveStopped41(HoldingSimpleMove& move)
     {
       // Axx+ / Txx+ / QJ / K.
       if (pickFlag) holdCtr[416]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
     }
   }
   else if (length[QT_RHO] >= 4 &&
@@ -3575,13 +3565,13 @@ bool LoopHold::SolveStopped41(HoldingSimpleMove& move)
     // Axxx / K / QJx / Txxx+.
     // Axx+ / K / QJx+ / Txxx+.
     if (pickFlag) holdCtr[417]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped43(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped43(Trick& move)
 {
   // ==== G43 ==========================================================
   //      A+      
@@ -3598,13 +3588,13 @@ bool LoopHold::SolveStopped43(HoldingSimpleMove& move)
       if (length[QT_LHO] >= 2)
       {
         if (pickFlag) holdCtr[430]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
       }
       else
       {
         return false;
         if (pickFlag) holdCtr[431]++;
-        return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-1, 2);
+        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-1, 2);
       }
     }
     else if (length[QT_PARD] >= 4 && length[QT_LHO] >= 5 && 
@@ -3613,7 +3603,7 @@ bool LoopHold::SolveStopped43(HoldingSimpleMove& move)
     {
       // Ax / K / QJTx+ / 9xxxx.
       if (pickFlag) holdCtr[432]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
     }
     // else if (length[QT_LHO] <= 2 || length[QT_PARD] == 2)
     else if (length[QT_LHO] <= 2)
@@ -3621,8 +3611,7 @@ bool LoopHold::SolveStopped43(HoldingSimpleMove& move)
       // Ax / K / QJx+ / xx.
       // Ax / K / QJ+ / xx+.
       if (pickFlag) holdCtr[433]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 
-        static_cast<int>(length[QT_PARD]));
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, length[QT_PARD]);
     }
     else if (length[QT_PARD] == 3 || 
       (length[QT_LHO] >= 4 && htop.T == QT_LHO &&
@@ -3630,7 +3619,7 @@ bool LoopHold::SolveStopped43(HoldingSimpleMove& move)
     {
       // Ax / K / QJ+ / Txx+.
       if (pickFlag) holdCtr[434]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
   else if (length[QT_PARD] == 2)
@@ -3639,7 +3628,7 @@ bool LoopHold::SolveStopped43(HoldingSimpleMove& move)
     {
       // Axx+ / K / QJ / Txx+.
       if (pickFlag) holdCtr[435]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
     }
   }
   else if (length[QT_PARD] == 3)
@@ -3651,7 +3640,7 @@ bool LoopHold::SolveStopped43(HoldingSimpleMove& move)
     {
       // Axx / ? / QJx / K.
       if (pickFlag) holdCtr[436]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
   else if (length[QT_ACE] == 4 && length[QT_LHO] >= 4 &&
@@ -3660,20 +3649,20 @@ bool LoopHold::SolveStopped43(HoldingSimpleMove& move)
   {
     // A98x / Txxx / QJxx / K.
     if (pickFlag) holdCtr[437]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   else if (length[QT_LHO] >= 4 && htop.T == QT_LHO &&
     LoopHold::StopFinesse(2, 1, 2, true, QT_PARD))
   {
     // Axx / Txxx / QJx(x) / K.
     if (pickFlag) holdCtr[438]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped44(Trick& move)
 {
   // ==== G44 ==========================================================
   //      AK+     
@@ -3690,15 +3679,15 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
     {
       // AKxxx / xxxxx / x / Q(x).
       if (pickFlag) holdCtr[440]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][3]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 4);
+      unsigned r = Holding::ListToRank(completeList[QT_ACE][3]);
+      return move.Set(QT_BOTH, QT_ACE, r, 4);
     }
     else if (htop.T == QT_ACE && htop.N == QT_LHO &&
       length[QT_RHO] == 1 && length[QT_LHO] >= 4)
     {
       // AKT+ / 9xxx+ / J / Q.
       if (pickFlag) holdCtr[441]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-5, 3);
     }
     else if ((length[QT_RHO] >= 3 &&
       completeList[QT_RHO][1] > completeList[QT_ACE][2]) ||
@@ -3708,7 +3697,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
       // AK+ / QTx+ / J / +.
       // AK+ / Q9x+ / J / Tx.
       if (pickFlag) holdCtr[442]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
   }
 
@@ -3721,7 +3710,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
     {
       // AKx / Txxx / Jxx / Q.
       if (pickFlag) holdCtr[443]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
     else if (distHex == 0x4441 && htop.T == QT_LHO &&
       (htop.N == QT_PARD || (htop.N == QT_ACE && ! hopp.E)))
@@ -3730,8 +3719,8 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
       // AK98 / Txxx / Jxxx / Q.
       // AK9x / Txxx / J8xx / Q.
       if (pickFlag) holdCtr[459]++;
-      int r = (htop.N == QT_PARD ? SDS_VOID-6 : SDS_VOID-7);
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, r, 4);
+      unsigned r = (htop.N == QT_PARD ? SDS_VOID-6 : SDS_VOID-7);
+      return move.Set(QT_BOTH, QT_BOTH, r, 4);
     }
   }
   else if (htop.T == QT_ACE)
@@ -3744,7 +3733,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
     {
       // AKT+ / xxxx+ / J(x) / Qx with enough middle cards.
       if (pickFlag) holdCtr[444]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-5, 3);
     }
   }
   else if (htop.T == QT_PARD)
@@ -3755,7 +3744,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
     {
       // AKxx / 9xxx / / JTx / Qx.
       if (pickFlag) holdCtr[445]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
   else if (length[QT_ACE] == 3 && length[QT_PARD] == 3 &&
@@ -3766,7 +3755,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
 
     // AKx / + / Jxx / Q(x).
     if (pickFlag) holdCtr[446]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
   else if (length[QT_ACE] >= 4 && length[QT_LHO] >= 4 &&
     length[QT_PARD] == 3)
@@ -3775,7 +3764,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
     {
       // AKxx / xxxx / Jxx / QT.
       if (pickFlag) holdCtr[447]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
   else if (distHex == 0x3442 && 
@@ -3784,7 +3773,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
   {
     // AKx / Txxx / Jxxx / Qx.
     if (pickFlag) holdCtr[448]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
   else if (length[QT_LHO] >= 3 && length[QT_RHO] >= 2 && 
     htop.T == QT_LHO)
@@ -3794,7 +3783,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
     {
       // AKx / Txx+ / J(x) / Qx.
       if (pickFlag) holdCtr[449]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
   }
   else if (length[QT_LHO] >= 3 && length[QT_RHO] >= 2 && 
@@ -3806,7 +3795,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
   {
     // AKx / 9xx+ / J(x) / QT.
     if (pickFlag) holdCtr[450]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
   }
   else if (length[QT_RHO] >= 3)
   {
@@ -3817,7 +3806,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
     {
       // AKx / Tx / Jxx / Qxx.
       if (pickFlag) holdCtr[451]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
     else if (length[QT_LHO] <= 2 && length[QT_PARD] >= 2 &&
       LoopHold::StopFinesse(2, 2, 0, false, QT_ACE))
@@ -3825,7 +3814,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
       // AKx+ / h / Jx+ / Qhx+.
       // AKx+ / ? / Jx+ / Qhx+.
       if (pickFlag) holdCtr[452]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
     else if (length[QT_LHO] >= 3 && 
       (hopp.N || (htop.N == QT_PARD && hopp.E)))
@@ -3834,7 +3823,7 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
       // AKx / Txx / J9+ / Q8x.
       // AKx / T8x / J9+ / Qxx.
       if (pickFlag) holdCtr[453]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
   }
   else if (length[QT_LHO] <= 3)
@@ -3848,15 +3837,15 @@ bool LoopHold::SolveStopped44(HoldingSimpleMove& move)
       // AK9x / 7xxx / J8 / QT.
       // AK8x / 7xxx / J9 / QT.
       if (pickFlag) holdCtr[454]++;
-      int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][2]));
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 3);
+      unsigned r = Holding::ListToRank(completeList[QT_ACE][2]);
+      return move.Set(QT_BOTH, QT_ACE, r, 3);
     }
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped48(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped48(Trick& move)
 {
   // ==== G48 ==========================================================
   //      AKQ+    
@@ -3868,7 +3857,7 @@ bool LoopHold::SolveStopped48(HoldingSimpleMove& move)
     hopp.T && hopp.N && hopp.E)
   {
     if (pickFlag) holdCtr[480]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 3);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 3);
   }
   else if (length[QT_LHO] >= 5 && length[QT_PARD] <= 2 && 
     completeList[QT_LHO][0] < completeList[QT_ACE][3] &&
@@ -3878,8 +3867,8 @@ bool LoopHold::SolveStopped48(HoldingSimpleMove& move)
   {
     // AHHxx / xxxxx / Hx / H.
     if (pickFlag) holdCtr[481]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][3]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 4);
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][3]);
+    return move.Set(QT_BOTH, QT_ACE, r, 4);
   }
   else if (length[QT_PARD] == 1)
   {
@@ -3892,7 +3881,7 @@ bool LoopHold::SolveStopped48(HoldingSimpleMove& move)
       // AKQ+ / ? / T / J9xx.
       // AKQ+ / xxxx / x / J+ with enough middle cards.
       if (pickFlag) holdCtr[482]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 3);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 3);
     }
   }
   else if (length[QT_RHO] >= 4 && 
@@ -3901,7 +3890,7 @@ bool LoopHold::SolveStopped48(HoldingSimpleMove& move)
     // All kinds of combinations such as
     // AKQ3 / 2 / T864 / J975.
     if (pickFlag) holdCtr[483]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 3);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 3);
   }
   else if (length[QT_LHO] >= 4 && length[QT_PARD] == 2 && 
     length[QT_RHO] >= 2 &&
@@ -3911,13 +3900,13 @@ bool LoopHold::SolveStopped48(HoldingSimpleMove& move)
   {
     if (pickFlag) holdCtr[484]++;
     // AKQ+ / xxxx / xx / Jx with enough middle cards.
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 3);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 3);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped49(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped49(Trick& move)
 {
   // ==== G49 ==========================================================
   //      AQ+     
@@ -3929,23 +3918,22 @@ bool LoopHold::SolveStopped49(HoldingSimpleMove& move)
   {
     // Protected K behind the ace.
     if (pickFlag) holdCtr[490]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_ACE, 1);
+    return move.Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
   }
   else if (length[QT_RHO] == 1 && length[QT_PARD] == 1)
   {
     // Ax / K / x / J.
     if (pickFlag) holdCtr[491]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_ACE,
-      static_cast<int>(length[QT_ACE]));
+    return move.Set(QT_BOTH, QT_ACE, SDS_ACE, length[QT_ACE]);
   }
   else if (length[QT_ACE] == 2 && length[QT_PARD] <= 2 &&
     length[QT_RHO] <= 2)
   {
     // AQ / K / x(x) / J(x).
     if (pickFlag) holdCtr[492]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][length[QT_RHO]-1]));
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, r, 2);
-    // return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 2);
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][length[QT_RHO]-1]);
+    return move.Set(QT_BOTH, QT_ACE, r, 2);
+    // return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 2);
   }
   else if (length[QT_RHO] >= 3 &&
     (length[QT_ACE] == 2 || 
@@ -3959,13 +3947,13 @@ bool LoopHold::SolveStopped49(HoldingSimpleMove& move)
     // AQx+ / K    / x  / Jxx+.
     // AQx+ / K    / xx / Jxx with middle cards.
     if (pickFlag) holdCtr[493]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-3, 2);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-3, 2);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped57(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped57(Trick& move)
 {
   // ==== G57 ==========================================================
   //      A+      
@@ -3977,7 +3965,7 @@ bool LoopHold::SolveStopped57(HoldingSimpleMove& move)
   {
     // A+ / Kx+ / Q+ / J+.
     if (pickFlag) holdCtr[570]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+    return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
   }
   else if (length[QT_PARD] == 1)
   {
@@ -3985,21 +3973,20 @@ bool LoopHold::SolveStopped57(HoldingSimpleMove& move)
     {
       // A+ / K / Q / J.
       if (pickFlag) holdCtr[571]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 
-        static_cast<int>(length[QT_ACE]));
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, length[QT_ACE]);
     }
     else
     {
       // A+ / K / Q / Jx+.
       if (pickFlag) holdCtr[572]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
     }
   }
   else if (length[QT_RHO] >= 3)
   {
     // A+ / K / Q+ / Jxx+.
     if (pickFlag) holdCtr[573]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
   }
   else if (length[QT_ACE] == 2 && length[QT_PARD] == 2 &&
     length[QT_RHO] == 2)
@@ -4007,13 +3994,13 @@ bool LoopHold::SolveStopped57(HoldingSimpleMove& move)
   {
     // Ax / K / Qx / Jx.
     if (pickFlag) holdCtr[574]++;
-    return LoopHold::SetMove(move, QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
   }
   return false;
 }
 
 
-bool LoopHold::SolveStopped60(HoldingSimpleMove& move)
+bool LoopHold::SolveStopped60(Trick& move)
 {
   // ==== G60 ============= G62 ========================================
   //      AK+        |      A+     
@@ -4042,19 +4029,19 @@ bool LoopHold::SolveStopped60(HoldingSimpleMove& move)
       completeList[QT_LHO][0] > completeList[QT_PARD][2])
     {
       if (pickFlag) holdCtr[600]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
     else if (length[QT_LHO] >= 2 && htop.T == QT_PARD &&
       htop.N == QT_LHO)
     {
       // AKx+ / 9x+ / Tx+ / QJx+.
       if (pickFlag) holdCtr[601]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
     else if (LoopHold::StopFinesse(2, 2, 0, true, QT_ACE))
     {
       if (pickFlag) holdCtr[602]++;
-      return LoopHold::SetMove(move, QT_BOTH, QT_ACE, SDS_VOID-2, 2);
+      return move.Set(QT_BOTH, QT_ACE, SDS_VOID-2, 2);
     }
   }
   else if (length[QT_RHO] >= 3 || (length[QT_LHO] >= 3 &&
@@ -4064,7 +4051,7 @@ bool LoopHold::SolveStopped60(HoldingSimpleMove& move)
           completeList[QT_LHO][0] > completeList[QT_PARD][1])))))
   {
     if (pickFlag) holdCtr[603]++;
-    return LoopHold::SetMove(move, QT_BOTH, pend, SDS_VOID-2, 2);
+    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
   }
   else if (length[QT_ACE] >= 3 &&
     length[QT_PARD] <= 2 && length[QT_LHO] >= 4 && 
@@ -4074,8 +4061,8 @@ bool LoopHold::SolveStopped60(HoldingSimpleMove& move)
     // AKxx / xxxx / xx / QJ.
     // Axxx / xxxx / Kx / QJ.
     if (pickFlag) holdCtr[604]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][x]));
-    return LoopHold::SetMove(move, QT_BOTH, pend, r, 3);
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][x]);
+    return move.Set(QT_BOTH, pend, r, 3);
   }
   else if (length[QT_PARD] >= 3 &&
     length[QT_ACE] <= 2 && length[QT_LHO] >= 4 && 
@@ -4084,8 +4071,8 @@ bool LoopHold::SolveStopped60(HoldingSimpleMove& move)
   {
     // Ax / xxxx / Kxxx / QJ.
     if (pickFlag) holdCtr[605]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_PARD][1]));
-    return LoopHold::SetMove(move, QT_BOTH, pend, r, 3);
+    unsigned r = Holding::ListToRank(completeList[QT_PARD][1]);
+    return move.Set(QT_BOTH, pend, r, 3);
   }
   else if (length[QT_ACE] >= 4 &&
     length[QT_PARD] <= 2 && length[QT_LHO] >= 5 &&
@@ -4095,8 +4082,8 @@ bool LoopHold::SolveStopped60(HoldingSimpleMove& move)
     // AKT9x / 8xxxx / xx / QJ.
     // AT9xx / 8xxxx / Kx / QJ.
     if (pickFlag) holdCtr[606]++;
-    int r = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][x+1]));
-    return LoopHold::SetMove(move, QT_BOTH, pend, r, 4);
+    unsigned r = Holding::ListToRank(completeList[QT_ACE][x+1]);
+    return move.Set(QT_BOTH, pend, r, 4);
   }
 
   if (length[QT_LHO] <= 3)
@@ -4119,7 +4106,7 @@ bool LoopHold::SolveStopped60(HoldingSimpleMove& move)
       if (pickFlag) holdCtr[607]++;
       PosType pe = (htop.K == QT_PARD || htop.T == QT_PARD ?
         QT_BOTH : QT_ACE);
-      return LoopHold::SetMove(move, QT_BOTH, pe, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, pe, SDS_VOID-5, 3);
     }
   }
   else if (distHex == 0x3442 && ! hopp.T && 
@@ -4140,7 +4127,7 @@ bool LoopHold::SolveStopped60(HoldingSimpleMove& move)
       // Axx / 9xxx / KTxx / QJ.
       if (pickFlag) holdCtr[608]++;
       PosType e = (xx == 0 ? QT_ACE : QT_BOTH);
-      return LoopHold::SetMove(move, QT_BOTH, e, SDS_VOID-5, 3);
+      return move.Set(QT_BOTH, e, SDS_VOID-5, 3);
     }
   }
   return false;

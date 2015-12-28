@@ -29,7 +29,7 @@ class LoopHold: public Holding
 {
   private:
 
-    typedef bool (LoopHold::*SolvePtr)(HoldingSimpleMove& move);
+    typedef bool (LoopHold::*SolvePtr)(Trick& move);
     SolvePtr SolveStoppedFunction[64];
 
     struct htopType
@@ -122,32 +122,32 @@ class LoopHold: public Holding
 
     void PrintDetails();
 
-    bool SolveStopped0(HoldingSimpleMove& move);
-    bool SolveStopped1(HoldingSimpleMove& move);
-    bool SolveStopped2(HoldingSimpleMove& move);
-    bool SolveStopped3(HoldingSimpleMove& move);
-    bool SolveStopped5(HoldingSimpleMove& move);
-    bool SolveStopped6(HoldingSimpleMove& move);
-    bool SolveStopped7(HoldingSimpleMove& move);
-    bool SolveStopped9(HoldingSimpleMove& move);
-    bool SolveStopped11(HoldingSimpleMove& move);
-    bool SolveStopped12(HoldingSimpleMove& move);
-    bool SolveStopped14(HoldingSimpleMove& move);
-    bool SolveStopped15(HoldingSimpleMove& move);
-    bool SolveStopped18(HoldingSimpleMove& move);
-    bool SolveStopped19(HoldingSimpleMove& move);
-    bool SolveStopped20(HoldingSimpleMove& move);
-    bool SolveStopped26(HoldingSimpleMove& move);
-    bool SolveStopped27(HoldingSimpleMove& move);
-    bool SolveStopped28(HoldingSimpleMove& move);
-    bool SolveStopped36(HoldingSimpleMove& move);
-    bool SolveStopped41(HoldingSimpleMove& move);
-    bool SolveStopped43(HoldingSimpleMove& move);
-    bool SolveStopped44(HoldingSimpleMove& move);
-    bool SolveStopped48(HoldingSimpleMove& move);
-    bool SolveStopped49(HoldingSimpleMove& move);
-    bool SolveStopped57(HoldingSimpleMove& move);
-    bool SolveStopped60(HoldingSimpleMove& move);
+    bool SolveStopped0(Trick& move);
+    bool SolveStopped1(Trick& move);
+    bool SolveStopped2(Trick& move);
+    bool SolveStopped3(Trick& move);
+    bool SolveStopped5(Trick& move);
+    bool SolveStopped6(Trick& move);
+    bool SolveStopped7(Trick& move);
+    bool SolveStopped9(Trick& move);
+    bool SolveStopped11(Trick& move);
+    bool SolveStopped12(Trick& move);
+    bool SolveStopped14(Trick& move);
+    bool SolveStopped15(Trick& move);
+    bool SolveStopped18(Trick& move);
+    bool SolveStopped19(Trick& move);
+    bool SolveStopped20(Trick& move);
+    bool SolveStopped26(Trick& move);
+    bool SolveStopped27(Trick& move);
+    bool SolveStopped28(Trick& move);
+    bool SolveStopped36(Trick& move);
+    bool SolveStopped41(Trick& move);
+    bool SolveStopped43(Trick& move);
+    bool SolveStopped44(Trick& move);
+    bool SolveStopped48(Trick& move);
+    bool SolveStopped49(Trick& move);
+    bool SolveStopped57(Trick& move);
+    bool SolveStopped60(Trick& move);
 
 
   public:
@@ -176,8 +176,6 @@ class LoopHold: public Holding
       DefList& def,
       unsigned& rank);
       
-      // HoldingSimpleMove& move);
-
     void SolveCrashTricks(
       const PosType StupidCompiler,
       PosType& bend,

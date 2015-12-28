@@ -100,7 +100,7 @@ void Trick::Reset()
 }
 
 
-void Trick::Set(
+bool Trick::Set(
   const PosType start,
   const PosType end,
   const unsigned ranks,
@@ -110,6 +110,7 @@ void Trick::Set(
   trick.end = end;
   trick.ranks = ranks;
   trick.cashing = cashing;
+  return true;
 }
 
 

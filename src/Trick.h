@@ -46,7 +46,7 @@ class Trick
 
     ~Trick();
 
-    void Set(
+    bool Set(
       const PosType start,
       const PosType end,
       const unsigned ranks,
