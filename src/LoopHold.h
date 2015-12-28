@@ -89,11 +89,11 @@ class LoopHold: public Holding
       int& ctricks);
       
     bool GetAsymmRanks(
-      const int plong,
-      const int pShort,
-      const int cashLength,
-      const int toBeat,
-      unsigned& lowestRank);
+      const PosType plong,
+      const PosType pShort,
+      const unsigned cashLength,
+      const unsigned toBeat,
+      unsigned& lowestRank) const;
 
     bool StopFinesse(
       const unsigned mumFinesses,

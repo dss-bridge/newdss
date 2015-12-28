@@ -590,8 +590,9 @@ bool LoopHold::CashoutBoth(
         int maxOpp = static_cast<int>(Max(completeList[QT_RHO][0],
           completeList[QT_LHO][0]));
 
-        if (! LoopHold::GetAsymmRanks(pLong, pShort, lenOppMax,
-          maxOpp, lowestRank))
+        if (! LoopHold::GetAsymmRanks(pLong, pShort, 
+          static_cast<unsigned>(lenOppMax),
+          static_cast<unsigned>(maxOpp), lowestRank))
         {
           if (pickFlag) holdCtr[822]++;
           return false;
@@ -914,39 +915,35 @@ void LoopHold::SetDetails()
 
 
 bool LoopHold::GetAsymmRanks(
-  const int pLong,
-  const int pShort,
-  const int cashLength,
-  const int toBeat,
-  unsigned& lowestRank)
+  const PosType pLong,
+  const PosType pShort,
+  const unsigned cashLength,
+  const unsigned toBeat,
+  unsigned& lowestRank) const
 {
   // First cash on the short side, then if necessary the long side.
   // After that, if the first unused card on the long side is large
   // enough, then for sure the suit doesn't block.  Otherwise it might.
 
-  int cashed = 0;
-  while (cashed < static_cast<int>(length[pShort]) &&
-    cashed < cashLength &&
-    static_cast<int>(completeList[pShort][cashed]) > toBeat)
+  unsigned cashed = 0;
+  while (cashed < length[pShort] && cashed < cashLength &&
+      completeList[pShort][cashed] > toBeat)
   {
     cashed++;
   }
 
-  int shortStop = cashed;
-  int longStop = 0;
+  unsigned shortStop = cashed;
+  unsigned longStop = 0;
 
   if (cashed < cashLength)
   {
-    while (longStop < static_cast<int>(length[pLong]) &&
-      cashed < cashLength &&
-      static_cast<int>(completeList[pLong][longStop]) > toBeat)
+    while (longStop < length[pLong] && cashed < cashLength &&
+        completeList[pLong][longStop] > toBeat)
     {
       cashed++;
       longStop++;
     }
   }
-
-// cout << "longStop " << longStop << shortStop " << shortStop" << \n";
 
   // Couldn't cash enough tops.
   if (cashed < cashLength)
@@ -954,7 +951,6 @@ bool LoopHold::GetAsymmRanks(
 
   // Blocked for sure.
   if (completeList[pLong][longStop] < completeList[pShort][shortStop])
-      // completeList[pShort][length[pShort]-1])
     return false;
 
   if (shortStop == 0)
@@ -963,9 +959,7 @@ bool LoopHold::GetAsymmRanks(
     return false;
   }
 
-  // lowestRank = Min(completeList[pShort][shortStop-1],
-    // completeList[pLong][longStop]);
-  if (static_cast<int>(length[pShort]) <= cashLength)
+  if (length[pShort] <= cashLength)
   {
     unsigned m = Min(completeList[pShort][shortStop-1],
       completeList[pLong][longStop-1]);
