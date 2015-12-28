@@ -114,7 +114,7 @@ inline bool MakeSimpleSingleMove(
     PosType start, end;
     int brank, rrank, crank, crank2, btricks, rtricks, ctricks;
     unsigned numTops = holding.GetNumTops();
-    PosType oppBest = holding.GetOppBest();
+    PosType StupidCompiler = holding.GetSide();
 
     for (unsigned nMask = 1; nMask < (1u << numTops)-1u; nMask++)
     {
@@ -129,8 +129,9 @@ inline bool MakeSimpleSingleMove(
         continue;
 
       PosType blocked, bend, cend;
-      zhNew.SolveCrashTricks(oppBest, bend, cend,
-        brank, rrank, crank, crank2, btricks, rtricks, ctricks);
+      zhNew.SolveCrashTricks(
+        StupidCompiler, 
+        bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
 
       if (rtricks == 0 && crank2 != SDS_VOID && crank != crank2)
       {
@@ -201,7 +202,8 @@ inline bool MakeSimpleSingleMove(
   if (singles[sl][c].moveNo)
     return true;
 
-  int r, t;
+  int t;
+  unsigned r;
   if (holding.SolveStopped(zhmove))
   {
     // Opponents have enough tops and length to hold declarer to
@@ -219,8 +221,8 @@ inline bool MakeSimpleSingleMove(
   else if (holding.CashoutBoth(def, r))
   {
     // Suits such as AQx / Kx.
-    unsigned mno = moveList.AddMove(def, holding, newFlag);
 
+    unsigned mno = moveList.AddMove(def, holding, newFlag);
     SetAllPermutations(sl, c, mno, holding, static_cast<unsigned>(r), 
       HIST_CASHES, newFlag);
   }

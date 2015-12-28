@@ -102,7 +102,7 @@ class LoopHold: public Holding
       const int pShort,
       const int cashLength,
       const int toBeat,
-      int& lowestRank);
+      unsigned& lowestRank);
 
     bool SetMove(
       HoldingSimpleMove& move,
@@ -167,14 +167,14 @@ class LoopHold: public Holding
 
     bool CashoutBoth(
       DefList& def,
-      int& lowestRank);
+      unsigned& lowestRank);
      
     bool SolveStopped(HoldingSimpleMove& move);
 
     void SetDetails();
 
     void SolveCrashTricks(
-      const PosType& oppBest,
+      const PosType StupidCompiler,
       PosType& bend,
       PosType& cend,
       int& brank,
