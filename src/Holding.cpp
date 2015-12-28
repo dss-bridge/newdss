@@ -608,24 +608,7 @@ bool Holding::MakePlay(
     // from among equals, e.g. Ax / - / QJ / Kx.  If the H was covered,
     // then it was retroactively the Q; if ducked, the J.
 
-    /*
-    if (multiLead[leadRank])
-    {
-      if (leadRank > pardRank)
-      {
-        used[leadRank-1] = 1;
-        winRank--;
-      }
-      else if (leadRank > lhoRank)
-      {
-        used[leadRank-1] = 1;
-      }
-      else
-        used[leadRank] = 1;
-    }
-    else
-    */
-      used[leadRank] = 1;
+    used[leadRank] = 1;
   }
 
 
@@ -665,7 +648,7 @@ bool Holding::MakePlay(
     if (used[u])
       continue;
 
-    rankMap[revRunRank--] = 12 - (static_cast<int>(suitLength)-u-1);
+    rankMap[revRunRank--] = 12 - (suitLength-static_cast<unsigned>(u)-1);
   }
 
   if (maybeNewAce)
@@ -708,64 +691,13 @@ bool Holding::MakePlay(
       length[QT_LHO] <= 1 && length[QT_RHO] <= 1))
     mergeSpecialFlag = true;
 
-  /*
-  if (length[QT_LHO] == 0 && length[QT_RHO] == 0 &&
-      length[QT_ACE] >= 2 && length[QT_PARD] >= 2)
-    mergeCat = SDS_MERGE_VOID_VOID;
-  else if (length[QT_ACE] == length[QT_PARD] && 
-      length[QT_LHO] <= 1 && length[QT_RHO] <= 1)
-    mergeCat = SDS_MERGE_EQUAL_VOID;
-  */
-
   return true;
-}
-
-
-bool Holding::GetAceFlip() const
-{
-  return aceFlip;
-}
-
-
-int Holding::GetNewRank(int r) const
-{
-  // Used when updating a looked-up trick list and appending
-  // a new trick.
-
-  unsigned rNew = static_cast<unsigned>(rankMap[r]);
-
-  // Normally PP1Q + BA1A = PP1A + BA1- = PA2Q.
-  // But there is a special Prepend case where it becomes PA2A.
-  // So we can't throw away that information.
-
-  if (mergeSpecialFlag)
-    return static_cast<int>(rNew);
-  else
-    return static_cast<int>((Holding::GetPrependRank() < rNew ? SDS_VOID : rNew));
-}
-
-
-bool Holding::GetMergeType() const
-{
-  return mergeSpecialFlag;
-}
-
-
-unsigned Holding::TopsOverRank(
-  const PosType& player,
-  const unsigned rank) const
-{
-  unsigned c = 0;
-  for (; c < length[player]; c++)
-    if (completeList[player][c] < rank)
-      break;
-  return c;
 }
 
 
 unsigned Holding::FlipTops(
   const unsigned numTops,
-  const unsigned nMask)
+  const unsigned nMask) const
 {
   unsigned cFlipped = counter;
   unsigned maskFull = (1u << (2*(suitLength-1))) - 1u;
@@ -797,12 +729,55 @@ unsigned Holding::FlipTops(
 }
 
 
+bool Holding::GetAceFlip() const
+{
+  return aceFlip;
+}
+
+
+unsigned Holding::GetNewRank(
+  const unsigned r) const
+{
+  // Used when updating a looked-up trick list and appending
+  // a new trick.
+
+  unsigned rNew = rankMap[r];
+
+  // Normally PP1Q + BA1A = PP1A + BA1- = PA2Q.
+  // But there is a special Prepend case where it becomes PA2A.
+  // So we can't throw away that information.
+
+  if (mergeSpecialFlag)
+    return rNew;
+  else
+    return (Holding::GetPrependRank() < rNew ? SDS_VOID : rNew);
+}
+
+
+bool Holding::GetMergeType() const
+{
+  return mergeSpecialFlag;
+}
+
+
 unsigned Holding::ListToRank(
   const unsigned listValue) const
 {
   return (SDS_VOID - suitLength + listValue);
   
 }
+
+unsigned Holding::TopsOverRank(
+  const PosType& player,
+  const unsigned rank) const
+{
+  unsigned c = 0;
+  for (; c < length[player]; c++)
+    if (completeList[player][c] < rank)
+      break;
+  return c;
+}
+
 
 void Holding::Print(
   ostream& out,

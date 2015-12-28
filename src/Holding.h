@@ -48,7 +48,7 @@ class Holding
     PosType winSide;
     unsigned winRank;
 
-    int rankMap[14];
+    unsigned rankMap[14];
     bool aceFlip;
     bool mergeSpecialFlag;
 
@@ -124,15 +124,16 @@ class Holding
       unsigned& slNew,
       unsigned& cNew);
 
-    bool GetAceFlip() const;
-
-    int GetNewRank(int r) const;
-
-    bool GetMergeType() const;
-
     unsigned FlipTops(
       const unsigned numTops,
-      const unsigned nMask);
+      const unsigned nMask) const;
+
+    bool GetAceFlip() const;
+
+    unsigned GetNewRank(
+      const unsigned r) const;
+
+    bool GetMergeType() const;
 
     void Print(
       std::ostream& out = std::cout,
