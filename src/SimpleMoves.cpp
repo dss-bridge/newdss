@@ -78,21 +78,12 @@ inline bool MakeSimpleSingleMove(
     unsigned r, t;
     bool newFlag;
 
-    if (lenPard > lenAce && holding.CashoutAceSideBlocked(t, r))
+    if (lenPard > lenAce && holding.CashoutAceSideBlocked(def, r))
     {
       // Aceholder has blocking tops that count: AK / JT9.
 
-      assert(t > 0);
-
-      unsigned brank = SDS_VOID - lenAce;
-      unsigned rmin = Min(brank, r);
-          
-      ztrick.Set(QT_BOTH, QT_ACE, brank, lenAce);
-      ztrick2.Set(QT_PARD, QT_PARD, r, t);
-      def.Set2(ztrick, ztrick2);
-
-      unsigned mno = moveList.AddMove(def, holding, newFlag);
-      SetAllPermutations(sl, c, mno, holding, rmin, HIST_BLOCKED, newFlag);
+       unsigned mno = moveList.AddMove(def, holding, newFlag);
+      SetAllPermutations(sl, c, mno, holding, r, HIST_BLOCKED, newFlag);
     }
     else
     {

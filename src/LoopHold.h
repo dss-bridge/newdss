@@ -168,7 +168,7 @@ class LoopHold: public Holding
       unsigned& ranks);
 
     bool CashoutAceSideBlocked(
-      unsigned& tricks,
+      DefList& def,
       unsigned& ranks) const;
 
     bool CashoutBoth(

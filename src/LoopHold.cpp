@@ -14,6 +14,7 @@
 
 #include "Trick.h"
 #include "LoopHold.h"
+#include "DefList.h"
 #include "const.h"
 
 using namespace std;
@@ -134,7 +135,7 @@ int LoopHold::GetNumTopsOverOpp(
 
 
 bool LoopHold::CashoutAceSideBlocked(
-  unsigned& tricks,
+  DefList& def,
   unsigned& rank) const
 {
   // Aceholder has blocking tops that count: AK / JT9.
@@ -150,8 +151,13 @@ bool LoopHold::CashoutAceSideBlocked(
   if (lenMaxOpp <= la)
   {
     // Both opponents are cashed out already by the ace side.
-    tricks = ld;
-    rank = SDS_VOID;
+    // tricks = ld;
+    rank = SDS_VOID-la;
+
+    Trick btrick, rtrick;
+    btrick.Set(QT_BOTH, QT_ACE, rank, la);
+    rtrick.Set(QT_PARD, QT_PARD, SDS_VOID, ld);
+    def.Set2(btrick, rtrick);
     return true;
   }
 
@@ -165,6 +171,7 @@ bool LoopHold::CashoutAceSideBlocked(
 
   bool beatWholeLho = (nLho + la >= Min(ll, lp));
   bool beatWholeRho = (nRho + la >= Min(lr, lp));
+  unsigned tricks;
 
   if (minCashing >= ld || (beatWholeLho && beatWholeRho))
   {
@@ -191,6 +198,11 @@ bool LoopHold::CashoutAceSideBlocked(
 
   unsigned numPardTops = Min(lenMaxOpp-la, tricks);
   rank = Holding::ListToRank(completeList[QT_PARD][numPardTops-1]);
+
+  Trick btrick, rtrick;
+  btrick.Set(QT_BOTH, QT_ACE, SDS_VOID-la, la);
+  rtrick.Set(QT_PARD, QT_PARD, rank, tricks);
+  def.Set2(btrick, rtrick);
   return true;
 }
 
