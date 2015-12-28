@@ -1371,7 +1371,7 @@ bool LoopHold::SolveStopped(
     // pickFlag = true;
   pickFlag = true;
 
-  int topIndex = (counter >> (2*(suitLength-4))) & 0x3f;
+  unsigned topIndex = (counter >> (2*(suitLength-4))) & 0x3f;
   Trick trick;
   if ((this->*SolveStoppedFunction[topIndex])(trick))
   {
@@ -1389,17 +1389,17 @@ bool LoopHold::SolveStopped(
 
 
 bool LoopHold::StopFinesse(
-  const int numFinesses,
-  const int firstNonTopAce,
-  const int firstNonTopPard,
+  const unsigned numFinesses,
+  const unsigned firstNonTopAce,
+  const unsigned firstNonTopPard,
   const bool ignoreOtherOpp,
-  const PosType anchor)
+  const PosType anchor) const
 {
   // Take 1 finesse through the opponent indicated.
   // Return true if opponent prevents the finesse.
 
   PosType pa, pl, pp, pr;
-  int fna, fnp;
+  unsigned fna, fnp;
   if (anchor == QT_ACE)
   {
     // Finesse through RHO toward the ace.
@@ -1423,7 +1423,7 @@ bool LoopHold::StopFinesse(
 
   bool skipOnePard = false;
   bool skipTwoPard = false;
-  int effLenPard = static_cast<int>(length[pp]) - fnp;
+  int effLenPard = static_cast<int>(length[pp] - fnp);
 
   if (! ignoreOtherOpp)
   {
@@ -1445,11 +1445,8 @@ bool LoopHold::StopFinesse(
       completeList[pl][0] > completeList[pp][fnp+1] &&
       completeList[pl][0] > completeList[pa][fna])
     {
-      // if (length[pp] == 2)
-      {
-        skipOnePard = true;
-        effLenPard--;
-      }
+      skipOnePard = true;
+      effLenPard--;
     }
   }
 
@@ -1463,9 +1460,9 @@ bool LoopHold::StopFinesse(
 
 
   // Figure out the top situation of RHO vs partner.
-  int topOf3 = 1, topOf5 = 1, topOf7 = 1, num = 1;
-  int defNo = 1, pNo = fnp;
-  while (num < 7 && defNo < static_cast<int>(length[pr]))
+  unsigned topOf3 = 1, topOf5 = 1, topOf7 = 1, num = 1;
+  unsigned defNo = 1, pNo = fnp;
+  while (num < 7 && defNo < length[pr])
   {
     if (completeList[pr][defNo] >= completeList[pp][pNo])
     {
@@ -1477,9 +1474,9 @@ bool LoopHold::StopFinesse(
     else
     {
       pNo++;
-      if (skipTwoPard && pNo == static_cast<int>(length[pp])-2)
+      if (skipTwoPard && pNo + 2 == length[pp])
         pNo += 2;
-      else if (skipOnePard && pNo == static_cast<int>(length[pp])-1)
+      else if (skipOnePard && pNo + 1 == length[pp])
         pNo++;
     }
     num++;
@@ -1509,7 +1506,7 @@ bool LoopHold::StopFinesse(
 }
 
 
-bool LoopHold::SolveStopped0(Trick& move)
+bool LoopHold::SolveStopped0(Trick& move) const
 {
   // ==== G0 ===========================================================
   //      AKQJ+
@@ -1587,7 +1584,7 @@ bool LoopHold::SolveStopped0(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped1(Trick& move)
+bool LoopHold::SolveStopped1(Trick& move) const
 {
   // ==== G1 ================= G4 ================= G16 ================
   //      AQJ+       |         AKJ+       |         AKQ+
@@ -1696,7 +1693,7 @@ bool LoopHold::SolveStopped1(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped2(Trick& move)
+bool LoopHold::SolveStopped2(Trick& move) const
 {
   // ==== G2 ================= G8 ================= G32 ================
   //      AQJ+       |         AKJ+       |         AKQ+
@@ -1720,7 +1717,7 @@ bool LoopHold::SolveStopped2(Trick& move)
   if (! hopp.T)
    return false;
 
-  int pardTops = 0;
+  unsigned pardTops = 0;
   if (htop.K == QT_PARD) pardTops++;
   if (htop.Q == QT_PARD) pardTops++;
   if (htop.J == QT_PARD) pardTops++;
@@ -1815,7 +1812,7 @@ bool LoopHold::SolveStopped2(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped3(Trick& move)
+bool LoopHold::SolveStopped3(Trick& move) const
 {
   // ==== G3 ===========================================================
   //      AQJ+
@@ -1856,7 +1853,7 @@ bool LoopHold::SolveStopped3(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped5(Trick& move)
+bool LoopHold::SolveStopped5(Trick& move) const
 {
   // ==== G5 ============== G21 =========== G37 =========== G53 ========
   //      AJ+        |      A+       |      A+       |      A+
@@ -1869,7 +1866,7 @@ bool LoopHold::SolveStopped5(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped6(Trick& move)
+bool LoopHold::SolveStopped6(Trick& move) const
 {
   // ==== G6 ================= G46 =====================================
   //      AJ+        |         A+
@@ -2164,7 +2161,7 @@ bool LoopHold::SolveStopped6(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped7(Trick& move)
+bool LoopHold::SolveStopped7(Trick& move) const
 {
   // ==== G7 ============== G13 =========== G39 =========== G45 ========
   //      AJ+        |      AJ+      |      A+       |      A+
@@ -2205,7 +2202,7 @@ bool LoopHold::SolveStopped7(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped9(Trick& move)
+bool LoopHold::SolveStopped9(Trick& move) const
 {
   // ==== G9 ================= G33 =====================================
   //      AJ+        |         AQ+    
@@ -2285,7 +2282,7 @@ bool LoopHold::SolveStopped9(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped11(Trick& move)
+bool LoopHold::SolveStopped11(Trick& move) const
 {
   // ==== G11 ================ G35 =====================================
   //      AJ+        |         AQ+    
@@ -2383,7 +2380,7 @@ return false;
 }
 
 
-bool LoopHold::SolveStopped12(Trick& move)
+bool LoopHold::SolveStopped12(Trick& move) const
 {
   // ==== G12 ==========================================================
   //      AKJ+    
@@ -2437,7 +2434,7 @@ bool LoopHold::SolveStopped12(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped14(Trick& move)
+bool LoopHold::SolveStopped14(Trick& move) const
 {
   // ==== G14 ================ G38 =====================================
   //      AJ+        |         A+
@@ -2559,7 +2556,7 @@ bool LoopHold::SolveStopped14(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped15(Trick& move)
+bool LoopHold::SolveStopped15(Trick& move) const
 {
   // ==== G15 ================ G17 ================ G23 ================
   //      AJ+        |         AQ+        |         A+  
@@ -2585,7 +2582,7 @@ bool LoopHold::SolveStopped15(Trick& move)
   //      Q+         |         +          |         + 
   // ==== G59 ================ G61 ================ G63 ================
 
-  int fourTops = 1;
+  unsigned fourTops = 1;
   if (! hopp.K) fourTops++;
   if (! hopp.Q) fourTops++;
   if (! hopp.J) fourTops++;
@@ -2616,7 +2613,7 @@ bool LoopHold::SolveStopped15(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped18(Trick& move)
+bool LoopHold::SolveStopped18(Trick& move) const
 {
   // ==== G18 ================ G24 ================ G58 ================
   //      AQ+        |         AK+        |         A+
@@ -2644,7 +2641,7 @@ bool LoopHold::SolveStopped18(Trick& move)
     pr = QT_LHO;
   }
 
-  int rnum = 0;
+  unsigned rnum = 0;
   if (htop.J == pr) rnum++;
   if (htop.T == pr) rnum++;
   if (htop.N == pr) rnum++;
@@ -2818,7 +2815,7 @@ bool LoopHold::SolveStopped18(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped19(Trick& move)
+bool LoopHold::SolveStopped19(Trick& move) const
 {
   // ==== G19 ==========================================================
   //      AQ+    
@@ -2851,7 +2848,7 @@ bool LoopHold::SolveStopped19(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped20(Trick& move)
+bool LoopHold::SolveStopped20(Trick& move) const
 {
   // ==== G20 ============= G22 ========================================
   //      AK+        |      A+     
@@ -2860,7 +2857,7 @@ bool LoopHold::SolveStopped20(Trick& move)
   // ==== G20 ============= G22 ========================================
 
   PosType pend = (htop.K == QT_ACE ? QT_ACE : QT_BOTH);
-  int x = (htop.K == QT_ACE ? 2 : 1);
+  unsigned x = (htop.K == QT_ACE ? 2 : 1);
 
   if (length[QT_LHO] >= 3 || (length[QT_RHO] >= 3 &&
     (htop.T == QT_RHO || ((length[QT_PARD] <= 2 &&
@@ -2955,7 +2952,7 @@ bool LoopHold::SolveStopped20(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped26(Trick& move)
+bool LoopHold::SolveStopped26(Trick& move) const
 {
   // ==== G26 ================ G50 ================ G56 ================
   //      A+         |         AQ+        |         AK+ 
@@ -3081,7 +3078,7 @@ bool LoopHold::SolveStopped26(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped27(Trick& move)
+bool LoopHold::SolveStopped27(Trick& move) const
 {
   // ==== G27 ==========================================================
   //      A+     
@@ -3113,7 +3110,7 @@ bool LoopHold::SolveStopped27(Trick& move)
   }
   else if (distHex == 0x4441 && ! hopp.T && ! hopp.N && ! hopp.E)
   {
-    int rnum = 0;
+    unsigned rnum = 0;
     if (htop.T == QT_ACE) rnum++;
     if (htop.N == QT_ACE) rnum++;
     if (htop.E == QT_ACE) rnum++;
@@ -3183,7 +3180,7 @@ bool LoopHold::SolveStopped27(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped28(Trick& move)
+bool LoopHold::SolveStopped28(Trick& move) const
 {
   // ==== G28 ============= G30 =========== G52 =========== G54 ========
   //      AK+        |      A+       |      AK+      |      A+
@@ -3365,7 +3362,7 @@ bool LoopHold::SolveStopped28(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped36(Trick& move)
+bool LoopHold::SolveStopped36(Trick& move) const
 {
   // ==== G36 ==========================================================
   //      AK+     
@@ -3458,7 +3455,7 @@ bool LoopHold::SolveStopped36(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped41(Trick& move)
+bool LoopHold::SolveStopped41(Trick& move) const
 {
   // ==== G41 ==========================================================
   //      A+      
@@ -3534,7 +3531,7 @@ bool LoopHold::SolveStopped41(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped43(Trick& move)
+bool LoopHold::SolveStopped43(Trick& move) const
 {
   // ==== G43 ==========================================================
   //      A+      
@@ -3625,7 +3622,7 @@ bool LoopHold::SolveStopped43(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped44(Trick& move)
+bool LoopHold::SolveStopped44(Trick& move) const
 {
   // ==== G44 ==========================================================
   //      AK+     
@@ -3808,7 +3805,7 @@ bool LoopHold::SolveStopped44(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped48(Trick& move)
+bool LoopHold::SolveStopped48(Trick& move) const
 {
   // ==== G48 ==========================================================
   //      AKQ+    
@@ -3869,7 +3866,7 @@ bool LoopHold::SolveStopped48(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped49(Trick& move)
+bool LoopHold::SolveStopped49(Trick& move) const
 {
   // ==== G49 ==========================================================
   //      AQ+     
@@ -3916,7 +3913,7 @@ bool LoopHold::SolveStopped49(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped57(Trick& move)
+bool LoopHold::SolveStopped57(Trick& move) const
 {
   // ==== G57 ==========================================================
   //      A+      
@@ -3963,7 +3960,7 @@ bool LoopHold::SolveStopped57(Trick& move)
 }
 
 
-bool LoopHold::SolveStopped60(Trick& move)
+bool LoopHold::SolveStopped60(Trick& move) const
 {
   // ==== G60 ============= G62 ========================================
   //      AK+        |      A+     
@@ -3972,7 +3969,7 @@ bool LoopHold::SolveStopped60(Trick& move)
   // ==== G60 ============= G62 ========================================
 
   PosType pend = (htop.K == QT_ACE ? QT_ACE : QT_BOTH);
-  int x = (htop.K == QT_ACE ? 2 : 1);
+  unsigned x = (htop.K == QT_ACE ? 2 : 1);
 
   if (htop.K == QT_ACE && length[QT_PARD] >= 2 && length[QT_RHO] >= 3)
   {
@@ -4054,7 +4051,7 @@ bool LoopHold::SolveStopped60(Trick& move)
 
   if (distHex == 0x4432)
   {
-    int xx = 1;
+    unsigned xx = 1;
     if (htop.K == QT_ACE) xx++;
     if (htop.T == QT_ACE) xx++;
 
@@ -4076,7 +4073,7 @@ bool LoopHold::SolveStopped60(Trick& move)
     ((htop.K == QT_PARD && htop.T == QT_ACE && htop.N != QT_PARD) ||
      ((htop.K == QT_ACE || htop.T == QT_PARD) && hopp.N)))
   {
-    int xx = 0;
+    unsigned xx = 0;
     if (htop.K == QT_PARD) xx++;
     if (htop.T == QT_PARD) xx++;
 

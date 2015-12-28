@@ -20,7 +20,7 @@ class LoopHold: public Holding
 {
   private:
 
-    typedef bool (LoopHold::*SolvePtr)(Trick& move);
+    typedef bool (LoopHold::*SolvePtr)(Trick& move) const;
     SolvePtr SolveStoppedFunction[64];
 
     struct htopType
@@ -96,42 +96,42 @@ class LoopHold: public Holding
       unsigned& lowestRank);
 
     bool StopFinesse(
-      const int mumFinesses,
-      const int firstNonTopAce,
-      const int firstNonTopPard,
+      const unsigned mumFinesses,
+      const unsigned firstNonTopAce,
+      const unsigned firstNonTopPard,
       const bool ignoreOtherOpp,
-      const PosType anchor);
+      const PosType anchor) const;
 
     void SetDetails();
 
     void PrintDetails();
 
-    bool SolveStopped0(Trick& move);
-    bool SolveStopped1(Trick& move);
-    bool SolveStopped2(Trick& move);
-    bool SolveStopped3(Trick& move);
-    bool SolveStopped5(Trick& move);
-    bool SolveStopped6(Trick& move);
-    bool SolveStopped7(Trick& move);
-    bool SolveStopped9(Trick& move);
-    bool SolveStopped11(Trick& move);
-    bool SolveStopped12(Trick& move);
-    bool SolveStopped14(Trick& move);
-    bool SolveStopped15(Trick& move);
-    bool SolveStopped18(Trick& move);
-    bool SolveStopped19(Trick& move);
-    bool SolveStopped20(Trick& move);
-    bool SolveStopped26(Trick& move);
-    bool SolveStopped27(Trick& move);
-    bool SolveStopped28(Trick& move);
-    bool SolveStopped36(Trick& move);
-    bool SolveStopped41(Trick& move);
-    bool SolveStopped43(Trick& move);
-    bool SolveStopped44(Trick& move);
-    bool SolveStopped48(Trick& move);
-    bool SolveStopped49(Trick& move);
-    bool SolveStopped57(Trick& move);
-    bool SolveStopped60(Trick& move);
+    bool SolveStopped0(Trick& move) const;
+    bool SolveStopped1(Trick& move) const;
+    bool SolveStopped2(Trick& move) const;
+    bool SolveStopped3(Trick& move) const;
+    bool SolveStopped5(Trick& move) const;
+    bool SolveStopped6(Trick& move) const;
+    bool SolveStopped7(Trick& move) const;
+    bool SolveStopped9(Trick& move) const;
+    bool SolveStopped11(Trick& move) const;
+    bool SolveStopped12(Trick& move) const;
+    bool SolveStopped14(Trick& move) const;
+    bool SolveStopped15(Trick& move) const;
+    bool SolveStopped18(Trick& move) const;
+    bool SolveStopped19(Trick& move) const;
+    bool SolveStopped20(Trick& move) const;
+    bool SolveStopped26(Trick& move) const;
+    bool SolveStopped27(Trick& move) const;
+    bool SolveStopped28(Trick& move) const;
+    bool SolveStopped36(Trick& move) const;
+    bool SolveStopped41(Trick& move) const;
+    bool SolveStopped43(Trick& move) const;
+    bool SolveStopped44(Trick& move) const;
+    bool SolveStopped48(Trick& move) const;
+    bool SolveStopped49(Trick& move) const;
+    bool SolveStopped57(Trick& move) const;
+    bool SolveStopped60(Trick& move) const;
 
 
   public:
