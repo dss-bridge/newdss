@@ -242,9 +242,9 @@ void LoopHold::CashoutAce(
   unsigned numCashingLho = static_cast<unsigned>(LoopHold::GetNumTopsOverOpp(QT_LHO));
   unsigned numCashingRho = static_cast<unsigned>(LoopHold::GetNumTopsOverOpp(QT_RHO));
 
+// unsigned numCashingLho = Holding::TopsOverRank(QT_ACE, completeList[QT_LHO][0]);
+// unsigned numCashingRho = Holding::TopsOverRank(QT_ACE, completeList[QT_RHO][0]);
 /*
-unsigned nl = Holding::TopsOverRank(QT_ACE, completeList[QT_LHO][0]);
-unsigned nr = Holding::TopsOverRank(QT_ACE, completeList[QT_RHO][0]);
 if (numCashingLho != nl)
 {
   LoopHold::Print();
@@ -271,28 +271,8 @@ if (numCashingRho != nr)
   unsigned numCashing = (numTricks < la ? numTricks :
     Max(numCashingLho, numCashingRho));
 
-  if (numCashing == 0)
-  {
-    tricks = numTricks;
-    ranks = SDS_VOID;
-    return;
-  }
-
-  unsigned aceRank = completeList[QT_ACE][0];
-  unsigned s = 0;
-
-  for (unsigned i = 0; i < la; i++)
-  {
-    s++;
-    if (s < numCashing)
-      continue;
-
-    tricks = numTricks;
-    ranks = SDS_ACE - (aceRank - completeList[QT_ACE][i]);
-    return;
-  }
-
-  assert(false);
+  tricks = numTricks;
+  ranks = Holding::ListToRank(completeList[QT_ACE][numCashing-1]);
 }
 
 
