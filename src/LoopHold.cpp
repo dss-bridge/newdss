@@ -870,30 +870,6 @@ void LoopHold::SetDetails()
 {
   hdet.declLen = length[QT_ACE] + length[QT_PARD];
 
-  hdet.cFlipped = counter;
-  hdet.cFlippedUp = counter;
-  hdet.maskFull = (1u << (2*(suitLength-1))) - 1u;
-  for (unsigned n = 0; n < suitLength-1; n++)
-  {
-    unsigned mask = 0x3u << (2*n);
-    unsigned p = counter & mask;
-    // TODO: This look wrong! Only works for bottom bit?
-    if (p == QT_ACE)
-      hdet.cFlipped = (hdet.cFlipped & (hdet.maskFull ^ mask)) | 
-        (static_cast<unsigned>(QT_PARD) << (2*n));
-  }
-
-  for (unsigned n = 0; n < suitLength-1; n++)
-  {
-    unsigned mask = 0x3u << (2*n);
-    unsigned p = (counter >> (2*n)) & 0x3;
-    if (p == QT_PARD)
-      hdet.cFlippedUp = (hdet.cFlippedUp & (hdet.maskFull ^ mask)) | 
-        (static_cast<unsigned>(QT_ACE) << (2*n));
-  }
-
-  hdet.lenMaxOpp = Max(length[QT_LHO], length[QT_RHO]);
-
   if (length[QT_ACE] >= length[QT_PARD])
   {
     hdet.pLong = QT_ACE;
@@ -907,6 +883,7 @@ void LoopHold::SetDetails()
 
   hdet.lenLong = length[hdet.pLong];
   hdet.lenShort = length[hdet.pShort];
+  hdet.lenMaxOpp = Max(length[QT_LHO], length[QT_RHO]);
 
   int maxCardOpps = (hdet.lenMaxOpp == 0 ? -1 :
     static_cast<int>(Max(completeList[QT_LHO][0], completeList[QT_RHO][0])));
@@ -990,6 +967,27 @@ void LoopHold::UpdateDetailsForOpp(
     hdet.minTopLong = completeList[hdet.pLong][i];
     i++;
   }
+
+/*
+unsigned t = Holding::TopsOverRank(hdet.pLong, static_cast<unsigned>(oppRank));
+if (hdet.numTopsLong != t)
+{
+  Holding::Print();
+  cout << "oppRank " << oppRank << " plong " << static_cast<int>(hdet.pLong) << "\n";
+  cout << "hdet " << hdet.numTopsLong << " t " << t << "\n";
+  cout.flush();
+  assert(false);
+}
+if (hdet.minTopLong != completeList[hdet.pLong][t-1])
+{
+  Holding::Print();
+  cout << "oppRank " << oppRank << " plong " << static_cast<int>(hdet.pLong) << "\n";
+  cout << "minTop " << hdet.minTopLong << " vs " <<
+    completeList[hdet.pLong][t-1] << "\n";
+  cout.flush();
+  assert(false);
+}
+*/
 
   i = 0;
   while (i < static_cast<int>(hdet.lenShort) && static_cast<int>(completeList[hdet.pShort][i]) > oppRank)

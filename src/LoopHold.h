@@ -9,9 +9,10 @@
 #ifndef SDS_LOOPHOLD_H
 #define SDS_LOOPHOLD_H
 
-#include "DefList.h"
 #include "Holding.h"
 #include "const.h"
+
+class DefList;
 
 #define SDS_MAX_RANKS 14
 
@@ -39,9 +40,6 @@ class LoopHold: public Holding
 
     struct HoldingDetails
     {
-      unsigned cFlipped;
-      unsigned cFlippedUp; // All partner cards flipped to ace side
-      unsigned maskFull;
       unsigned declLen;
 
       PosType pLong;

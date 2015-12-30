@@ -8,6 +8,7 @@ AltList
 DefList
 
 ComplexMoves
+Holding
 
 Dist
 Twiddle
@@ -23,7 +24,6 @@ compare.h const.h portab.h
 
     90    245   2255 Hash.cpp
    351    859   7451 Header.cpp
-   989   2791  20177 Holding.cpp
   4163  15830 132829 LoopHold.cpp
    312    623   6530 MoveList.cpp
    335    790   6695 SideMoveList.cpp
@@ -33,7 +33,6 @@ compare.h const.h portab.h
    349    824   8971 single.h
     55     81    889 Hash.h
     85    151   1571 Header.h
-   154    261   2860 Holding.h
    198    379   4401 LoopHold.h
     94    151   1668 MoveList.h
    113    183   2033 SideMoveList.h
