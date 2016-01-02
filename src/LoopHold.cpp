@@ -273,11 +273,6 @@ bool LoopHold::SolveCrashTricks(
   PosType bend, cend;
   unsigned brank, rrank, crank, crank2, btricks, rtricks, ctricks;
 
-if (suitLength == 4 && counter == 0x22)
-{
-  Holding::Print();
-}
-
   LoopHold::SetDetails();
   PosType oppBest = Holding::GetOppBest();
 
@@ -382,11 +377,6 @@ if (suitLength == 4 && counter == 0x22)
   {
     if (crank2 != SDS_VOID && crank != crank2)
     {
-if (crank > crank2)
-{
-  Holding::Print();
-  cout.flush();
-}
       assert(crank < crank2);
 
       Trick ztrick, ztrick2;

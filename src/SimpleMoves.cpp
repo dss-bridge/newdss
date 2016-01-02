@@ -130,11 +130,16 @@ inline bool MakeSimpleSingleMove(
       if (hNew.GetNumTops() == hNew.GetLength(QT_ACE))
         continue;
 
-      unsigned mno = moveList.AddMove(def, hNew, newFlag);
       if (hNew.SolveCrashTricks(def, r))
+      {
+        unsigned mno = moveList.AddMove(def, hNew, newFlag);
         SetAllPermutations(sl, cNew, mno, hNew, r, HIST_CRASH, newFlag);
+      }
       else
+      {
+        unsigned mno = moveList.AddMove(def, hNew, newFlag);
         SetAllLowCards(sl, cNew, mno, r, HIST_CRASH, newFlag);
+      }
     }
   }
 
