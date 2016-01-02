@@ -250,6 +250,319 @@ void LoopHold::CashoutAce(
 
 
 
+bool LoopHold::SolveCrashTricks(
+  DefList& def,
+  unsigned& rank)
+{
+  // This code is extremely finicky.  It was developed with the help
+  // of a big spreadsheet, and it is virtually impossible to verify
+  // manually...
+
+  // There is always only a single defense.
+  // If the function returns true, the solution is of the form
+  // crashing trick or blocking trick + remainder trick.
+  // The crashing trick can be PA, BB or Bx.
+  // The blocking trick ends on the short side.
+  // The remainder trick always starts and ends opposite the end.
+
+  // If the function returns false, the solution is either
+  // Bx
+  // or
+  // BA or AP (depending on the cards).
+
+  PosType bend, cend;
+  unsigned brank, rrank, crank, crank2, btricks, rtricks, ctricks;
+  unsigned crankr2;
+
+if (suitLength == 4 && counter == 0x22)
+{
+  Holding::Print();
+}
+
+  LoopHold::SetDetails();
+  PosType oppBest = Holding::GetOppBest();
+
+  if (oppBest == QT_BOTH)
+  {
+    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
+      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
+
+    // See explanation below.
+    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
+      rtricks = 0;
+  }
+  else if (oppBest == QT_LHO && length[QT_LHO] >= length[QT_RHO])
+  {
+    LoopHold::SolveCrashTricksHand(length[QT_LHO],
+      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
+
+    // See explanation below.
+    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
+      rtricks = 0;
+  }
+  else if (oppBest == QT_RHO && length[QT_RHO] >= length[QT_LHO])
+  {
+    LoopHold::SolveCrashTricksHand(length[QT_RHO],
+      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
+
+    // See explanation below.
+    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
+      rtricks = 0;
+  }
+  else
+  {
+    LoopHold::UpdateDetailsForOpp(
+      static_cast<int>(completeList[QT_LHO][0]), true, QT_RHO);
+    LoopHold::SolveCrashTricksHand(length[QT_LHO],
+      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
+
+      unsigned delta = SDS_VOID - suitLength;
+      brank = hdet.mapShiftedToReal[brank-delta] + delta;
+      rrank = hdet.mapShiftedToReal[rrank-delta] + delta;
+      crank = hdet.mapShiftedToReal[crank-delta] + delta;
+      crankr2 = hdet.mapShiftedToReal[crankr2-delta] + delta;
+
+    PosType bend2, cend2;
+    unsigned brank2, rrank2, crank22, btricks2, rtricks2, ctricks2;
+    LoopHold::UpdateDetailsForOpp(
+      static_cast<int>(completeList[QT_RHO][0]), true, QT_LHO);
+    LoopHold::SolveCrashTricksHand(length[QT_RHO],
+      bend2, cend2, brank2, rrank2, crank2, crank22,
+      btricks2, rtricks2, ctricks2);
+
+      brank2 = hdet.mapShiftedToReal[brank2-delta] + delta;
+      rrank2 = hdet.mapShiftedToReal[rrank2-delta] + delta;
+      crank2 = hdet.mapShiftedToReal[crank2-delta] + delta;
+      crank22 = hdet.mapShiftedToReal[crank22-delta] + delta;
+
+    if (ctricks2 < ctricks || (ctricks2 == ctricks && crank2 < crank))
+    {
+      cend = cend2;
+      crank = crank2;
+      ctricks = ctricks2;
+    }
+
+    if (crank22 == SDS_VOID)
+      crankr2 = SDS_VOID;
+    else if (crankr2 != SDS_VOID)
+      crankr2 = Min(crank22, crankr2);
+
+    if (rtricks2 > 0)
+    {
+
+    unsigned m = Min(brank, rrank);
+    unsigned m2 = Min(brank2, rrank2);
+    if (rtricks == 0 || rtricks2+btricks2 < rtricks+btricks ||
+       (rtricks2+btricks2 == rtricks+btricks && m2 < m))
+
+    {
+      bend = bend2;
+      brank = brank2;
+      rrank = rrank2;
+      btricks = btricks2;
+      rtricks = rtricks2;
+    }
+    }
+
+    // It can happen that the blocking trick from one side is
+    // more demanding, while the cashing trick from the other
+    // side is more demanding:  AT98 / J76 / KQ / 5432.
+    // So we end up with BB49 or BB2Q+AA2T.  This is actually
+    // a legitimate way to view the situation, but we probably
+    // prefer to reduce this to BB49, as the number of tricks is
+    // the same.
+
+    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
+    {
+      rtricks = 0;
+    }
+  }
+
+
+  if (rtricks == 0)
+  {
+    if (crank2 != SDS_VOID && crank != crank2)
+    {
+if (crank > crank2)
+{
+  Holding::Print();
+  cout.flush();
+}
+      assert(crank < crank2);
+
+      Trick ztrick, ztrick2;
+      ztrick.Set(QT_BOTH, QT_ACE, crank2, ctricks);
+      ztrick2.Set(QT_ACE, QT_PARD, crank, ctricks);
+      def.Set11(ztrick, ztrick2);
+    }
+    else
+    {
+      Trick ztrick;
+      ztrick.Set(QT_BOTH, cend, crank, ctricks);
+      def.Set1(ztrick);
+    }
+    rank = Min(brank, rrank);
+    rank = Min(rank, crank);
+    return false;
+  }
+  else
+  {
+    PosType blocked = (bend == QT_ACE ? QT_PARD : QT_ACE);
+    PosType bstart = (btricks + rtricks > ctricks ? QT_BOTH : bend);
+
+    Trick ztrick, ztrick2, ztrick3;
+
+    if (bstart == QT_BOTH &&
+        ctricks <= btricks &&
+        ((cend == QT_ACE && blocked == QT_PARD) ||
+         (cend == QT_BOTH && blocked == QT_PARD) ||
+         (cend == QT_BOTH && blocked == QT_ACE)))
+    {
+      if (Holding::GetMinDeclLength() == 1)
+        ztrick.Set(QT_PARD, QT_ACE, crank, ctricks);
+      else
+        ztrick.Set(QT_BOTH, QT_BOTH, crank, ctricks);
+    }
+    else
+      ztrick.Set(QT_BOTH, cend, crank, ctricks);
+
+    ztrick2.Set(bstart, blocked, brank, btricks);
+    ztrick3.Set(bend, bend, rrank, rtricks);
+
+    def.Set12(ztrick, ztrick2, ztrick3);
+        
+    rank = Min(brank, rrank);
+    rank = Min(rank, crank);
+    return true;
+  }
+
+}
+
+
+void LoopHold::SolveCrashTricksHand(
+  const unsigned& lenOpp,
+  PosType& bend,
+  PosType& cend,
+  unsigned& brank,
+  unsigned& rrank,
+  unsigned& crank,
+  unsigned& crank2,
+  unsigned& btricks,
+  unsigned& rtricks,
+  unsigned& ctricks)
+{
+  // The crash trick, always present.
+
+  if (hdet.numTopsAll >= lenOpp+1)
+    ctricks = hdet.lenLong;
+  else
+  {
+    ctricks = hdet.numTopsLong;
+    if (hdet.lenShort >= 2 && hdet.numTopsAll < hdet.declLen)
+      ctricks += Min(hdet.lenShort-1, hdet.xLong);
+  }
+
+  if (hdet.lenShort == 1 || 
+     (hdet.maxTopShort < hdet.minTopLong && hdet.xLong == 0))
+    cend = hdet.pLong;
+  else
+    cend = QT_BOTH;
+
+  unsigned ocash = Max(lenOpp, 1);
+  unsigned ccash = SDS_VOID - Min(ocash, ctricks);
+
+  unsigned cextra = ccash;
+  if ((ccash <= hdet.minTopShort && hdet.xShort == 0) || 
+     (hdet.lenShort >= 2 && lenOpp <= 1))
+    cextra--;
+
+  unsigned cspecial = SDS_VOID;
+  if (hdet.lenLong > hdet.lenShort && hdet.lenShort >= 3 &&
+      lenOpp < hdet.lenShort)
+    cspecial = SDS_VOID - (lenOpp+1);
+
+  crank = Min(cextra, cspecial);
+  if (cend == QT_BOTH)
+  {
+    unsigned minMaxTops = Min(hdet.maxTopShort, hdet.maxTopLong);
+    crank = Min(crank, minMaxTops);
+  }
+
+  crank2 = SDS_VOID;
+  if (lenOpp == 0 && hdet.pShort >= 2 &&
+    length[QT_ACE] >= length[QT_PARD])
+  {
+    // Special case where the cash from the ace side only 
+    // requires the ace, no matter what else.
+    crank2 = SDS_VOID - 1;
+  }
+  else if (lenOpp == 1 && length[QT_ACE] == length[QT_PARD])
+  {
+    // Another special case where the ace is enough, starting
+    // from partner's side.  Example AJT9 / Q / K876 / x.
+    crank2 = SDS_VOID - 1;
+  }
+  else if (lenOpp > 0 && lenOpp < length[QT_ACE] &&
+    length[QT_ACE] == length[QT_PARD] &&
+    completeList[QT_ACE][lenOpp-1] > completeList[QT_PARD][0])
+  {
+    // AKJ / 87 / QT9 / -.
+    crank2 = SDS_VOID - lenOpp;
+  }
+  else if (length[QT_ACE] > length[QT_PARD] &&
+      length[QT_PARD] >= 2 &&
+      hdet.maxTopShort <= SDS_ACE - length[QT_PARD] &&
+      lenOpp <= SDS_ACE - hdet.maxTopShort)
+  {
+    crank2 = Holding::ListToRank(
+      completeList[QT_ACE][Max(lenOpp, length[QT_PARD]) - 1]);
+  }
+
+
+  // The block trick, sometimes present (if not, rtricks == 0).
+
+  // To have something, in case of no block.
+  brank = SDS_VOID; 
+  rrank = SDS_VOID; 
+
+  // Figure out whether there is a block trick.
+  bool poss = (hdet.lenLong > 1 &&
+    (hdet.declLen > hdet.numTopsAll || 
+     hdet.minTopLong < hdet.maxTopShort) ?  true : false);
+
+  bool must = ((hdet.numTopsAll <= Min(lenOpp, hdet.lenLong) ||
+    (hdet.xShort == 0 && hdet.minTopShort > crank) ) &&
+    hdet.lenLong > hdet.lenShort ? true : false);
+
+  if ((! poss) || (hdet.lenShort > 1 && ! must))
+  {
+    btricks = 0;
+    rtricks = 0;
+    return;
+  }
+
+  // So now there is a trick.
+
+  btricks = hdet.lenShort;
+  brank = hdet.minTopShort;
+  bend = hdet.pLong;
+
+  if (hdet.numTopsAll >= lenOpp)
+    rtricks = hdet.lenLong - hdet.numTopsShort;
+  else
+    rtricks = Min(hdet.numTopsLong, hdet.lenLong - hdet.numTopsShort);
+
+  ocash = SDS_VOID - Min(lenOpp, hdet.lenLong);
+  if (ocash >= brank)
+    rrank = SDS_VOID;
+  else
+  {
+    unsigned x = (hdet.minTopLong >= brank ? SDS_VOID : hdet.minTopLong);
+    rrank = Max(ocash, x);
+  }
+}
+
+
 bool LoopHold::CashoutBoth(
   DefList& def,
   unsigned& lowestRank)
@@ -892,6 +1205,21 @@ void LoopHold::SetDetails()
 }
 
 
+void LoopHold::PrintDetails()
+{
+  cout << "Long player " << static_cast<int>(hdet.pLong) << 
+    ", short " << static_cast<int>(hdet.pShort) << "\n";
+  cout << "Lengths long " << hdet.lenLong << 
+    ", short " << hdet.lenShort << 
+    ", maxOpp " << hdet.lenMaxOpp << "\n";
+  cout << "Tops long " << hdet.numTopsLong <<
+    ", short " << hdet.numTopsShort << 
+    ", together " << hdet.numTopsAll << "\n";
+  cout << "Long " << hdet.minTopLong << "-" << hdet.maxTopLong <<
+    ", short " << hdet.minTopShort << " - " << hdet.maxTopShort << "\n";
+}
+
+
 bool LoopHold::GetAsymmRanks(
   const PosType pLong,
   const PosType pShort,
@@ -1052,242 +1380,6 @@ if (hdet.minTopLong != completeList[hdet.pLong][t-1])
 }
 
 
-void LoopHold::SolveCrashTricks(
-  PosType& bend,
-  PosType& cend,
-  unsigned& brank,
-  unsigned& rrank,
-  unsigned& crank,
-  unsigned& crankr2,
-  unsigned& btricks,
-  unsigned& rtricks,
-  unsigned& ctricks)
-{
-  LoopHold::SetDetails();
-  PosType oppBest = Holding::GetOppBest();
-
-  if (oppBest == QT_BOTH)
-  {
-    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
-      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else if (oppBest == QT_LHO && length[QT_LHO] >= length[QT_RHO])
-  {
-    LoopHold::SolveCrashTricksHand(length[QT_LHO],
-      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else if (oppBest == QT_RHO && length[QT_RHO] >= length[QT_LHO])
-  {
-    LoopHold::SolveCrashTricksHand(length[QT_RHO],
-      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else
-  {
-    LoopHold::UpdateDetailsForOpp(
-      static_cast<int>(completeList[QT_LHO][0]), true, QT_RHO);
-    LoopHold::SolveCrashTricksHand(length[QT_LHO],
-      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
-
-      unsigned delta = SDS_VOID - suitLength;
-      brank = hdet.mapShiftedToReal[brank-delta] + delta;
-      rrank = hdet.mapShiftedToReal[rrank-delta] + delta;
-      crank = hdet.mapShiftedToReal[crank-delta] + delta;
-      crankr2 = hdet.mapShiftedToReal[crankr2-delta] + delta;
-
-    PosType bend2, cend2;
-    unsigned brank2, rrank2, crank2, crank22, btricks2, rtricks2, ctricks2;
-    LoopHold::UpdateDetailsForOpp(
-      static_cast<int>(completeList[QT_RHO][0]), true, QT_LHO);
-    LoopHold::SolveCrashTricksHand(length[QT_RHO],
-      bend2, cend2, brank2, rrank2, crank2, crank22,
-      btricks2, rtricks2, ctricks2);
-
-      brank2 = hdet.mapShiftedToReal[brank2-delta] + delta;
-      rrank2 = hdet.mapShiftedToReal[rrank2-delta] + delta;
-      crank2 = hdet.mapShiftedToReal[crank2-delta] + delta;
-      crank22 = hdet.mapShiftedToReal[crank22-delta] + delta;
-
-    if (ctricks2 < ctricks || (ctricks2 == ctricks && crank2 < crank))
-    {
-      cend = cend2;
-      crank = crank2;
-      ctricks = ctricks2;
-    }
-
-    if (crank22 == SDS_VOID)
-      crankr2 = SDS_VOID;
-    else if (crankr2 != SDS_VOID)
-      crankr2 = Min(crank22, crankr2);
-
-    if (rtricks2 > 0)
-    {
-
-    unsigned m = Min(brank, rrank);
-    unsigned m2 = Min(brank2, rrank2);
-    if (rtricks == 0 || rtricks2+btricks2 < rtricks+btricks ||
-       (rtricks2+btricks2 == rtricks+btricks && m2 < m))
-
-    {
-      bend = bend2;
-      brank = brank2;
-      rrank = rrank2;
-      btricks = btricks2;
-      rtricks = rtricks2;
-    }
-    }
-
-    // It can happen that the blocking trick from one side is
-    // more demanding, while the cashing trick from the other
-    // side is more demanding:  AT98 / J76 / KQ / 5432.
-    // So we end up with BB49 or BB2Q+AA2T.  This is actually
-    // a legitimate way to view the situation, but we probably
-    // prefer to reduce this to BB49, as the number of tricks is
-    // the same.
-
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-    {
-      rtricks = 0;
-    }
-  }
-}
-
-
-void LoopHold::SolveCrashTricksHand(
-  const unsigned& lenOpp,
-  PosType& bend,
-  PosType& cend,
-  unsigned& brank,
-  unsigned& rrank,
-  unsigned& crank,
-  unsigned& crank2,
-  unsigned& btricks,
-  unsigned& rtricks,
-  unsigned& ctricks)
-{
-  // The crash trick, always present.
-
-  if (hdet.numTopsAll >= lenOpp+1)
-    ctricks = hdet.lenLong;
-  else
-  {
-    ctricks = hdet.numTopsLong;
-    if (hdet.lenShort >= 2 && hdet.numTopsAll < hdet.declLen)
-      ctricks += Min(hdet.lenShort-1, hdet.xLong);
-  }
-
-  if (hdet.lenShort == 1 || 
-     (hdet.maxTopShort < hdet.minTopLong && hdet.xLong == 0))
-    cend = hdet.pLong;
-  else
-    cend = QT_BOTH;
-
-  unsigned ocash = Max(lenOpp, 1);
-  unsigned ccash = SDS_VOID - Min(ocash, ctricks);
-
-  unsigned cextra = ccash;
-  if ((ccash <= hdet.minTopShort && hdet.xShort == 0) || 
-     (hdet.lenShort >= 2 && lenOpp <= 1))
-    cextra--;
-
-  unsigned cspecial = SDS_VOID;
-  if (hdet.lenLong > hdet.lenShort && hdet.lenShort >= 3 &&
-      lenOpp < hdet.lenShort)
-    cspecial = SDS_VOID - (lenOpp+1);
-
-  crank = Min(cextra, cspecial);
-  if (cend == QT_BOTH)
-  {
-    unsigned minMaxTops = Min(hdet.maxTopShort, hdet.maxTopLong);
-    crank = Min(crank, minMaxTops);
-  }
-
-  crank2 = SDS_VOID;
-  if (lenOpp == 0 && hdet.pShort >= 2 &&
-    length[QT_ACE] >= length[QT_PARD])
-  {
-    // Special case where the cash from the ace side only 
-    // requires the ace, no matter what else.
-    crank2 = SDS_VOID - 1;
-  }
-  else if (lenOpp == 1 && length[QT_ACE] == length[QT_PARD])
-  {
-    // Another special case where the ace is enough, starting
-    // from partner's side.  Example AJT9 / Q / K876 / x.
-    crank2 = SDS_VOID - 1;
-  }
-  else if (lenOpp > 0 && lenOpp < length[QT_ACE] &&
-    length[QT_ACE] == length[QT_PARD] &&
-    completeList[QT_ACE][lenOpp-1] > completeList[QT_PARD][0])
-  {
-    // AKJ / 87 / QT9 / -.
-    crank2 = SDS_VOID - lenOpp;
-  }
-  else if (length[QT_ACE] > length[QT_PARD] &&
-      length[QT_PARD] >= 2 &&
-      hdet.maxTopShort <= SDS_ACE - length[QT_PARD] &&
-      lenOpp <= SDS_ACE - hdet.maxTopShort)
-  {
-    crank2 = Holding::ListToRank(
-      completeList[QT_ACE][Max(lenOpp, length[QT_PARD]) - 1]);
-  }
-
-
-  // The block trick, sometimes present (if not, rtricks == 0).
-
-  // To have something, in case of no block.
-  brank = SDS_VOID; 
-  rrank = SDS_VOID; 
-
-  // Figure out whether there is a block trick.
-  bool poss = (hdet.lenLong > 1 &&
-    (hdet.declLen > hdet.numTopsAll || 
-     hdet.minTopLong < hdet.maxTopShort) ?  true : false);
-
-  bool must = ((hdet.numTopsAll <= Min(lenOpp, hdet.lenLong) ||
-    (hdet.xShort == 0 && hdet.minTopShort > crank) ) &&
-    hdet.lenLong > hdet.lenShort ? true : false);
-
-  if ((! poss) || (hdet.lenShort > 1 && ! must))
-  {
-    btricks = 0;
-    rtricks = 0;
-    return;
-  }
-
-  // So now there is a trick.
-
-  btricks = hdet.lenShort;
-  brank = hdet.minTopShort;
-  bend = hdet.pLong;
-
-  if (hdet.numTopsAll >= lenOpp)
-    rtricks = hdet.lenLong - hdet.numTopsShort;
-  else
-    rtricks = Min(hdet.numTopsLong, hdet.lenLong - hdet.numTopsShort);
-
-  ocash = SDS_VOID - Min(lenOpp, hdet.lenLong);
-  if (ocash >= brank)
-    rrank = SDS_VOID;
-  else
-  {
-    unsigned x = (hdet.minTopLong >= brank ? SDS_VOID : hdet.minTopLong);
-    rrank = Max(ocash, x);
-  }
-}
-
-
 bool LoopHold::SolveStopped(
   DefList& def,
   unsigned& rank)
@@ -1321,31 +1413,12 @@ bool LoopHold::SolveStopped(
   Trick trick;
   if ((this->*SolveStoppedFunction[topIndex])(trick))
   {
-    // Trick trick;
-    // trick.Set(move.start, move.end,
-      // static_cast<unsigned>(move.rank),
-      // static_cast<unsigned>(move.tricks));
     def.Set1(trick);
     rank = trick.GetRanks();
     return true;
   }
   else
     return false;
-}
-
-
-void LoopHold::PrintDetails()
-{
-  cout << "Long player " << static_cast<int>(hdet.pLong) << 
-    ", short " << static_cast<int>(hdet.pShort) << "\n";
-  cout << "Lengths long " << hdet.lenLong << 
-    ", short " << hdet.lenShort << 
-    ", maxOpp " << hdet.lenMaxOpp << "\n";
-  cout << "Tops long " << hdet.numTopsLong <<
-    ", short " << hdet.numTopsShort << 
-    ", together " << hdet.numTopsAll << "\n";
-  cout << "Long " << hdet.minTopLong << "-" << hdet.maxTopLong <<
-    ", short " << hdet.minTopShort << " - " << hdet.maxTopShort << "\n";
 }
 
 

@@ -68,12 +68,6 @@ class LoopHold: public Holding
     HoldingDetails hdet;
 
 
-
-    void UpdateDetailsForOpp(
-      const int& oppRank,
-      const bool oppSkippedFlag,
-      const PosType& oppSkipped);
-
     void SolveCrashTricksHand(
       const unsigned& lenOpp,
       PosType& bend,
@@ -86,6 +80,10 @@ class LoopHold: public Holding
       unsigned& rtricks,
       unsigned& ctricks);
       
+    void SetDetails();
+
+    void PrintDetails();
+
     bool GetAsymmRanks(
       const PosType plong,
       const PosType pShort,
@@ -93,16 +91,17 @@ class LoopHold: public Holding
       const unsigned toBeat,
       unsigned& lowestRank) const;
 
+    void UpdateDetailsForOpp(
+      const int& oppRank,
+      const bool oppSkippedFlag,
+      const PosType& oppSkipped);
+
     bool StopFinesse(
       const unsigned mumFinesses,
       const unsigned firstNonTopAce,
       const unsigned firstNonTopPard,
       const bool ignoreOtherOpp,
       const PosType anchor) const;
-
-    void SetDetails();
-
-    void PrintDetails();
 
     bool SolveStopped0(Trick& move) const;
     bool SolveStopped1(Trick& move) const;
@@ -150,6 +149,10 @@ class LoopHold: public Holding
       DefList& def,
       unsigned& rank) const;
 
+    bool SolveCrashTricks(
+      DefList& def,
+      unsigned& rank);
+
     bool CashoutBoth(
       DefList& def,
       unsigned& rank);
@@ -157,17 +160,6 @@ class LoopHold: public Holding
     bool SolveStopped(
       DefList& def,
       unsigned& rank);
-      
-    void SolveCrashTricks(
-      PosType& bend,
-      PosType& cend,
-      unsigned& brank,
-      unsigned& rrank,
-      unsigned& crank,
-      unsigned& crank2,
-      unsigned& btricks,
-      unsigned& rtricks,
-      unsigned& ctricks);
 };
 
 #endif

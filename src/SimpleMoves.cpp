@@ -58,7 +58,7 @@ void MakeSimpleMoves()
 }
 
 
-inline bool MakeSimpleSingleMove(
+bool MakeSimpleSingleMove(
   const unsigned sl,
   const unsigned c,
   DefList& def,
@@ -123,63 +123,15 @@ inline bool MakeSimpleSingleMove(
       if (zhNew.GetNumTops() == zhNew.GetLength(QT_ACE))
         continue;
 
-      PosType blocked, bend, cend;
-      zhNew.SolveCrashTricks(
-        bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
-
-      if (rtricks == 0)
+      if (zhNew.SolveCrashTricks(def, r))
       {
-        if (crank2 != SDS_VOID && crank != crank2)
-        {
-          assert(crank < crank2);
-
-          Trick ztrick, ztrick2;
-          ztrick.Set(QT_BOTH, QT_ACE, crank2, ctricks);
-          ztrick2.Set(QT_ACE, QT_PARD, crank, ctricks);
-          def.Set11(ztrick, ztrick2);
-        }
-        else
-        {
-          Trick ztrick;
-          ztrick.Set(QT_BOTH, cend, crank, ctricks);
-          def.Set1(ztrick);
-        }
-        r = Min(brank, rrank);
-        r = Min(r, crank);
-
         unsigned mno = moveList.AddMove(def, zhNew, newFlag);
-        SetAllLowCards(sl, cNew, mno, r, HIST_CRASH, newFlag);
+        SetAllPermutations(sl, cNew, mno, zhNew, r, HIST_CRASH, newFlag);
       }
       else
       {
-        blocked = (bend == QT_ACE ? QT_PARD : QT_ACE);
-        PosType bstart = (btricks + rtricks > ctricks ? QT_BOTH : bend);
-
-        Trick ztrick, ztrick2, ztrick3;
-
-        if (bstart == QT_BOTH &&
-            ctricks <= btricks &&
-            ((cend == QT_ACE && blocked == QT_PARD) ||
-             (cend == QT_BOTH && blocked == QT_PARD) ||
-             (cend == QT_BOTH && blocked == QT_ACE)))
-        {
-          if (zhNew.GetMinDeclLength() == 1)
-            ztrick.Set(QT_PARD, QT_ACE, crank, ctricks);
-          else
-            ztrick.Set(QT_BOTH, QT_BOTH, crank, ctricks);
-        }
-        else
-          ztrick.Set(QT_BOTH, cend, crank, ctricks);
-
-        ztrick2.Set(bstart, blocked, brank, btricks);
-        ztrick3.Set(bend, bend, rrank, rtricks);
-
-        def.Set12(ztrick, ztrick2, ztrick3);
-        
-        r = Min(brank, rrank);
-        r = Min(r, crank);
         unsigned mno = moveList.AddMove(def, zhNew, newFlag);
-        SetAllPermutations(sl, cNew, mno, zhNew, r, HIST_CRASH, newFlag);
+        SetAllLowCards(sl, cNew, mno, r, HIST_CRASH, newFlag);
       }
     }
   }
