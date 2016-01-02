@@ -274,12 +274,17 @@ bool LoopHold::SolveCrashTricks(
       (oppBest == QT_RHO && length[QT_RHO] < length[QT_LHO]))
   {
     LoopHold::SetSpecificDetails(true, QT_RHO);
+    LoopHold::ShiftMinUp(QT_RHO);
+
     LoopHold::SolveCrashTricksHand(length[QT_LHO], cr);
 
     LoopHold::SetSpecificDetails(true, QT_LHO);
+    LoopHold::ShiftMinUp(QT_LHO);
     CrashRecordStruct cr2;
     LoopHold::SolveCrashTricksHand(length[QT_RHO], cr2);
 
+    LoopHold::ShiftMinDown(cr);
+    LoopHold::ShiftMinDown(cr2);
     LoopHold::MinCrashRecord(cr, cr2);
   }
   else
@@ -481,38 +486,6 @@ void LoopHold::MinCrashRecord(
   CrashRecordStruct& cr1,
   CrashRecordStruct& cr2) const
 {
-  const unsigned delta = SDS_VOID - suitLength;
-
-  cr1.blockRank = sdet.mapShiftedToReal[cr1.blockRank-delta] + delta;
-  cr1.remRank = sdet.mapShiftedToReal[cr1.remRank-delta] + delta;
-  cr1.crashRank = sdet.mapShiftedToReal[cr1.crashRank-delta] + delta;
-  cr1.crashRank2 = sdet.mapShiftedToReal[cr1.crashRank2-delta] + delta;
-
-  cr2.blockRank = sdet.mapShiftedToReal[cr2.blockRank-delta] + delta;
-  cr2.remRank = sdet.mapShiftedToReal[cr2.remRank-delta] + delta;
-  cr2.crashRank = sdet.mapShiftedToReal[cr2.crashRank-delta] + delta;
-  cr2.crashRank2 = sdet.mapShiftedToReal[cr2.crashRank2-delta] + delta;
-
-  // cr2.blockRank = sdet.mapShiftedToReal[cr2.blockRank];
-  // cr2.remRank = sdet.mapShiftedToReal[cr2.remRank];
-  // cr2.crashRank = sdet.mapShiftedToReal[cr2.crashRank];
-  // cr2.crashRank2 = sdet.mapShiftedToReal[cr2.crashRank2];
-
-  // cr1.blockRank = zmapShiftedToReal[cr1.blockRank];
-  // cr1.remRank = zmapShiftedToReal[cr1.remRank];
-  // cr1.crashRank = zmapShiftedToReal[cr1.crashRank];
-  // cr1.crashRank2 = zmapShiftedToReal[cr1.crashRank2];
-
-  // cr2.blockRank = zmapShiftedToReal[cr2.blockRank];
-  // cr2.remRank = zmapShiftedToReal[cr2.remRank];
-  // cr2.crashRank = zmapShiftedToReal[cr2.crashRank];
-  // cr2.crashRank2 = zmapShiftedToReal[cr2.crashRank2];
-
-  // assert(cr2.blockRank == zmapShiftedToReal[cr2.blockRank]);
-  // assert(cr2.remRank == zmapShiftedToReal[cr2.remRank]);
-  // assert(cr2.crashRank == zmapShiftedToReal[cr2.crashRank]);
-  // assert(cr2.crashRank2 == zmapShiftedToReal[cr2.crashRank2]);
-
   if (cr2.crashTricks < cr1.crashTricks || 
      (cr2.crashTricks == cr1.crashTricks && cr2.crashRank < cr1.crashRank))
   {
@@ -1299,9 +1272,6 @@ void LoopHold::SetSpecificDetails(
   sdet.minTopShort = Holding::ListToRank(
     completeList[hdet.pShort][sdet.numTopsShort-1]);
 
-  if (oppSkippedFlag)
-    LoopHold::ShiftMinUp(oppSkipped);
-
   hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
   hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
 
@@ -1407,6 +1377,18 @@ void LoopHold::ShiftMinUp(
 
   sdet.minTopLong = zmapRealToShifted[sdet.minTopLong];
   sdet.minTopShort = zmapRealToShifted[sdet.minTopShort];
+}
+
+
+void LoopHold::ShiftMinDown(
+  CrashRecordStruct& cr) const
+{
+  const unsigned delta = SDS_VOID - suitLength;
+
+  cr.blockRank = sdet.mapShiftedToReal[cr.blockRank-delta] + delta;
+  cr.remRank = sdet.mapShiftedToReal[cr.remRank-delta] + delta;
+  cr.crashRank = sdet.mapShiftedToReal[cr.crashRank-delta] + delta;
+  cr.crashRank2 = sdet.mapShiftedToReal[cr.crashRank2-delta] + delta;
 }
 
 
