@@ -354,7 +354,7 @@ bool LoopHold::SolveCrashTricks(
 
 
 void LoopHold::SolveCrashTricksHand(
-  const unsigned& lenOpp,
+  const unsigned lenOpp,
   CrashRecordStruct& cr) const
 {
   // This code is extremely finicky.  It was developed with the help
@@ -363,17 +363,17 @@ void LoopHold::SolveCrashTricksHand(
 
   // The crash trick, always present.
 
-  if (hdet.numTopsAll >= lenOpp + 1)
+  if (sdet.numTopsAll >= lenOpp + 1)
     cr.crashTricks = hdet.lenLong;
   else
   {
-    cr.crashTricks = hdet.numTopsLong;
-    if (hdet.lenShort >= 2 && hdet.numTopsAll < hdet.declLen)
-      cr.crashTricks += Min(hdet.lenShort-1, hdet.xLong);
+    cr.crashTricks = sdet.numTopsLong;
+    if (hdet.lenShort >= 2 && sdet.numTopsAll < hdet.declLen)
+      cr.crashTricks += Min(hdet.lenShort-1, sdet.xLong);
   }
 
   if (hdet.lenShort == 1 || 
-     (hdet.maxTopShort < hdet.minTopLong && hdet.xLong == 0))
+     (hdet.maxTopShort < sdet.minTopLong && sdet.xLong == 0))
     cr.crashEnd = hdet.pLong;
   else
     cr.crashEnd = QT_BOTH;
@@ -382,7 +382,7 @@ void LoopHold::SolveCrashTricksHand(
   unsigned ccash = SDS_VOID - Min(ocash, cr.crashTricks);
 
   unsigned cextra = ccash;
-  if ((ccash <= hdet.minTopShort && hdet.xShort == 0) || 
+  if ((ccash <= sdet.minTopShort && sdet.xShort == 0) || 
      (hdet.lenShort >= 2 && lenOpp <= 1))
     cextra--;
 
@@ -439,11 +439,11 @@ void LoopHold::SolveCrashTricksHand(
 
   // Figure out whether there is a block trick.
   bool poss = (hdet.lenLong > 1 &&
-    (hdet.declLen > hdet.numTopsAll || 
-     hdet.minTopLong < hdet.maxTopShort) ?  true : false);
+    (hdet.declLen > sdet.numTopsAll || 
+     sdet.minTopLong < hdet.maxTopShort) ?  true : false);
 
-  bool must = ((hdet.numTopsAll <= Min(lenOpp, hdet.lenLong) ||
-    (hdet.xShort == 0 && hdet.minTopShort > cr.crashRank) ) &&
+  bool must = ((sdet.numTopsAll <= Min(lenOpp, hdet.lenLong) ||
+    (sdet.xShort == 0 && sdet.minTopShort > cr.crashRank) ) &&
     hdet.lenLong > hdet.lenShort ? true : false);
 
   if ((! poss) || (hdet.lenShort > 1 && ! must))
@@ -456,22 +456,22 @@ void LoopHold::SolveCrashTricksHand(
   // So now there is a trick.
 
   cr.blockTricks = hdet.lenShort;
-  cr.blockRank = hdet.minTopShort;
+  cr.blockRank = sdet.minTopShort;
   cr.blockEnd = hdet.pLong;
 
-  if (hdet.numTopsAll >= lenOpp)
-    cr.remTricks = hdet.lenLong - hdet.numTopsShort;
+  if (sdet.numTopsAll >= lenOpp)
+    cr.remTricks = hdet.lenLong - sdet.numTopsShort;
   else
-    cr.remTricks = Min(hdet.numTopsLong, 
-      hdet.lenLong - hdet.numTopsShort);
+    cr.remTricks = Min(sdet.numTopsLong, 
+      hdet.lenLong - sdet.numTopsShort);
 
   ocash = SDS_VOID - Min(lenOpp, hdet.lenLong);
   if (ocash >= cr.blockRank)
     cr.remRank = SDS_VOID;
   else
   {
-    unsigned x = (hdet.minTopLong >= cr.blockRank ? SDS_VOID : 
-      hdet.minTopLong);
+    unsigned x = (sdet.minTopLong >= cr.blockRank ? SDS_VOID : 
+      sdet.minTopLong);
     cr.remRank = Max(ocash, x);
   }
 }
@@ -483,15 +483,15 @@ void LoopHold::MinCrashRecord(
 {
   const unsigned delta = SDS_VOID - suitLength;
 
-  cr1.blockRank = hdet.mapShiftedToReal[cr1.blockRank-delta] + delta;
-  cr1.remRank = hdet.mapShiftedToReal[cr1.remRank-delta] + delta;
-  cr1.crashRank = hdet.mapShiftedToReal[cr1.crashRank-delta] + delta;
-  cr1.crashRank2 = hdet.mapShiftedToReal[cr1.crashRank2-delta] + delta;
+  cr1.blockRank = sdet.mapShiftedToReal[cr1.blockRank-delta] + delta;
+  cr1.remRank = sdet.mapShiftedToReal[cr1.remRank-delta] + delta;
+  cr1.crashRank = sdet.mapShiftedToReal[cr1.crashRank-delta] + delta;
+  cr1.crashRank2 = sdet.mapShiftedToReal[cr1.crashRank2-delta] + delta;
 
-  cr2.blockRank = hdet.mapShiftedToReal[cr2.blockRank-delta] + delta;
-  cr2.remRank = hdet.mapShiftedToReal[cr2.remRank-delta] + delta;
-  cr2.crashRank = hdet.mapShiftedToReal[cr2.crashRank-delta] + delta;
-  cr2.crashRank2 = hdet.mapShiftedToReal[cr2.crashRank2-delta] + delta;
+  cr2.blockRank = sdet.mapShiftedToReal[cr2.blockRank-delta] + delta;
+  cr2.remRank = sdet.mapShiftedToReal[cr2.remRank-delta] + delta;
+  cr2.crashRank = sdet.mapShiftedToReal[cr2.crashRank-delta] + delta;
+  cr2.crashRank2 = sdet.mapShiftedToReal[cr2.crashRank2-delta] + delta;
 
   if (cr2.crashTricks < cr1.crashTricks || 
      (cr2.crashTricks == cr1.crashTricks && cr2.crashRank < cr1.crashRank))
@@ -528,20 +528,10 @@ bool LoopHold::CashoutBoth(
   DefList& def,
   unsigned& lowestRank)
 {
-  PosType pLong, pShort;
-  if (length[QT_ACE] >= length[QT_PARD])
-  {
-    pLong = QT_ACE;
-    pShort = QT_PARD;
-  }
-  else
-  {
-    pLong = QT_PARD;
-    pShort = QT_ACE;
-  }
+  LoopHold::SetGeneralDetails();
 
-  unsigned lenLong = length[pLong];
-  unsigned lenShort = length[pShort];
+  unsigned lenLong = length[hdet.pLong];
+  unsigned lenShort = length[hdet.pShort];
   assert(lenLong > 0);
   assert(lenShort > 0);
 
@@ -626,10 +616,23 @@ bool LoopHold::CashoutBoth(
   unsigned oppMaxHighest = completeList[pOppHighest][0];
   unsigned oppMaxLowest = completeList[pOppLowest][0];
 
-  unsigned numTopsLongHigh = Holding::TopsOverRank(pLong, oppMaxHighest);
-  unsigned numTopsShortHigh = Holding::TopsOverRank(pShort, oppMaxHighest);
-  unsigned numTopsLongLow = Holding::TopsOverRank(pLong, oppMaxLowest);
-  unsigned numTopsShortLow = Holding::TopsOverRank(pShort, oppMaxLowest);
+  unsigned numTopsLongHigh, numTopsShortHigh;
+  unsigned numTopsLongLow, numTopsShortLow;
+
+  if (pOppHighest == QT_LHO)
+  {
+    numTopsLongHigh = hdet.numTopsLongLho;
+    numTopsLongLow = hdet.numTopsLongRho;
+    numTopsShortHigh = hdet.numTopsShortLho;
+    numTopsShortLow = hdet.numTopsShortRho;
+  }
+  else
+  {
+    numTopsLongHigh = hdet.numTopsLongRho;
+    numTopsLongLow = hdet.numTopsLongLho;
+    numTopsShortHigh = hdet.numTopsShortRho;
+    numTopsShortLow = hdet.numTopsShortLho;
+  }
 
   unsigned xLongHigh = lenLong - numTopsLongHigh;
   unsigned xShortHigh = lenShort - numTopsShortHigh;
@@ -864,7 +867,7 @@ bool LoopHold::CashoutBoth(
         int maxOpp = static_cast<int>(Max(completeList[QT_RHO][0],
           completeList[QT_LHO][0]));
 
-        if (! LoopHold::GetAsymmRanks(pLong, pShort, 
+        if (! LoopHold::GetAsymmRanks(hdet.pLong, hdet.pShort, 
           static_cast<unsigned>(lenOppMax),
           static_cast<unsigned>(maxOpp), lowestRank))
         {
@@ -897,10 +900,10 @@ bool LoopHold::CashoutBoth(
       // Is probably right -- check recursion.
       // -------------------------------------
       // int lowestRank = Holding::ListToRank(
-        // completeList[pLong][lenOppMax-1]);
-      // trick.Set(QT_BOTH, pLong, lowestRank, lenLong);
+        // completeList[hdet.pLong][lenOppMax-1]);
+      // trick.Set(QT_BOTH, hdet.pLong, lowestRank, lenLong);
       // return def.Set1(trick);
-      // return def.Set(QT_BOTH, pLong, lowestRank, lenLong);
+      // return def.Set(QT_BOTH, hdet.pLong, lowestRank, lenLong);
     }
     else if (lenShort <= lenOppHighest ||
       (lenShort <= lenOppLowest && maxPard < minOpp))
@@ -908,8 +911,8 @@ bool LoopHold::CashoutBoth(
       if (pickFlag) holdCtr[922]++;
       // int lRank = static_cast<int>(Holding::ListToRank(
       lowestRank = Holding::ListToRank(
-        completeList[pLong][lenOppMax-1]);
-      trick.Set(QT_BOTH, pLong, lowestRank, 
+        completeList[hdet.pLong][lenOppMax-1]);
+      trick.Set(QT_BOTH, hdet.pLong, lowestRank, 
         static_cast<unsigned>(lenLong));
       return def.Set1(trick);
     }
@@ -1019,7 +1022,7 @@ bool LoopHold::CashoutBoth(
 
       // Skip over the long hand's tops.
       unsigned i = 0;
-      while (i < lenLong && completeList[pLong][i] > oppMaxHighest)
+      while (i < lenLong && completeList[hdet.pLong][i] > oppMaxHighest)
         i++;
 
       int c = 1; // We're at the first minor card.
@@ -1029,9 +1032,9 @@ bool LoopHold::CashoutBoth(
         c++;
       }
 
-      int shortSecond = static_cast<int>(completeList[pShort][numTopsShortHigh]);
+      int shortSecond = static_cast<int>(completeList[hdet.pShort][numTopsShortHigh]);
 
-if (shortSecond > static_cast<int>(completeList[pLong][i]))
+if (shortSecond > static_cast<int>(completeList[hdet.pLong][i]))
 {
   // AK98 / J / QT7 / 6543.  The T also cashes over the 6.
   // Skip for now.
@@ -1040,7 +1043,7 @@ if (shortSecond > static_cast<int>(completeList[pLong][i]))
 }
       if (pickFlag) holdCtr[706]++;
       assert(i < lenLong);
-      lowestRank = Holding::ListToRank(completeList[pLong][i]);
+      lowestRank = Holding::ListToRank(completeList[hdet.pLong][i]);
       trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
         static_cast<unsigned>(lenLong));
       return def.Set1(trick);
@@ -1058,8 +1061,8 @@ if (shortSecond > static_cast<int>(completeList[pLong][i]))
             if (pickFlag) holdCtr[806]++;
             return false;
           }
-          else if (completeList[pLong][numTopsLongHigh] <
-                   completeList[pShort][numTopsShortHigh])
+          else if (completeList[hdet.pLong][numTopsLongHigh] <
+                   completeList[hdet.pShort][numTopsShortHigh])
           {
             // Don't want the jack on the short side.
             if (pickFlag) holdCtr[807]++;
@@ -1070,7 +1073,7 @@ if (shortSecond > static_cast<int>(completeList[pLong][i]))
             // 4=3, 5=3, 6=3.
             if (pickFlag) holdCtr[707]++;
             lowestRank = Holding::ListToRank(
-              completeList[pLong][numTopsLongHigh]);
+              completeList[hdet.pLong][numTopsLongHigh]);
 
             trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
               static_cast<unsigned>(lenLong));
@@ -1079,8 +1082,8 @@ if (shortSecond > static_cast<int>(completeList[pLong][i]))
         }
         else // (lenOppLowest == 4 or 5)
         {
-          if (completeList[pLong][numTopsLongHigh] <
-                   completeList[pShort][numTopsShortHigh])
+          if (completeList[hdet.pLong][numTopsLongHigh] <
+                   completeList[hdet.pShort][numTopsShortHigh])
           {
             // Don't want the jack on the short side.
             if (pickFlag) holdCtr[808]++;
@@ -1091,7 +1094,7 @@ if (shortSecond > static_cast<int>(completeList[pLong][i]))
             // Need JT.
             if (pickFlag) holdCtr[708]++;
             lowestRank = Holding::ListToRank(
-                   completeList[pLong][numTopsLongHigh] - 1);
+                   completeList[hdet.pLong][numTopsLongHigh] - 1);
             trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
               static_cast<unsigned>(lenLong));
             return def.Set1(trick);
@@ -1102,8 +1105,8 @@ if (shortSecond > static_cast<int>(completeList[pLong][i]))
       {
         if (lenOppLowest == 3)
         {
-          if (completeList[pLong][numTopsLongHigh] <
-                   completeList[pShort][numTopsShortHigh])
+          if (completeList[hdet.pLong][numTopsLongHigh] <
+                   completeList[hdet.pShort][numTopsShortHigh])
           {
             // Don't want the "jack" on the short side.
             if (pickFlag) holdCtr[809]++;
@@ -1113,7 +1116,7 @@ if (shortSecond > static_cast<int>(completeList[pLong][i]))
           {
             if (pickFlag) holdCtr[709]++;
             lowestRank = Holding::ListToRank(
-                   completeList[pLong][numTopsLongHigh]);
+                   completeList[hdet.pLong][numTopsLongHigh]);
             trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
               static_cast<unsigned>(lenLong));
             return def.Set1(trick);
@@ -1127,7 +1130,7 @@ if (shortSecond > static_cast<int>(completeList[pLong][i]))
 return false;
 
           lowestRank = Holding::ListToRank(
-                 completeList[pLong][numTopsLongHigh+1]);
+                 completeList[hdet.pLong][numTopsLongHigh+1]);
           trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
             static_cast<unsigned>(lenLong));
           return def.Set1(trick);
@@ -1137,119 +1140,6 @@ return false;
   }
 
   return false;
-}
-
-
-void LoopHold::SetGeneralDetails()
-{
-  hdet.declLen = length[QT_ACE] + length[QT_PARD];
-
-  if (length[QT_ACE] >= length[QT_PARD])
-  {
-    hdet.pLong = QT_ACE;
-    hdet.pShort = QT_PARD;
-  }
-  else
-  {
-    hdet.pLong = QT_PARD;
-    hdet.pShort = QT_ACE;
-  }
-
-  hdet.lenLong = length[hdet.pLong];
-  hdet.lenShort = length[hdet.pShort];
-  hdet.lenMaxOpp = Max(length[QT_LHO], length[QT_RHO]);
-}
-
-
-void LoopHold::SetSpecificDetails(
-  const bool oppSkippedFlag,
-  const PosType& oppSkipped)
-{
-  if (! oppSkippedFlag && hdet.lenMaxOpp == 0)
-  {
-    hdet.numTopsLong = hdet.lenLong;
-    hdet.numTopsShort = hdet.lenShort;
-  }
-  else
-  {
-    unsigned oppRank;
-    if (oppSkippedFlag)
-      oppRank = completeList[SDS_PARTNER[oppSkipped]][0];
-    else
-      oppRank = Max(completeList[QT_LHO][0], completeList[QT_RHO][0]);
-
-    hdet.numTopsLong = Holding::TopsOverRank(hdet.pLong, oppRank);
-    hdet.numTopsShort = Holding::TopsOverRank(hdet.pShort, oppRank);
-  }
-
-  hdet.minTopLong = completeList[hdet.pLong][hdet.numTopsLong-1];
-  hdet.minTopShort = completeList[hdet.pShort][hdet.numTopsShort-1];
-
-  if (oppSkippedFlag)
-  {
-    // Compensate for skipped ranks with other opponent.
-    // This is a bit of a kludge -- maybe there is a better way.
-
-    int used[SDS_MAX_RANKS] = {0};
-    int i = 0;
-    unsigned m = Min(hdet.minTopLong, hdet.minTopShort);
-    while (i < static_cast<int>(length[oppSkipped]) && 
-      completeList[oppSkipped][i] > m)
-    {
-      used[completeList[oppSkipped][i]] = 1;
-      i++;
-    }
-
-    i = static_cast<int>(suitLength)-1;
-    int c = static_cast<int>(suitLength)-1;
-    hdet.mapRealToShifted[suitLength] = suitLength; // Void
-    hdet.mapShiftedToReal[suitLength] = suitLength; // Void
-
-    do
-    {
-      hdet.mapRealToShifted[i] = static_cast<unsigned>(c);
-      hdet.mapShiftedToReal[c] = static_cast<unsigned>(i);
-      c--;
-      i--;
-      while (used[i])
-      {
-        i--;
-      }
-    }
-    while (i >= static_cast<int>(m));
-
-    hdet.minTopLong = hdet.mapRealToShifted[hdet.minTopLong];
-    hdet.minTopShort = hdet.mapRealToShifted[hdet.minTopShort];
-  }
-
-  hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
-  hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
-
-  unsigned delta = SDS_VOID - suitLength;
-  hdet.minTopLong += delta;
-  hdet.minTopShort += delta;
-
-  assert(hdet.lenLong >= hdet.numTopsLong);
-  assert(hdet.lenShort >= hdet.numTopsShort);
-
-  hdet.xLong = hdet.lenLong - hdet.numTopsLong;
-  hdet.xShort = hdet.lenShort - hdet.numTopsShort;
-  hdet.numTopsAll = hdet.numTopsLong + hdet.numTopsShort;
-}
-
-
-void LoopHold::PrintDetails()
-{
-  cout << "Long player " << static_cast<int>(hdet.pLong) << 
-    ", short " << static_cast<int>(hdet.pShort) << "\n";
-  cout << "Lengths long " << hdet.lenLong << 
-    ", short " << hdet.lenShort << 
-    ", maxOpp " << hdet.lenMaxOpp << "\n";
-  cout << "Tops long " << hdet.numTopsLong <<
-    ", short " << hdet.numTopsShort << 
-    ", together " << hdet.numTopsAll << "\n";
-  cout << "Long " << hdet.minTopLong << "-" << hdet.maxTopLong <<
-    ", short " << hdet.minTopShort << " - " << hdet.maxTopShort << "\n";
 }
 
 
@@ -1310,7 +1200,217 @@ bool LoopHold::GetAsymmRanks(
   
   return true;
 }
-  
+
+
+void LoopHold::SetGeneralDetails()
+{
+  hdet.declLen = length[QT_ACE] + length[QT_PARD];
+
+  if (length[QT_ACE] >= length[QT_PARD])
+  {
+    hdet.pLong = QT_ACE;
+    hdet.pShort = QT_PARD;
+  }
+  else
+  {
+    hdet.pLong = QT_PARD;
+    hdet.pShort = QT_ACE;
+  }
+
+  hdet.lenLong = length[hdet.pLong];
+  hdet.lenShort = length[hdet.pShort];
+  hdet.lenMaxOpp = Max(length[QT_LHO], length[QT_RHO]);
+
+  if (length[QT_LHO] == 0)
+  {
+    hdet.numTopsLongLho = hdet.lenLong;
+    hdet.numTopsShortLho = hdet.lenShort;
+  }
+  else
+  {
+    hdet.numTopsLongLho = Holding::TopsOverRank(hdet.pLong, 
+      completeList[QT_LHO][0]);
+    hdet.numTopsShortLho = Holding::TopsOverRank(hdet.pShort, 
+      completeList[QT_LHO][0]);
+  }
+
+  if (length[QT_RHO] == 0)
+  {
+    hdet.numTopsLongRho = hdet.lenLong;
+    hdet.numTopsShortRho = hdet.lenShort;
+  }
+  else
+  {
+    hdet.numTopsLongRho = Holding::TopsOverRank(hdet.pLong, 
+      completeList[QT_RHO][0]);
+    hdet.numTopsShortRho = Holding::TopsOverRank(hdet.pShort, 
+      completeList[QT_RHO][0]);
+  }
+}
+
+
+void LoopHold::SetSpecificDetails(
+  const bool oppSkippedFlag,
+  const PosType oppSkipped)
+{
+  /*
+  if (! oppSkippedFlag && hdet.lenMaxOpp == 0)
+  {
+    sdet.numTopsLong = hdet.lenLong;
+    sdet.numTopsShort = hdet.lenShort;
+  }
+  else
+  {
+    unsigned oppRank;
+    if (oppSkippedFlag)
+      oppRank = completeList[SDS_PARTNER[oppSkipped]][0];
+    else
+      oppRank = Max(completeList[QT_LHO][0], completeList[QT_RHO][0]);
+
+    sdet.numTopsLong = Holding::TopsOverRank(hdet.pLong, oppRank);
+    sdet.numTopsShort = Holding::TopsOverRank(hdet.pShort, oppRank);
+  }
+  */
+
+  if (oppSkippedFlag)
+  {
+    if (oppSkipped == QT_LHO)
+    {
+      // assert(sdet.numTopsLong == hdet.numTopsLongRho);
+      // assert(sdet.numTopsShort == hdet.numTopsShortRho);
+      sdet.numTopsLong = hdet.numTopsLongRho;
+      sdet.numTopsShort = hdet.numTopsShortRho;
+    }
+    else
+    {
+      // assert(sdet.numTopsLong == hdet.numTopsLongLho);
+      // assert(sdet.numTopsShort == hdet.numTopsShortLho);
+      sdet.numTopsLong = hdet.numTopsLongLho;
+      sdet.numTopsShort = hdet.numTopsShortLho;
+    }
+  }
+  else
+  {
+    // assert(sdet.numTopsLong == Min(hdet.numTopsLongLho,
+      // hdet.numTopsLongRho));
+    // assert(sdet.numTopsShort == Min(hdet.numTopsShortLho,
+      // hdet.numTopsShortRho));
+    sdet.numTopsLong = Min(hdet.numTopsLongLho, hdet.numTopsLongRho);
+    sdet.numTopsShort = Min(hdet.numTopsShortLho, hdet.numTopsShortRho);
+  }
+
+  sdet.minTopLong = completeList[hdet.pLong][sdet.numTopsLong-1];
+  sdet.minTopShort = completeList[hdet.pShort][sdet.numTopsShort-1];
+
+  if (oppSkippedFlag)
+  {
+    // Compensate for skipped ranks with other opponent.
+    // This is a bit of a kludge -- maybe there is a better way.
+
+    int used[SDS_MAX_RANKS] = {0};
+    int i = 0;
+    unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
+    while (i < static_cast<int>(length[oppSkipped]) && 
+      completeList[oppSkipped][i] > m)
+    {
+      used[completeList[oppSkipped][i]] = 1;
+      i++;
+    }
+
+    i = static_cast<int>(suitLength)-1;
+    int c = static_cast<int>(suitLength)-1;
+    sdet.mapRealToShifted[suitLength] = suitLength; // Void
+    sdet.mapShiftedToReal[suitLength] = suitLength; // Void
+
+    do
+    {
+      sdet.mapRealToShifted[i] = static_cast<unsigned>(c);
+      sdet.mapShiftedToReal[c] = static_cast<unsigned>(i);
+      c--;
+      i--;
+      while (used[i])
+      {
+        i--;
+      }
+    }
+    while (i >= static_cast<int>(m));
+
+    sdet.minTopLong = sdet.mapRealToShifted[sdet.minTopLong];
+    sdet.minTopShort = sdet.mapRealToShifted[sdet.minTopShort];
+  }
+
+  unsigned delta = SDS_VOID - suitLength;
+  sdet.minTopLong += delta;
+  sdet.minTopShort += delta;
+
+  hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
+  hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
+
+  assert(hdet.lenLong >= sdet.numTopsLong);
+  assert(hdet.lenShort >= sdet.numTopsShort);
+
+  sdet.xLong = hdet.lenLong - sdet.numTopsLong;
+  sdet.xShort = hdet.lenShort - sdet.numTopsShort;
+  sdet.numTopsAll = sdet.numTopsLong + sdet.numTopsShort;
+}
+
+
+void LoopHold::PrintDetails()
+{
+  cout << "Long player " << static_cast<int>(hdet.pLong) << 
+    ", short " << static_cast<int>(hdet.pShort) << "\n";
+
+  cout << "Lengths long " << hdet.lenLong << 
+    ", short " << hdet.lenShort << 
+    ", maxOpp " << hdet.lenMaxOpp << "\n";
+
+  cout << "Tops long " << hdet.numTopsLongLho << "-" <<
+    hdet.numTopsLongRho << ", short " <<
+    hdet.numTopsShortLho << "-" <<
+    hdet.numTopsShortRho << "\n";
+
+  cout << "Long " << hdet.maxTopLong << 
+    ", short " << hdet.maxTopShort << "\n";
+}
+
+
+void LoopHold::ShiftMinUp(
+  const PosType oppSkipped)
+{
+  // Compensate for ranks with skipped opponent.
+  // This is a bit of a kludge.
+
+  int used[SDS_MAX_RANKS] = {0};
+  int i = 0;
+  unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
+  while (i < static_cast<int>(length[oppSkipped]) && 
+    completeList[oppSkipped][i] > m)
+  {
+    used[completeList[oppSkipped][i]] = 1;
+    i++;
+  }
+
+  i = static_cast<int>(suitLength)-1;
+  int c = static_cast<int>(suitLength)-1;
+  sdet.mapRealToShifted[suitLength] = suitLength; // Void
+  sdet.mapShiftedToReal[suitLength] = suitLength; // Void
+
+  do
+  {
+    sdet.mapRealToShifted[i] = static_cast<unsigned>(c);
+    sdet.mapShiftedToReal[c] = static_cast<unsigned>(i);
+    c--;
+    i--;
+    while (used[i])
+    {
+      i--;
+    }
+  }
+  while (i >= static_cast<int>(m));
+
+  sdet.minTopLong = sdet.mapRealToShifted[sdet.minTopLong];
+  sdet.minTopShort = sdet.mapRealToShifted[sdet.minTopShort];
+}
 
 
 bool LoopHold::SolveStopped(

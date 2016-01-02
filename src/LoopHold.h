@@ -45,20 +45,29 @@ class LoopHold: public Holding
       PosType pLong;
       PosType pShort;
 
-      unsigned numTopsAll;
-      unsigned numTopsLong;
-      unsigned numTopsShort;
-
       unsigned lenLong;
       unsigned lenShort;
       unsigned lenMaxOpp;
 
+      unsigned numTopsLongLho;
+      unsigned numTopsLongRho;
+      unsigned numTopsShortLho;
+      unsigned numTopsShortRho;
+
+      unsigned maxTopLong;
+      unsigned maxTopShort;
+    };
+
+    struct SideDetails
+    {
+      unsigned numTopsAll;
+      unsigned numTopsLong;
+      unsigned numTopsShort;
+
       unsigned xLong;
       unsigned xShort;
 
-      unsigned maxTopLong;
       unsigned minTopLong;
-      unsigned maxTopShort;
       unsigned minTopShort;
 
       unsigned mapRealToShifted[SDS_MAX_RANKS];
@@ -66,6 +75,7 @@ class LoopHold: public Holding
     };
 
     HoldingDetails hdet;
+    SideDetails sdet;
 
     struct CrashRecordStruct
     {
@@ -80,18 +90,24 @@ class LoopHold: public Holding
       unsigned crashTricks;
     };
 
-
     void SolveCrashTricksHand(
-      const unsigned& lenOpp,
+      const unsigned lenOpp,
       CrashRecordStruct& cr) const;
       
+    void MinCrashRecord(
+      CrashRecordStruct& cr1,
+      CrashRecordStruct& cr2) const;
+
     void SetGeneralDetails();
 
     void SetSpecificDetails(
       const bool oppSkippedFlag,
-      const PosType& oppSkipped = QT_ACE); // Anything
+      const PosType oppSkipped = QT_ACE); // Anything
 
     void PrintDetails();
+
+    void ShiftMinUp(
+      const PosType oppSkipped);
 
     bool GetAsymmRanks(
       const PosType plong,
@@ -99,10 +115,6 @@ class LoopHold: public Holding
       const unsigned cashLength,
       const unsigned toBeat,
       unsigned& lowestRank) const;
-
-    void MinCrashRecord(
-      CrashRecordStruct& cr1,
-      CrashRecordStruct& cr2) const;
 
     bool StopFinesse(
       const unsigned mumFinesses,
