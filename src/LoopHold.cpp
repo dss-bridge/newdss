@@ -283,8 +283,8 @@ bool LoopHold::SolveCrashTricks(
     LoopHold::SetSpecificDetails(true, QT_LHO);
     LoopHold::ShiftMinUp(QT_LHO);
     LoopHold::SolveCrashTricksHand(length[QT_RHO], cr2);
-
     LoopHold::ShiftMinDown(cr2);
+
     LoopHold::MinCrashRecord(cr, cr2);
   }
   else
@@ -1239,6 +1239,10 @@ void LoopHold::SetGeneralDetails()
     hdet.numTopsShortRho = Holding::TopsOverRank(hdet.pShort, 
       completeList[QT_RHO][0]);
   }
+
+  hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
+  hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
+
 }
 
 
@@ -1272,9 +1276,6 @@ void LoopHold::SetSpecificDetails(
   sdet.minTopShort = Holding::ListToRank(
     completeList[hdet.pShort][sdet.numTopsShort-1]);
 
-  hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
-  hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
-
   assert(hdet.lenLong >= sdet.numTopsLong);
   assert(hdet.lenShort >= sdet.numTopsShort);
 
@@ -1284,7 +1285,7 @@ void LoopHold::SetSpecificDetails(
 }
 
 
-void LoopHold::PrintDetails()
+void LoopHold::PrintDetails() const
 {
   cout << "Long player " << static_cast<int>(hdet.pLong) << 
     ", short " << static_cast<int>(hdet.pShort) << "\n";
@@ -1318,37 +1319,9 @@ void LoopHold::ShiftMinUp(
   // Compensate for skipped ranks with other opponent.
   // This is a bit of a kludge -- maybe there is a better way.
 
-  int used[SDS_MAX_RANKS] = {0};
-  unsigned j = 0;
-  unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
-  m -= SDS_VOID - suitLength;
-  while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
-  {
-    used[completeList[oppSkipped][j]] = 1;
-    j++;
-  }
-
-  int i = static_cast<int>(suitLength)-1;
-  int c = static_cast<int>(suitLength)-1;
-  sdet.mapRealToShifted[suitLength] = suitLength; // Void
-  sdet.mapShiftedToReal[suitLength] = suitLength; // Void
-
-  do
-  {
-    sdet.mapRealToShifted[i] = static_cast<unsigned>(c);
-    sdet.mapShiftedToReal[c] = static_cast<unsigned>(i);
-    c--;
-    i--;
-    while (used[i])
-    {
-      i--;
-    }
-  }
-  while (i >= static_cast<int>(m));
-
   int zused[SDS_MAX_RANKS] = {0};
-  m = Min(sdet.minTopLong, sdet.minTopShort);
-  for (j = 0; j < length[oppSkipped]; j++)
+  unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
+  for (unsigned j = 0; j < length[oppSkipped]; j++)
   {
     unsigned x = Holding::ListToRank(completeList[oppSkipped][j]);
     if (x <= m)
@@ -1357,8 +1330,8 @@ void LoopHold::ShiftMinUp(
       zused[x] = 1;
   }
 
-  i = SDS_VOID - 1;
-  c = SDS_VOID - 1;
+  int i = SDS_VOID - 1;
+  int c = SDS_VOID - 1;
   zmapRealToShifted[SDS_VOID] = SDS_VOID;
   zmapShiftedToReal[SDS_VOID] = SDS_VOID;
 
@@ -1383,12 +1356,10 @@ void LoopHold::ShiftMinUp(
 void LoopHold::ShiftMinDown(
   CrashRecordStruct& cr) const
 {
-  const unsigned delta = SDS_VOID - suitLength;
-
-  cr.blockRank = sdet.mapShiftedToReal[cr.blockRank-delta] + delta;
-  cr.remRank = sdet.mapShiftedToReal[cr.remRank-delta] + delta;
-  cr.crashRank = sdet.mapShiftedToReal[cr.crashRank-delta] + delta;
-  cr.crashRank2 = sdet.mapShiftedToReal[cr.crashRank2-delta] + delta;
+  cr.blockRank = zmapShiftedToReal[cr.blockRank];
+  cr.remRank = zmapShiftedToReal[cr.remRank];
+  cr.crashRank = zmapShiftedToReal[cr.crashRank];
+  cr.crashRank2 = zmapShiftedToReal[cr.crashRank2];
 }
 
 

@@ -93,6 +93,7 @@ class LoopHold: public Holding
     unsigned zmapRealToShifted[SDS_MAX_RANKS];
     unsigned zmapShiftedToReal[SDS_MAX_RANKS];
 
+
     void SolveCrashTricksHand(
       const unsigned lenOpp,
       CrashRecordStruct& cr) const;
@@ -107,7 +108,7 @@ class LoopHold: public Holding
       const bool oppSkippedFlag,
       const PosType oppSkipped = QT_ACE); // Anything
 
-    void PrintDetails();
+    void PrintDetails() const;
 
     void ShiftMinUp(
       const PosType oppSkipped);
