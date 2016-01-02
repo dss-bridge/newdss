@@ -1292,22 +1292,16 @@ void LoopHold::SetSpecificDetails(
     sdet.numTopsShort = Min(hdet.numTopsShortLho, hdet.numTopsShortRho);
   }
 
-  sdet.minTopLong = completeList[hdet.pLong][sdet.numTopsLong-1];
-  sdet.minTopShort = completeList[hdet.pShort][sdet.numTopsShort-1];
-  // sdet.minTopLong = Holding::ListToRank(
-    // completeList[hdet.pLong][sdet.numTopsLong-1]);
-  // sdet.minTopShort = Holding::ListToRank(
-    // completeList[hdet.pShort][sdet.numTopsShort-1]);
-  unsigned zminTopLong = Holding::ListToRank(
+  sdet.minTopLong = Holding::ListToRank(
     completeList[hdet.pLong][sdet.numTopsLong-1]);
-  unsigned zminTopShort = Holding::ListToRank(
+  sdet.minTopShort = Holding::ListToRank(
     completeList[hdet.pShort][sdet.numTopsShort-1]);
+
   for (int k = 0; k < SDS_MAX_RANKS; k++)
   {
    zmapRealToShifted[k] = 0;
    zmapShiftedToReal[k] = 0;
   }
-  // unsigned oldl, olds;
 
   if (oppSkippedFlag)
   {
@@ -1317,6 +1311,7 @@ void LoopHold::SetSpecificDetails(
     int used[SDS_MAX_RANKS] = {0};
     unsigned j = 0;
     unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
+    m -= SDS_VOID - suitLength;
     while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
     {
       used[completeList[oppSkipped][j]] = 1;
@@ -1342,7 +1337,7 @@ void LoopHold::SetSpecificDetails(
     while (i >= static_cast<int>(m));
 
     int zused[SDS_MAX_RANKS] = {0};
-    m = Min(zminTopLong, zminTopShort);
+    m = Min(sdet.minTopLong, sdet.minTopShort);
     for (j = 0; j < length[oppSkipped]; j++)
     {
       unsigned x = Holding::ListToRank(completeList[oppSkipped][j]);
@@ -1351,13 +1346,6 @@ void LoopHold::SetSpecificDetails(
       else
         zused[x] = 1;
     }
-
-    // j = 0;
-    // while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
-    // {
-      // zused[Holding::ListToRank(completeList[oppSkipped][j])] = 1;
-      // j++;
-    // }
 
     i = SDS_VOID - 1;
     c = SDS_VOID - 1;
@@ -1377,16 +1365,9 @@ void LoopHold::SetSpecificDetails(
     }
     while (i >= static_cast<int>(m));
 
-    // oldl = zminTopLong;
-    // olds = zminTopShort;
-    // sdet.minTopLong = zmapRealToShifted[sdet.minTopLong];
-    // sdet.minTopShort = zmapRealToShifted[sdet.minTopShort];
-    zminTopLong = zmapRealToShifted[zminTopLong];
-    zminTopShort = zmapRealToShifted[zminTopShort];
+    sdet.minTopLong = zmapRealToShifted[sdet.minTopLong];
+    sdet.minTopShort = zmapRealToShifted[sdet.minTopShort];
   }
-
-  sdet.minTopLong = zminTopLong;
-  sdet.minTopShort = zminTopShort;
 
   hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
   hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
