@@ -530,76 +530,8 @@ bool LoopHold::CashoutBoth(
 
   PosType pOppHighest, pOppLowest;
   unsigned lenOppHighest, lenOppLowest;
-  if (length[QT_LHO] == 0)
-  {
-    pOppHighest = QT_RHO;
-    pOppLowest = QT_LHO;
-    lenOppHighest = length[QT_RHO];
-    lenOppLowest = 0;
-  }
-  else if (length[QT_RHO] == 0)
-  {
-    pOppHighest = QT_LHO;
-    pOppLowest = QT_RHO;
-    lenOppHighest = length[QT_LHO];
-    lenOppLowest = 0;
-  }
-  else
-  {
-    PosType bestOpp = Holding::GetOppBest();
-
-    if (bestOpp == QT_BOTH)
-    {
-      // Really the same rank: Ignore the shorter opponent.
-      if (length[QT_LHO] >= length[QT_RHO])
-      {
-        pOppHighest = QT_LHO;
-        pOppLowest = QT_RHO;
-        lenOppHighest = length[QT_LHO];
-        lenOppLowest = 0;
-      }
-      else
-      {
-        pOppHighest = QT_RHO;
-        pOppLowest = QT_LHO;
-        lenOppHighest = length[QT_RHO];
-        lenOppLowest = 0;
-      }
-    }
-    else if (bestOpp == QT_LHO)
-    {
-      if (length[QT_RHO] <= length[QT_LHO])
-      {
-        // Worse suit is also shorter.
-        pOppHighest = QT_LHO;
-        pOppLowest = QT_RHO;
-        lenOppHighest = length[QT_LHO];
-        lenOppLowest = 0;
-      }
-      else
-      {
-        pOppHighest = QT_LHO;
-        pOppLowest = QT_RHO;
-        lenOppHighest = length[QT_LHO];
-        lenOppLowest = length[QT_RHO];
-      }
-    }
-    else if (length[QT_LHO] <= length[QT_RHO])
-    {
-      // Worse suit is also shorter.
-      pOppHighest = QT_RHO;
-      pOppLowest = QT_LHO;
-      lenOppHighest = length[QT_RHO];
-      lenOppLowest = 0;
-    }
-    else
-    {
-      pOppHighest = QT_RHO;
-      pOppLowest = QT_LHO;
-      lenOppHighest = length[QT_RHO];
-      lenOppLowest = length[QT_LHO];
-    }
-  }
+  LoopHold::GetOppLengths(pOppHighest, pOppLowest,
+    lenOppHighest, lenOppLowest);
 
   pickFlag = true;
 
@@ -1133,6 +1065,85 @@ return false;
   }
 
   return false;
+}
+
+
+void LoopHold::GetOppLengths(
+  PosType& pOppHighest,
+  PosType& pOppLowest,
+  unsigned& lenOppHighest,
+  unsigned& lenOppLowest) const
+{
+  if (length[QT_LHO] == 0)
+  {
+    pOppHighest = QT_RHO;
+    pOppLowest = QT_LHO;
+    lenOppHighest = length[QT_RHO];
+    lenOppLowest = 0;
+  }
+  else if (length[QT_RHO] == 0)
+  {
+    pOppHighest = QT_LHO;
+    pOppLowest = QT_RHO;
+    lenOppHighest = length[QT_LHO];
+    lenOppLowest = 0;
+  }
+  else
+  {
+    PosType bestOpp = Holding::GetOppBest();
+
+    if (bestOpp == QT_BOTH)
+    {
+      // Really the same rank: Ignore the shorter opponent.
+      if (length[QT_LHO] >= length[QT_RHO])
+      {
+        pOppHighest = QT_LHO;
+        pOppLowest = QT_RHO;
+        lenOppHighest = length[QT_LHO];
+        lenOppLowest = 0;
+      }
+      else
+      {
+        pOppHighest = QT_RHO;
+        pOppLowest = QT_LHO;
+        lenOppHighest = length[QT_RHO];
+        lenOppLowest = 0;
+      }
+    }
+    else if (bestOpp == QT_LHO)
+    {
+      if (length[QT_RHO] <= length[QT_LHO])
+      {
+        // Worse suit is also shorter.
+        pOppHighest = QT_LHO;
+        pOppLowest = QT_RHO;
+        lenOppHighest = length[QT_LHO];
+        lenOppLowest = 0;
+      }
+      else
+      {
+        pOppHighest = QT_LHO;
+        pOppLowest = QT_RHO;
+        lenOppHighest = length[QT_LHO];
+        lenOppLowest = length[QT_RHO];
+      }
+    }
+    else if (length[QT_LHO] <= length[QT_RHO])
+    {
+      // Worse suit is also shorter.
+      pOppHighest = QT_RHO;
+      pOppLowest = QT_LHO;
+      lenOppHighest = length[QT_RHO];
+      lenOppLowest = 0;
+    }
+    else
+    {
+      pOppHighest = QT_RHO;
+      pOppLowest = QT_LHO;
+      lenOppHighest = length[QT_RHO];
+      lenOppLowest = length[QT_LHO];
+    }
+  }
 }
 
 

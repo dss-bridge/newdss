@@ -112,6 +112,12 @@ class LoopHold: public Holding
     void ShiftMinDown(
       CrashRecordStruct& cr) const;
 
+    void GetOppLengths(
+      PosType& pOppHighest,
+      PosType& pOppLowest,
+      unsigned& lenOppHighest,
+      unsigned& lenOppLowest) const;
+
     bool GetAsymmRanks(
       const PosType plong,
       const PosType pShort,
