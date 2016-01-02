@@ -1165,16 +1165,10 @@ void LoopHold::SetSpecificDetails(
   const bool oppSkippedFlag,
   const PosType& oppSkipped)
 {
-  hdet.numTopsLong = 0;
-  hdet.numTopsShort = 0;
-
   if (! oppSkippedFlag && hdet.lenMaxOpp == 0)
   {
     hdet.numTopsLong = hdet.lenLong;
-    hdet.minTopLong = completeList[hdet.pLong][hdet.lenLong-1];
-
     hdet.numTopsShort = hdet.lenShort;
-    hdet.minTopShort = completeList[hdet.pShort][hdet.lenShort-1];
   }
   else
   {
@@ -1185,11 +1179,11 @@ void LoopHold::SetSpecificDetails(
       oppRank = Max(completeList[QT_LHO][0], completeList[QT_RHO][0]);
 
     hdet.numTopsLong = Holding::TopsOverRank(hdet.pLong, oppRank);
-    hdet.minTopLong = completeList[hdet.pLong][hdet.numTopsLong-1];
-
     hdet.numTopsShort = Holding::TopsOverRank(hdet.pShort, oppRank);
-    hdet.minTopShort = completeList[hdet.pShort][hdet.numTopsShort-1];
   }
+
+  hdet.minTopLong = completeList[hdet.pLong][hdet.numTopsLong-1];
+  hdet.minTopShort = completeList[hdet.pShort][hdet.numTopsShort-1];
 
   if (oppSkippedFlag)
   {
@@ -1228,13 +1222,11 @@ void LoopHold::SetSpecificDetails(
     hdet.minTopShort = hdet.mapRealToShifted[hdet.minTopShort];
   }
 
-  hdet.maxTopLong = completeList[hdet.pLong][0];
-  hdet.maxTopShort = completeList[hdet.pShort][0];
+  hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
+  hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
 
   unsigned delta = SDS_VOID - suitLength;
-  hdet.maxTopLong += delta;
   hdet.minTopLong += delta;
-  hdet.maxTopShort += delta;
   hdet.minTopShort += delta;
 
   assert(hdet.lenLong >= hdet.numTopsLong);
