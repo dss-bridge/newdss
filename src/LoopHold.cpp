@@ -277,12 +277,10 @@ bool LoopHold::SolveCrashTricks(
   if ((oppBest == QT_LHO && length[QT_LHO] < length[QT_RHO]) ||
       (oppBest == QT_RHO && length[QT_RHO] < length[QT_LHO]))
   {
-    LoopHold::UpdateDetailsForOpp(
-      static_cast<int>(completeList[QT_LHO][0]), true, QT_RHO);
+    LoopHold::UpdateDetailsForOpp(true, QT_RHO);
     LoopHold::SolveCrashTricksHand(length[QT_LHO], cr);
 
-    LoopHold::UpdateDetailsForOpp(
-      static_cast<int>(completeList[QT_RHO][0]), true, QT_LHO);
+    LoopHold::UpdateDetailsForOpp(true, QT_LHO);
     CrashRecordStruct cr2;
     LoopHold::SolveCrashTricksHand(length[QT_RHO], cr2);
 
@@ -1159,10 +1157,7 @@ void LoopHold::SetDetails()
   hdet.lenShort = length[hdet.pShort];
   hdet.lenMaxOpp = Max(length[QT_LHO], length[QT_RHO]);
 
-  int maxCardOpps = (hdet.lenMaxOpp == 0 ? -1 :
-    static_cast<int>(Max(completeList[QT_LHO][0], completeList[QT_RHO][0])));
-
-  LoopHold::UpdateDetailsForOpp(maxCardOpps, false, QT_ACE);
+  LoopHold::UpdateDetailsForOpp(false);
 }
 
 
@@ -1242,12 +1237,30 @@ bool LoopHold::GetAsymmRanks(
 
 
 void LoopHold::UpdateDetailsForOpp(
-  const int& oppRank,
   const bool oppSkippedFlag,
   const PosType& oppSkipped)
 {
   hdet.numTopsLong = 0;
   hdet.numTopsShort = 0;
+
+  int oppRank;
+  if (! oppSkippedFlag && hdet.lenMaxOpp == 0)
+  {
+    hdet.numTopsLong = hdet.lenLong;
+    hdet.minTopLong = completeList[hdet.pLong][hdet.lenLong-1];
+
+    hdet.numTopsShort = hdet.lenShort;
+    hdet.minTopShort = completeList[hdet.pShort][hdet.lenShort-1];
+  }
+  else
+  {
+    if (oppSkippedFlag)
+      oppRank = static_cast<int>(
+        completeList[SDS_PARTNER[oppSkipped]][0]);
+    else
+      oppRank = static_cast<int>(
+        Max(completeList[QT_LHO][0], completeList[QT_RHO][0]));
+
 
   int i = 0;
   while (i < static_cast<int>(hdet.lenLong) && static_cast<int>(completeList[hdet.pLong][i]) > oppRank)
@@ -1285,6 +1298,7 @@ if (hdet.minTopLong != completeList[hdet.pLong][t-1])
     hdet.minTopShort = completeList[hdet.pShort][i];
     i++;
   }
+  }
 
   if (oppSkippedFlag)
   {
@@ -1292,7 +1306,7 @@ if (hdet.minTopLong != completeList[hdet.pLong][t-1])
     // This is a bit of a kludge -- maybe there is a better way.
 
     int used[SDS_MAX_RANKS] = {0};
-    i = 0;
+    int i = 0;
     unsigned m = Min(hdet.minTopLong, hdet.minTopShort);
     while (i < static_cast<int>(length[oppSkipped]) && 
       completeList[oppSkipped][i] > m)

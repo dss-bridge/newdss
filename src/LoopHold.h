@@ -97,9 +97,8 @@ class LoopHold: public Holding
       unsigned& lowestRank) const;
 
     void UpdateDetailsForOpp(
-      const int& oppRank,
       const bool oppSkippedFlag,
-      const PosType& oppSkipped);
+      const PosType& oppSkipped = QT_ACE); // Anything
 
     void MinCrashRecord(
       CrashRecordStruct& cr1,
