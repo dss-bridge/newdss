@@ -1342,12 +1342,22 @@ void LoopHold::SetSpecificDetails(
     while (i >= static_cast<int>(m));
 
     int zused[SDS_MAX_RANKS] = {0};
-    j = 0;
-    while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
+    m = Min(zminTopLong, zminTopShort);
+    for (j = 0; j < length[oppSkipped]; j++)
     {
-      zused[Holding::ListToRank(completeList[oppSkipped][j])] = 1;
-      j++;
+      unsigned x = Holding::ListToRank(completeList[oppSkipped][j]);
+      if (x <= m)
+        break;
+      else
+        zused[x] = 1;
     }
+
+    // j = 0;
+    // while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
+    // {
+      // zused[Holding::ListToRank(completeList[oppSkipped][j])] = 1;
+      // j++;
+    // }
 
     i = SDS_VOID - 1;
     c = SDS_VOID - 1;
