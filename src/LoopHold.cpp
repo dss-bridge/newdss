@@ -493,6 +493,26 @@ void LoopHold::MinCrashRecord(
   cr2.crashRank = sdet.mapShiftedToReal[cr2.crashRank-delta] + delta;
   cr2.crashRank2 = sdet.mapShiftedToReal[cr2.crashRank2-delta] + delta;
 
+  // cr2.blockRank = sdet.mapShiftedToReal[cr2.blockRank];
+  // cr2.remRank = sdet.mapShiftedToReal[cr2.remRank];
+  // cr2.crashRank = sdet.mapShiftedToReal[cr2.crashRank];
+  // cr2.crashRank2 = sdet.mapShiftedToReal[cr2.crashRank2];
+
+  // cr1.blockRank = zmapShiftedToReal[cr1.blockRank];
+  // cr1.remRank = zmapShiftedToReal[cr1.remRank];
+  // cr1.crashRank = zmapShiftedToReal[cr1.crashRank];
+  // cr1.crashRank2 = zmapShiftedToReal[cr1.crashRank2];
+
+  // cr2.blockRank = zmapShiftedToReal[cr2.blockRank];
+  // cr2.remRank = zmapShiftedToReal[cr2.remRank];
+  // cr2.crashRank = zmapShiftedToReal[cr2.crashRank];
+  // cr2.crashRank2 = zmapShiftedToReal[cr2.crashRank2];
+
+  // assert(cr2.blockRank == zmapShiftedToReal[cr2.blockRank]);
+  // assert(cr2.remRank == zmapShiftedToReal[cr2.remRank]);
+  // assert(cr2.crashRank == zmapShiftedToReal[cr2.crashRank]);
+  // assert(cr2.crashRank2 == zmapShiftedToReal[cr2.crashRank2]);
+
   if (cr2.crashTricks < cr1.crashTricks || 
      (cr2.crashTricks == cr1.crashTricks && cr2.crashRank < cr1.crashRank))
   {
@@ -1253,54 +1273,41 @@ void LoopHold::SetSpecificDetails(
   const bool oppSkippedFlag,
   const PosType oppSkipped)
 {
-  /*
-  if (! oppSkippedFlag && hdet.lenMaxOpp == 0)
-  {
-    sdet.numTopsLong = hdet.lenLong;
-    sdet.numTopsShort = hdet.lenShort;
-  }
-  else
-  {
-    unsigned oppRank;
-    if (oppSkippedFlag)
-      oppRank = completeList[SDS_PARTNER[oppSkipped]][0];
-    else
-      oppRank = Max(completeList[QT_LHO][0], completeList[QT_RHO][0]);
-
-    sdet.numTopsLong = Holding::TopsOverRank(hdet.pLong, oppRank);
-    sdet.numTopsShort = Holding::TopsOverRank(hdet.pShort, oppRank);
-  }
-  */
-
   if (oppSkippedFlag)
   {
     if (oppSkipped == QT_LHO)
     {
-      // assert(sdet.numTopsLong == hdet.numTopsLongRho);
-      // assert(sdet.numTopsShort == hdet.numTopsShortRho);
       sdet.numTopsLong = hdet.numTopsLongRho;
       sdet.numTopsShort = hdet.numTopsShortRho;
     }
     else
     {
-      // assert(sdet.numTopsLong == hdet.numTopsLongLho);
-      // assert(sdet.numTopsShort == hdet.numTopsShortLho);
       sdet.numTopsLong = hdet.numTopsLongLho;
       sdet.numTopsShort = hdet.numTopsShortLho;
     }
   }
   else
   {
-    // assert(sdet.numTopsLong == Min(hdet.numTopsLongLho,
-      // hdet.numTopsLongRho));
-    // assert(sdet.numTopsShort == Min(hdet.numTopsShortLho,
-      // hdet.numTopsShortRho));
     sdet.numTopsLong = Min(hdet.numTopsLongLho, hdet.numTopsLongRho);
     sdet.numTopsShort = Min(hdet.numTopsShortLho, hdet.numTopsShortRho);
   }
 
   sdet.minTopLong = completeList[hdet.pLong][sdet.numTopsLong-1];
   sdet.minTopShort = completeList[hdet.pShort][sdet.numTopsShort-1];
+  // sdet.minTopLong = Holding::ListToRank(
+    // completeList[hdet.pLong][sdet.numTopsLong-1]);
+  // sdet.minTopShort = Holding::ListToRank(
+    // completeList[hdet.pShort][sdet.numTopsShort-1]);
+  unsigned zminTopLong = Holding::ListToRank(
+    completeList[hdet.pLong][sdet.numTopsLong-1]);
+  unsigned zminTopShort = Holding::ListToRank(
+    completeList[hdet.pShort][sdet.numTopsShort-1]);
+  for (int k = 0; k < SDS_MAX_RANKS; k++)
+  {
+   zmapRealToShifted[k] = 0;
+   zmapShiftedToReal[k] = 0;
+  }
+  unsigned oldl, olds;
 
   if (oppSkippedFlag)
   {
@@ -1308,16 +1315,15 @@ void LoopHold::SetSpecificDetails(
     // This is a bit of a kludge -- maybe there is a better way.
 
     int used[SDS_MAX_RANKS] = {0};
-    int i = 0;
+    unsigned j = 0;
     unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
-    while (i < static_cast<int>(length[oppSkipped]) && 
-      completeList[oppSkipped][i] > m)
+    while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
     {
-      used[completeList[oppSkipped][i]] = 1;
-      i++;
+      used[completeList[oppSkipped][j]] = 1;
+      j++;
     }
 
-    i = static_cast<int>(suitLength)-1;
+    int i = static_cast<int>(suitLength)-1;
     int c = static_cast<int>(suitLength)-1;
     sdet.mapRealToShifted[suitLength] = suitLength; // Void
     sdet.mapShiftedToReal[suitLength] = suitLength; // Void
@@ -1335,13 +1341,67 @@ void LoopHold::SetSpecificDetails(
     }
     while (i >= static_cast<int>(m));
 
-    sdet.minTopLong = sdet.mapRealToShifted[sdet.minTopLong];
-    sdet.minTopShort = sdet.mapRealToShifted[sdet.minTopShort];
+    // sdet.minTopLong = sdet.mapRealToShifted[sdet.minTopLong];
+    // sdet.minTopShort = sdet.mapRealToShifted[sdet.minTopShort];
+
+    int zused[SDS_MAX_RANKS] = {0};
+    j = 0;
+    while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
+    {
+      zused[Holding::ListToRank(completeList[oppSkipped][j])] = 1;
+      j++;
+    }
+
+    i = SDS_VOID - 1;
+    c = SDS_VOID - 1;
+    zmapRealToShifted[SDS_VOID] = SDS_VOID;
+    zmapShiftedToReal[SDS_VOID] = SDS_VOID;
+
+    do
+    {
+      zmapRealToShifted[i] = static_cast<unsigned>(c);
+      zmapShiftedToReal[c] = static_cast<unsigned>(i);
+      c--;
+      i--;
+      while (zused[i])
+      {
+        i--;
+      }
+    }
+    while (i >= static_cast<int>(m));
+
+    oldl = zminTopLong;
+    olds = zminTopShort;
+    zminTopLong = zmapRealToShifted[zminTopLong];
+    zminTopShort = zmapRealToShifted[zminTopShort];
   }
 
-  unsigned delta = SDS_VOID - suitLength;
-  sdet.minTopLong += delta;
-  sdet.minTopShort += delta;
+  // unsigned delta = SDS_VOID - suitLength;
+  // sdet.minTopLong += delta;
+  // sdet.minTopShort += delta;
+
+  sdet.minTopLong = zminTopLong;
+  sdet.minTopShort = zminTopShort;
+
+/*
+if (sdet.minTopLong != zminTopLong ||
+    sdet.minTopShort != zminTopShort)
+{
+  Holding::Print();
+  cout << "oppSkipped " << static_cast<int>(oppSkipped) << "\n";
+  cout << "sdet " << sdet.minTopLong << ", " << sdet.minTopShort << "\n";
+  cout << "o " << oldl << ", " << olds << "\n";
+  cout << "z " << zminTopLong << ", " << zminTopShort << "\n";
+  for (int i = 0; i < SDS_MAX_RANKS; i++)
+    cout << i << " " << sdet.mapRealToShifted[i] << " " <<
+      sdet.mapShiftedToReal[i] << "   " <<
+      zmapRealToShifted[i] << " " <<
+      zmapShiftedToReal[i] << "\n";
+      
+  cout.flush();
+  assert(false);
+}
+*/
 
   hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
   hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);

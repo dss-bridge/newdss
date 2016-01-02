@@ -90,6 +90,9 @@ class LoopHold: public Holding
       unsigned crashTricks;
     };
 
+    unsigned zmapRealToShifted[SDS_MAX_RANKS];
+    unsigned zmapShiftedToReal[SDS_MAX_RANKS];
+
     void SolveCrashTricksHand(
       const unsigned lenOpp,
       CrashRecordStruct& cr) const;
