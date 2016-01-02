@@ -275,15 +275,15 @@ bool LoopHold::SolveCrashTricks(
   {
     LoopHold::SetSpecificDetails(true, QT_RHO);
     LoopHold::ShiftMinUp(QT_RHO);
-
     LoopHold::SolveCrashTricksHand(length[QT_LHO], cr);
+    LoopHold::ShiftMinDown(cr);
+
+    CrashRecordStruct cr2;
 
     LoopHold::SetSpecificDetails(true, QT_LHO);
     LoopHold::ShiftMinUp(QT_LHO);
-    CrashRecordStruct cr2;
     LoopHold::SolveCrashTricksHand(length[QT_RHO], cr2);
 
-    LoopHold::ShiftMinDown(cr);
     LoopHold::ShiftMinDown(cr2);
     LoopHold::MinCrashRecord(cr, cr2);
   }
