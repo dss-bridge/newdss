@@ -15,7 +15,7 @@ class LoopHold;
 
 void MakeSimpleMoves();
 
-bool MakeSimpleSingleMove(
+bool MakeSimpleSingleMoveWrapper(
   const unsigned suitLength,
   const unsigned counter,
   DefList& def,

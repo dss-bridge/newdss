@@ -72,7 +72,7 @@ int main(int argc, char * argv[])
     holding.Print(cout);
 
     DefList def;
-    if (MakeSimpleSingleMove(options.suitLength, options.counter, 
+    if (MakeSimpleSingleMoveWrapper(options.suitLength, options.counter, 
       def, holding))
     {
       cout << "Table match:\n\n";

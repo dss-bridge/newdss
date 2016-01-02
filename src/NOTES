@@ -1,3 +1,9 @@
+SimpleMoves
+-----------
+OK for now.
+Later, swap two functions around.
+
+
 defMerged shrinks
 -----------------
 There are a couple of places where we merge to less than the product

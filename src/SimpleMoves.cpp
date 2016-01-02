@@ -29,6 +29,12 @@ extern SingleType * singles[14];
 extern MoveList moveList;
 extern vector<unsigned> holdCtr;
 
+inline bool MakeSimpleSingleMove(
+  const unsigned sl,
+  const unsigned c,
+  DefList& def,
+  LoopHold& holding);
+
 
 void MakeSimpleMoves()
 {
@@ -58,25 +64,33 @@ void MakeSimpleMoves()
 }
 
 
-bool MakeSimpleSingleMove(
+bool MakeSimpleSingleMoveWrapper(
+  const unsigned sl,
+  const unsigned c,
+  DefList& def,
+  LoopHold& holding)
+{
+  return MakeSimpleSingleMove(sl, c, def, holding);
+}
+
+
+inline bool MakeSimpleSingleMove(
   const unsigned sl,
   const unsigned c,
   DefList& def,
   LoopHold& holding)
 {
   unsigned lenAce = holding.GetLength(QT_ACE);
-  unsigned lenPard = holding.GetLength(QT_PARD);
   bool newFlag;
+  unsigned r;
 
   if (lenAce == holding.GetNumTops())
   {
-    unsigned r;
-
-    if (lenPard > lenAce && holding.CashoutAceSideBlocked(def, r))
+    if (holding.GetLength(QT_PARD) > lenAce && 
+        holding.CashoutAceSideBlocked(def, r))
     {
       // Aceholder has blocking tops: AK / Qx / JT9 / xx.
       // Partner can cash afterwards.
-
       unsigned mno = moveList.AddMove(def, holding, newFlag);
       SetAllPermutations(sl, c, mno, holding, r, HIST_BLOCKED, newFlag);
     }
@@ -84,7 +98,6 @@ bool MakeSimpleSingleMove(
     {
       // Aceholder has blocking tops: AK / Qxx / JT9 / xx.
       // Partner cannot cash afterwards.
-
       holding.CashAceShort(def, r);
       unsigned mno = moveList.AddMove(def, holding, newFlag);
       SetAllPermutations(sl, c, mno, holding, r, HIST_ACE_SHORT, newFlag);
@@ -93,12 +106,9 @@ bool MakeSimpleSingleMove(
 
   if (singles[sl][c].minLen == 0)
   {
-    unsigned r;
-
     if (singles[sl][c].moveNo == 0)
     {
       // Partner is void.  Cash maximum from aceholder.
-
       holding.CashoutAce(def, r);
       unsigned mno = moveList.AddMove(def, holding, newFlag);
       SetAllPermutations(sl, c, mno, holding, r, HIST_PARD_VOID, newFlag);
@@ -106,10 +116,7 @@ bool MakeSimpleSingleMove(
 
     // Can also make some crash positions out of this, e.g. AQ / K.
 
-    PosType start, end;
-    unsigned brank, rrank, crank, crank2, btricks, rtricks, ctricks;
     unsigned numTops = holding.GetNumTops();
-
     for (unsigned nMask = 1; nMask < (1u << numTops); nMask++)
     {
       // This also takes care of the surely-blocked flips from above.
@@ -117,41 +124,33 @@ bool MakeSimpleSingleMove(
       if (singles[sl][cNew].moveNo)
         continue;
 
-      LoopHold zhNew;
-      zhNew.Set(sl, cNew);
+      LoopHold hNew;
+      hNew.Set(sl, cNew);
       // No complete blocks.
-      if (zhNew.GetNumTops() == zhNew.GetLength(QT_ACE))
+      if (hNew.GetNumTops() == hNew.GetLength(QT_ACE))
         continue;
 
-      if (zhNew.SolveCrashTricks(def, r))
-      {
-        unsigned mno = moveList.AddMove(def, zhNew, newFlag);
-        SetAllPermutations(sl, cNew, mno, zhNew, r, HIST_CRASH, newFlag);
-      }
+      unsigned mno = moveList.AddMove(def, hNew, newFlag);
+      if (hNew.SolveCrashTricks(def, r))
+        SetAllPermutations(sl, cNew, mno, hNew, r, HIST_CRASH, newFlag);
       else
-      {
-        unsigned mno = moveList.AddMove(def, zhNew, newFlag);
         SetAllLowCards(sl, cNew, mno, r, HIST_CRASH, newFlag);
-      }
     }
   }
 
   if (singles[sl][c].moveNo)
     return true;
 
-  unsigned r;
   if (holding.SolveStopped(def, r))
   {
     // Opponents have enough tops and length to hold declarer to
     // a number of tricks, often 1.  (For instance LHO has Kx.)
-
     unsigned mno = moveList.AddMove(def, holding, newFlag);
     SetAllPermutations(sl, c, mno, holding, r, HIST_SINGLE, newFlag);
   }
   else if (holding.CashoutBoth(def, r))
   {
     // Suits such as AQx / Kx.
-
     unsigned mno = moveList.AddMove(def, holding, newFlag);
     SetAllPermutations(sl, c, mno, holding, r, HIST_CASHES, newFlag);
   }

@@ -7,6 +7,7 @@ AltList
   AltMatrix1D, AltMatrix2D
 DefList
 
+SimpleMoves
 ComplexMoves
 Holding
 
@@ -24,8 +25,6 @@ compare.h const.h portab.h
 
   4163  15830 132829 LoopHold.cpp
    198    379   4401 LoopHold.h
-   274    774   8136 SimpleMoves.cpp
-    35     63    605 SimpleMoves.h
 
    236    577   5185 single.cpp
    349    824   8971 single.h
