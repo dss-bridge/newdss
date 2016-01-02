@@ -276,34 +276,8 @@ bool LoopHold::SolveCrashTricks(
   LoopHold::SetDetails();
   PosType oppBest = Holding::GetOppBest();
 
-  if (oppBest == QT_BOTH)
-  {
-    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
-      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else if (oppBest == QT_LHO && length[QT_LHO] >= length[QT_RHO])
-  {
-    LoopHold::SolveCrashTricksHand(length[QT_LHO],
-      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else if (oppBest == QT_RHO && length[QT_RHO] >= length[QT_LHO])
-  {
-    LoopHold::SolveCrashTricksHand(length[QT_RHO],
-      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else
+  if ((oppBest == QT_LHO && length[QT_LHO] < length[QT_RHO]) ||
+      (oppBest == QT_RHO && length[QT_RHO] < length[QT_LHO]))
   {
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_LHO][0]), true, QT_RHO);
@@ -370,6 +344,41 @@ bool LoopHold::SolveCrashTricks(
     {
       rtricks = 0;
     }
+
+  }
+  else
+  {
+  if (oppBest == QT_BOTH)
+  {
+    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
+      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
+
+    // See explanation below.
+    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
+      rtricks = 0;
+  }
+  else if (oppBest == QT_LHO && length[QT_LHO] >= length[QT_RHO])
+  {
+    LoopHold::SolveCrashTricksHand(length[QT_LHO],
+      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
+
+    // See explanation below.
+    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
+      rtricks = 0;
+  }
+  else if (oppBest == QT_RHO && length[QT_RHO] >= length[QT_LHO])
+  {
+    LoopHold::SolveCrashTricksHand(length[QT_RHO],
+      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
+
+    // See explanation below.
+    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
+      rtricks = 0;
+  }
+  else
+  {
+    assert(false);
+  }
   }
 
 
@@ -379,27 +388,31 @@ bool LoopHold::SolveCrashTricks(
     {
       assert(crank < crank2);
 
-      Trick ztrick, ztrick2;
-      ztrick.Set(QT_BOTH, QT_ACE, crank2, ctricks);
-      ztrick2.Set(QT_ACE, QT_PARD, crank, ctricks);
-      def.Set11(ztrick, ztrick2);
+      Trick trick1, trick2;
+      trick1.Set(QT_BOTH, QT_ACE, crank2, ctricks);
+      trick2.Set(QT_ACE, QT_PARD, crank, ctricks);
+      def.Set11(trick1, trick2);
     }
     else
     {
-      Trick ztrick;
-      ztrick.Set(QT_BOTH, cend, crank, ctricks);
-      def.Set1(ztrick);
+      Trick trick;
+      trick.Set(QT_BOTH, cend, crank, ctricks);
+      def.Set1(trick);
     }
+if (brank != SDS_VOID)
+  Holding::Print();
     rank = Min(brank, rrank);
     rank = Min(rank, crank);
+assert(brank >= rank);
     return false;
   }
   else
   {
     PosType blocked = (bend == QT_ACE ? QT_PARD : QT_ACE);
+assert(blocked == SDS_PARTNER[bend]);
     PosType bstart = (btricks + rtricks > ctricks ? QT_BOTH : bend);
 
-    Trick ztrick, ztrick2, ztrick3;
+    Trick trick1, trick2a, trick2b;
 
     if (bstart == QT_BOTH &&
         ctricks <= btricks &&
@@ -408,17 +421,17 @@ bool LoopHold::SolveCrashTricks(
          (cend == QT_BOTH && blocked == QT_ACE)))
     {
       if (Holding::GetMinDeclLength() == 1)
-        ztrick.Set(QT_PARD, QT_ACE, crank, ctricks);
+        trick1.Set(QT_PARD, QT_ACE, crank, ctricks);
       else
-        ztrick.Set(QT_BOTH, QT_BOTH, crank, ctricks);
+        trick1.Set(QT_BOTH, QT_BOTH, crank, ctricks);
     }
     else
-      ztrick.Set(QT_BOTH, cend, crank, ctricks);
+      trick1.Set(QT_BOTH, cend, crank, ctricks);
 
-    ztrick2.Set(bstart, blocked, brank, btricks);
-    ztrick3.Set(bend, bend, rrank, rtricks);
+    trick2a.Set(bstart, blocked, brank, btricks);
+    trick2b.Set(bend, bend, rrank, rtricks);
 
-    def.Set12(ztrick, ztrick2, ztrick3);
+    def.Set12(trick1, trick2a, trick2b);
         
     rank = Min(brank, rrank);
     rank = Min(rank, crank);
