@@ -85,7 +85,11 @@ class LoopHold: public Holding
       const unsigned& lenOpp,
       CrashRecordStruct& cr) const;
       
-    void SetDetails();
+    void SetGeneralDetails();
+
+    void SetSpecificDetails(
+      const bool oppSkippedFlag,
+      const PosType& oppSkipped = QT_ACE); // Anything
 
     void PrintDetails();
 
@@ -95,10 +99,6 @@ class LoopHold: public Holding
       const unsigned cashLength,
       const unsigned toBeat,
       unsigned& lowestRank) const;
-
-    void UpdateDetailsForOpp(
-      const bool oppSkippedFlag,
-      const PosType& oppSkipped = QT_ACE); // Anything
 
     void MinCrashRecord(
       CrashRecordStruct& cr1,

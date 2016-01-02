@@ -254,10 +254,6 @@ bool LoopHold::SolveCrashTricks(
   DefList& def,
   unsigned& rank)
 {
-  // This code is extremely finicky.  It was developed with the help
-  // of a big spreadsheet, and it is virtually impossible to verify
-  // manually...
-
   // There is always only a single defense.
   // If the function returns true, the solution is of the form
   // crashing trick or blocking trick + remainder trick.
@@ -271,16 +267,16 @@ bool LoopHold::SolveCrashTricks(
   // BA or AP (depending on the cards).
 
   CrashRecordStruct cr;
-  LoopHold::SetDetails();
+  LoopHold::SetGeneralDetails();
   PosType oppBest = Holding::GetOppBest();
 
   if ((oppBest == QT_LHO && length[QT_LHO] < length[QT_RHO]) ||
       (oppBest == QT_RHO && length[QT_RHO] < length[QT_LHO]))
   {
-    LoopHold::UpdateDetailsForOpp(true, QT_RHO);
+    LoopHold::SetSpecificDetails(true, QT_RHO);
     LoopHold::SolveCrashTricksHand(length[QT_LHO], cr);
 
-    LoopHold::UpdateDetailsForOpp(true, QT_LHO);
+    LoopHold::SetSpecificDetails(true, QT_LHO);
     CrashRecordStruct cr2;
     LoopHold::SolveCrashTricksHand(length[QT_RHO], cr2);
 
@@ -288,6 +284,7 @@ bool LoopHold::SolveCrashTricks(
   }
   else
   {
+    LoopHold::SetSpecificDetails(false);
     LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp, cr);
   }
 
@@ -299,7 +296,9 @@ bool LoopHold::SolveCrashTricks(
   // prefer to reduce this to BB49, as the number of tricks is
   // the same.
 
-  if (cr.remTricks > 0 && hdet.lenShort > 1 && cr.blockTricks+cr.remTricks == cr.crashTricks)
+  if (cr.remTricks > 0 && 
+      hdet.lenShort > 1 && 
+      cr.blockTricks+cr.remTricks == cr.crashTricks)
     cr.remTricks = 0;
 
 
@@ -325,9 +324,9 @@ bool LoopHold::SolveCrashTricks(
   }
   else
   {
-    PosType blocked = (cr.blockEnd == QT_ACE ? QT_PARD : QT_ACE);
-assert(blocked == SDS_PARTNER[cr.blockEnd]);
-    PosType bstart = (cr.blockTricks + cr.remTricks > cr.crashTricks ? QT_BOTH : cr.blockEnd);
+    PosType blocked = SDS_PARTNER[cr.blockEnd];
+    PosType bstart = (cr.blockTricks + cr.remTricks > cr.crashTricks ? 
+      QT_BOTH : cr.blockEnd);
 
     Trick trick1, trick2a, trick2b;
 
@@ -359,6 +358,10 @@ void LoopHold::SolveCrashTricksHand(
   const unsigned& lenOpp,
   CrashRecordStruct& cr) const
 {
+  // This code is extremely finicky.  It was developed with the help
+  // of a big spreadsheet, and it is virtually impossible to verify
+  // manually...
+
   // The crash trick, always present.
 
   if (hdet.numTopsAll >= lenOpp + 1)
@@ -1138,7 +1141,7 @@ return false;
 }
 
 
-void LoopHold::SetDetails()
+void LoopHold::SetGeneralDetails()
 {
   hdet.declLen = length[QT_ACE] + length[QT_PARD];
 
@@ -1156,8 +1159,122 @@ void LoopHold::SetDetails()
   hdet.lenLong = length[hdet.pLong];
   hdet.lenShort = length[hdet.pShort];
   hdet.lenMaxOpp = Max(length[QT_LHO], length[QT_RHO]);
+}
 
-  LoopHold::UpdateDetailsForOpp(false);
+
+void LoopHold::SetSpecificDetails(
+  const bool oppSkippedFlag,
+  const PosType& oppSkipped)
+{
+  hdet.numTopsLong = 0;
+  hdet.numTopsShort = 0;
+
+  if (! oppSkippedFlag && hdet.lenMaxOpp == 0)
+  {
+    hdet.numTopsLong = hdet.lenLong;
+    hdet.minTopLong = completeList[hdet.pLong][hdet.lenLong-1];
+
+    hdet.numTopsShort = hdet.lenShort;
+    hdet.minTopShort = completeList[hdet.pShort][hdet.lenShort-1];
+  }
+  else
+  {
+    unsigned oppRank;
+    if (oppSkippedFlag)
+      oppRank = completeList[SDS_PARTNER[oppSkipped]][0];
+    else
+      oppRank = Max(completeList[QT_LHO][0], completeList[QT_RHO][0]);
+
+    unsigned i = 0;
+    while (i < hdet.lenLong && completeList[hdet.pLong][i] > oppRank)
+    {
+      hdet.numTopsLong++;
+      hdet.minTopLong = completeList[hdet.pLong][i];
+      i++;
+    }
+
+/*
+unsigned t = Holding::TopsOverRank(hdet.pLong, static_cast<unsigned>(oppRank));
+if (hdet.numTopsLong != t)
+{
+  Holding::Print();
+  cout << "oppRank " << oppRank << " plong " << static_cast<int>(hdet.pLong) << "\n";
+  cout << "hdet " << hdet.numTopsLong << " t " << t << "\n";
+  cout.flush();
+  assert(false);
+}
+if (hdet.minTopLong != completeList[hdet.pLong][t-1])
+{
+  Holding::Print();
+  cout << "oppRank " << oppRank << " plong " << static_cast<int>(hdet.pLong) << "\n";
+  cout << "minTop " << hdet.minTopLong << " vs " <<
+    completeList[hdet.pLong][t-1] << "\n";
+  cout.flush();
+  assert(false);
+}
+*/
+
+    i = 0;
+    while (i < hdet.lenShort && completeList[hdet.pShort][i] > oppRank)
+    {
+      hdet.numTopsShort++;
+      hdet.minTopShort = completeList[hdet.pShort][i];
+      i++;
+    }
+  }
+
+  if (oppSkippedFlag)
+  {
+    // Compensate for skipped ranks with other opponent.
+    // This is a bit of a kludge -- maybe there is a better way.
+
+    int used[SDS_MAX_RANKS] = {0};
+    int i = 0;
+    unsigned m = Min(hdet.minTopLong, hdet.minTopShort);
+    while (i < static_cast<int>(length[oppSkipped]) && 
+      completeList[oppSkipped][i] > m)
+    {
+      used[completeList[oppSkipped][i]] = 1;
+      i++;
+    }
+
+    i = static_cast<int>(suitLength)-1;
+    int c = static_cast<int>(suitLength)-1;
+    hdet.mapRealToShifted[suitLength] = suitLength; // Void
+    hdet.mapShiftedToReal[suitLength] = suitLength; // Void
+
+    do
+    {
+      hdet.mapRealToShifted[i] = static_cast<unsigned>(c);
+      hdet.mapShiftedToReal[c] = static_cast<unsigned>(i);
+      c--;
+      i--;
+      while (used[i])
+      {
+        i--;
+      }
+    }
+    while (i >= static_cast<int>(m));
+
+    hdet.minTopLong = hdet.mapRealToShifted[hdet.minTopLong];
+    hdet.minTopShort = hdet.mapRealToShifted[hdet.minTopShort];
+  }
+
+  hdet.maxTopLong = completeList[hdet.pLong][0];
+  hdet.maxTopShort = completeList[hdet.pShort][0];
+
+  unsigned delta = SDS_VOID - suitLength;
+  hdet.maxTopLong += delta;
+  hdet.minTopLong += delta;
+  hdet.maxTopShort += delta;
+  hdet.minTopShort += delta;
+
+  assert(hdet.lenLong >= hdet.numTopsLong);
+  assert(hdet.lenShort >= hdet.numTopsShort);
+
+  hdet.xLong = hdet.lenLong - hdet.numTopsLong;
+  hdet.xShort = hdet.lenShort - hdet.numTopsShort;
+  hdet.numTopsAll = hdet.numTopsLong + hdet.numTopsShort;
 }
 
 
@@ -1234,125 +1351,6 @@ bool LoopHold::GetAsymmRanks(
   return true;
 }
   
-
-
-void LoopHold::UpdateDetailsForOpp(
-  const bool oppSkippedFlag,
-  const PosType& oppSkipped)
-{
-  hdet.numTopsLong = 0;
-  hdet.numTopsShort = 0;
-
-  int oppRank;
-  if (! oppSkippedFlag && hdet.lenMaxOpp == 0)
-  {
-    hdet.numTopsLong = hdet.lenLong;
-    hdet.minTopLong = completeList[hdet.pLong][hdet.lenLong-1];
-
-    hdet.numTopsShort = hdet.lenShort;
-    hdet.minTopShort = completeList[hdet.pShort][hdet.lenShort-1];
-  }
-  else
-  {
-    if (oppSkippedFlag)
-      oppRank = static_cast<int>(
-        completeList[SDS_PARTNER[oppSkipped]][0]);
-    else
-      oppRank = static_cast<int>(
-        Max(completeList[QT_LHO][0], completeList[QT_RHO][0]));
-
-
-  int i = 0;
-  while (i < static_cast<int>(hdet.lenLong) && static_cast<int>(completeList[hdet.pLong][i]) > oppRank)
-  {
-    hdet.numTopsLong++;
-    hdet.minTopLong = completeList[hdet.pLong][i];
-    i++;
-  }
-
-/*
-unsigned t = Holding::TopsOverRank(hdet.pLong, static_cast<unsigned>(oppRank));
-if (hdet.numTopsLong != t)
-{
-  Holding::Print();
-  cout << "oppRank " << oppRank << " plong " << static_cast<int>(hdet.pLong) << "\n";
-  cout << "hdet " << hdet.numTopsLong << " t " << t << "\n";
-  cout.flush();
-  assert(false);
-}
-if (hdet.minTopLong != completeList[hdet.pLong][t-1])
-{
-  Holding::Print();
-  cout << "oppRank " << oppRank << " plong " << static_cast<int>(hdet.pLong) << "\n";
-  cout << "minTop " << hdet.minTopLong << " vs " <<
-    completeList[hdet.pLong][t-1] << "\n";
-  cout.flush();
-  assert(false);
-}
-*/
-
-  i = 0;
-  while (i < static_cast<int>(hdet.lenShort) && static_cast<int>(completeList[hdet.pShort][i]) > oppRank)
-  {
-    hdet.numTopsShort++;
-    hdet.minTopShort = completeList[hdet.pShort][i];
-    i++;
-  }
-  }
-
-  if (oppSkippedFlag)
-  {
-    // Compensate for skipped ranks with other opponent.
-    // This is a bit of a kludge -- maybe there is a better way.
-
-    int used[SDS_MAX_RANKS] = {0};
-    int i = 0;
-    unsigned m = Min(hdet.minTopLong, hdet.minTopShort);
-    while (i < static_cast<int>(length[oppSkipped]) && 
-      completeList[oppSkipped][i] > m)
-    {
-      used[completeList[oppSkipped][i]] = 1;
-      i++;
-    }
-
-    i = static_cast<int>(suitLength)-1;
-    int c = static_cast<int>(suitLength)-1;
-    hdet.mapRealToShifted[suitLength] = suitLength; // Void
-    hdet.mapShiftedToReal[suitLength] = suitLength; // Void
-
-    do
-    {
-      hdet.mapRealToShifted[i] = static_cast<unsigned>(c);
-      hdet.mapShiftedToReal[c] = static_cast<unsigned>(i);
-      c--;
-      i--;
-      while (used[i])
-      {
-        i--;
-      }
-    }
-    while (i >= static_cast<int>(m));
-
-    hdet.minTopLong = hdet.mapRealToShifted[hdet.minTopLong];
-    hdet.minTopShort = hdet.mapRealToShifted[hdet.minTopShort];
-  }
-
-  hdet.maxTopLong = completeList[hdet.pLong][0];
-  hdet.maxTopShort = completeList[hdet.pShort][0];
-
-  unsigned delta = SDS_VOID - suitLength;
-  hdet.maxTopLong += delta;
-  hdet.minTopLong += delta;
-  hdet.maxTopShort += delta;
-  hdet.minTopShort += delta;
-
-  assert(hdet.lenLong >= hdet.numTopsLong);
-  assert(hdet.lenShort >= hdet.numTopsShort);
-
-  hdet.xLong = hdet.lenLong - hdet.numTopsLong;
-  hdet.xShort = hdet.lenShort - hdet.numTopsShort;
-  hdet.numTopsAll = hdet.numTopsLong + hdet.numTopsShort;
-}
 
 
 bool LoopHold::SolveStopped(
