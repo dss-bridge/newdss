@@ -606,9 +606,8 @@ bool LoopHold::CashoutBoth(
     {
       // AJ / Q98 / KT / -.
       if (pickFlag) holdCtr[901]++;
-      lowestRank = SDS_VOID - static_cast<unsigned>(lenLong);
-      trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-        static_cast<unsigned>(lenLong));
+      lowestRank = SDS_VOID - lenLong;
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
 
       return def.Set1(trick);
     }
@@ -616,15 +615,14 @@ bool LoopHold::CashoutBoth(
     {
       if (numTopsLongHigh > 0 && numTopsShortHigh > 0)
       {
-        lowestRank = SDS_VOID - static_cast<unsigned>(lenOppMax);
+        lowestRank = SDS_VOID - lenOppMax;
 
-        unsigned n = Min(completeList[QT_ACE][0], static_cast<unsigned>(maxPard));
+        unsigned n = Min(completeList[QT_ACE][0], maxPard);
         unsigned m = Holding::ListToRank(n);
         if (m >= lowestRank)
         {
           if (pickFlag) holdCtr[904]++;
-          trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-            static_cast<unsigned>(lenLong));
+          trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
           return def.Set1(trick);
         }
         else
@@ -636,15 +634,13 @@ bool LoopHold::CashoutBoth(
           if (lowestRank > r2)
           {
             assert(false);
-            trick.Set(QT_PARD, QT_ACE, r2, static_cast<unsigned>(lenLong));
-            trick2.Set(QT_ACE, QT_BOTH, lowestRank, 
-              static_cast<unsigned>(lenLong));
+            trick.Set(QT_PARD, QT_ACE, r2, lenLong);
+            trick2.Set(QT_ACE, QT_BOTH, lowestRank, lenLong);
           }
           else
           {
-            trick.Set(QT_BOTH, QT_ACE, r2, static_cast<unsigned>(lenLong));
-            trick2.Set(QT_ACE, QT_PARD, lowestRank, 
-              static_cast<unsigned>(lenLong));
+            trick.Set(QT_BOTH, QT_ACE, r2, lenLong);
+            trick2.Set(QT_ACE, QT_PARD, lowestRank, lenLong);
           }
           def.Set11(trick, trick2);
           // def.SetAsymmCash(lenLong, lowestRank, r2);
@@ -657,26 +653,23 @@ bool LoopHold::CashoutBoth(
         if (pickFlag) holdCtr[902]++;
         unsigned n = completeList[QT_ACE][lenOppMax-1];
         lowestRank = Holding::ListToRank(n);
-        trick.Set(QT_BOTH, QT_ACE, lowestRank, 
-          static_cast<unsigned>(lenLong));
+        trick.Set(QT_BOTH, QT_ACE, lowestRank, lenLong);
         return def.Set1(trick);
       }
       else
       {
         // AK8 / Q7 / JT9 / -.
         if (pickFlag) holdCtr[903]++;
-        int r2 = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][lenOppMax-1]));
-        lowestRank = Holding::ListToRank(static_cast<unsigned>(maxPard));
+        unsigned r2 = Holding::ListToRank(completeList[QT_ACE][lenOppMax-1]);
+        lowestRank = Holding::ListToRank(maxPard);
         // No particular reason, just the way it comes out.
         // PosType p = (numTopsHigh > lenOppHighest ||
           // completeList[QT_ACE][numTopsHigh] >
           // maxPard ? QT_PARD : QT_PARD);
           // maxPard ? QT_BOTH : QT_PARD);
 
-        trick.Set(QT_BOTH, QT_ACE, static_cast<unsigned>(r2), 
-          static_cast<unsigned>(lenLong));
-        trick2.Set(QT_ACE, QT_PARD, lowestRank, 
-          static_cast<unsigned>(lenLong));
+        trick.Set(QT_BOTH, QT_ACE, r2, lenLong);
+        trick2.Set(QT_ACE, QT_PARD, lowestRank, lenLong);
         def.Set11(trick, trick2);
         // def.SetAsymmCash(lenLong, lowestRank, r2, p);
         return true;
@@ -703,9 +696,8 @@ bool LoopHold::CashoutBoth(
       if (maxPard >= pl)
       {
         if (pickFlag) holdCtr[906]++;
-        lowestRank = Holding::ListToRank(static_cast<unsigned>(pl));
-        trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-          static_cast<unsigned>(lenLong));
+        lowestRank = Holding::ListToRank(pl);
+        trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
         return def.Set1(trick);
       }
       else if (minAce > maxPard)
@@ -713,20 +705,17 @@ bool LoopHold::CashoutBoth(
         if (pickFlag) holdCtr[907]++;
         lowestRank = Holding::ListToRank(
           completeList[QT_ACE][lenCashLow-1]);
-        trick.Set(QT_BOTH, QT_ACE, lowestRank, 
-          static_cast<unsigned>(lenLong));
+        trick.Set(QT_BOTH, QT_ACE, lowestRank, lenLong);
         return def.Set1(trick);
       }
       else
       {
         if (pickFlag) holdCtr[908]++;
-        lowestRank = Holding::ListToRank(static_cast<unsigned>(maxPard));
-        unsigned r2 = Holding::ListToRank(static_cast<unsigned>(pa));
+        lowestRank = Holding::ListToRank(maxPard);
+        unsigned r2 = Holding::ListToRank(pa);
         assert(lowestRank < r2);
-          trick.Set(QT_BOTH, QT_ACE, static_cast<unsigned>(r2), 
-            static_cast<unsigned>(lenLong));
-          trick2.Set(QT_ACE, QT_PARD, lowestRank, 
-            static_cast<unsigned>(lenLong));
+          trick.Set(QT_BOTH, QT_ACE, r2, lenLong);
+          trick2.Set(QT_ACE, QT_PARD, lowestRank, lenLong);
           // holdCtr[899]++;
         // }
         def.Set11(trick, trick2);
@@ -739,23 +728,20 @@ bool LoopHold::CashoutBoth(
       if (pickFlag) holdCtr[909]++;
       lowestRank = Holding::ListToRank(
         completeList[QT_ACE][lenCashLow-1]);
-      trick.Set(QT_BOTH, QT_ACE, lowestRank, 
-        static_cast<unsigned>(lenLong));
+      trick.Set(QT_BOTH, QT_ACE, lowestRank, lenLong);
       return def.Set1(trick);
     }
     else
     {
       if (pickFlag) holdCtr[910]++;
-      lowestRank = Holding::ListToRank(static_cast<unsigned>(maxPard));
-      int r2 = static_cast<int>(Holding::ListToRank(completeList[QT_ACE][lenCashLow-1]));
+      lowestRank = Holding::ListToRank(maxPard);
+      unsigned r2 = Holding::ListToRank(completeList[QT_ACE][lenCashLow-1]);
       // PosType p = (completeList[QT_ACE][lenCashLow] >
         // maxPard ? QT_PARD : QT_PARD);
         // maxPard ? QT_BOTH : QT_PARD);
 
-      trick.Set(QT_BOTH, QT_ACE, static_cast<unsigned>(r2), 
-        static_cast<unsigned>(lenLong));
-      trick2.Set(QT_ACE, QT_PARD, lowestRank, 
-        static_cast<unsigned>(lenLong));
+      trick.Set(QT_BOTH, QT_ACE, r2, lenLong);
+      trick2.Set(QT_ACE, QT_PARD, lowestRank, lenLong);
       def.Set11(trick, trick2);
       // def.SetAsymmCash(lenLong, lowestRank, r2, p);
       return true;
@@ -786,15 +772,14 @@ bool LoopHold::CashoutBoth(
     if (numTopsLongHigh > 0 && numTopsShortHigh > 0)
     {
       unsigned m = SDS_VOID - lenOppMax;
-      unsigned n = Holding::ListToRank(static_cast<unsigned>(maxPard));
+      unsigned n = Holding::ListToRank(maxPard);
       if (n >= m)
       {
-        int maxOpp = static_cast<int>(Max(completeList[QT_RHO][0],
-          completeList[QT_LHO][0]));
+        unsigned maxOpp = Max(completeList[QT_RHO][0],
+          completeList[QT_LHO][0]);
 
         if (! LoopHold::GetAsymmRanks(hdet.pLong, hdet.pShort, 
-          static_cast<unsigned>(lenOppMax),
-          static_cast<unsigned>(maxOpp), lowestRank))
+          lenOppMax, maxOpp, lowestRank))
         {
           if (pickFlag) holdCtr[822]++;
           return false;
@@ -802,8 +787,7 @@ bool LoopHold::CashoutBoth(
         else
         {
           if (pickFlag) holdCtr[920]++;
-          trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-            static_cast<unsigned>(lenLong));
+          trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
           return def.Set1(trick);
         }
       }
@@ -811,9 +795,8 @@ bool LoopHold::CashoutBoth(
       {
         if (pickFlag) holdCtr[921]++;
         // Holding::Print();
-        lowestRank = static_cast<unsigned>(n);
-        trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-          static_cast<unsigned>(lenLong));
+        lowestRank = n;
+        trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
         return def.Set1(trick);
       }
     }
@@ -834,19 +817,16 @@ bool LoopHold::CashoutBoth(
       (lenShort <= lenOppLowest && maxPard < minOpp))
     {
       if (pickFlag) holdCtr[922]++;
-      // int lRank = static_cast<int>(Holding::ListToRank(
       lowestRank = Holding::ListToRank(
         completeList[hdet.pLong][lenOppMax-1]);
-      trick.Set(QT_BOTH, hdet.pLong, lowestRank, 
-        static_cast<unsigned>(lenLong));
+      trick.Set(QT_BOTH, hdet.pLong, lowestRank, lenLong);
       return def.Set1(trick);
     }
     else if (length[QT_PARD] > length[QT_ACE])
     {
       if (pickFlag) holdCtr[923]++;
-      lowestRank = Holding::ListToRank(static_cast<unsigned>(maxPard));
-      trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-        static_cast<unsigned>(lenLong));
+      lowestRank = Holding::ListToRank(maxPard);
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
       return def.Set1(trick);
     }
     else if (length[QT_PARD] == lenOppHighest + 1)
@@ -884,8 +864,7 @@ bool LoopHold::CashoutBoth(
         if (pickFlag) holdCtr[924]++;
         lowestRank = Holding::ListToRank(
           completeList[QT_ACE][lenOppHighest]);
-        trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-          static_cast<unsigned>(lenLong));
+        trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
         return def.Set1(trick);
       }
     }
@@ -894,13 +873,12 @@ bool LoopHold::CashoutBoth(
       if (pickFlag) holdCtr[929]++;
       return false;
 
-      int r2 = static_cast<int>(Holding::ListToRank( completeList[QT_ACE][lenOppHighest]));
-      lowestRank = Holding::ListToRank(static_cast<unsigned>(maxPard));
+      unsigned r2 = Holding::ListToRank(completeList[QT_ACE][lenOppHighest]);
+      lowestRank = Holding::ListToRank(maxPard);
 
 
-      trick.Set(QT_BOTH, QT_ACE, static_cast<unsigned>(r2), static_cast<unsigned>(lenLong));
-      trick2.Set(QT_ACE, QT_BOTH, 
-        lowestRank, static_cast<unsigned>(lenLong));
+      trick.Set(QT_BOTH, QT_ACE, r2, lenLong);
+      trick2.Set(QT_ACE, QT_BOTH, lowestRank, lenLong);
       def.Set11(trick, trick2);
       // def.SetAsymmCash(lenLong, lowestRank, r2, QT_BOTH);
       return true;
@@ -957,9 +935,9 @@ bool LoopHold::CashoutBoth(
         c++;
       }
 
-      int shortSecond = static_cast<int>(completeList[hdet.pShort][numTopsShortHigh]);
+      unsigned shortSecond = completeList[hdet.pShort][numTopsShortHigh];
 
-if (shortSecond > static_cast<int>(completeList[hdet.pLong][i]))
+if (shortSecond > completeList[hdet.pLong][i])
 {
   // AK98 / J / QT7 / 6543.  The T also cashes over the 6.
   // Skip for now.
@@ -969,8 +947,7 @@ if (shortSecond > static_cast<int>(completeList[hdet.pLong][i]))
       if (pickFlag) holdCtr[706]++;
       assert(i < lenLong);
       lowestRank = Holding::ListToRank(completeList[hdet.pLong][i]);
-      trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-        static_cast<unsigned>(lenLong));
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
       return def.Set1(trick);
     }
     else
@@ -1000,8 +977,7 @@ if (shortSecond > static_cast<int>(completeList[hdet.pLong][i]))
             lowestRank = Holding::ListToRank(
               completeList[hdet.pLong][numTopsLongHigh]);
 
-            trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-              static_cast<unsigned>(lenLong));
+            trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
             return def.Set1(trick);
           }
         }
@@ -1020,8 +996,7 @@ if (shortSecond > static_cast<int>(completeList[hdet.pLong][i]))
             if (pickFlag) holdCtr[708]++;
             lowestRank = Holding::ListToRank(
                    completeList[hdet.pLong][numTopsLongHigh] - 1);
-            trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-              static_cast<unsigned>(lenLong));
+            trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
             return def.Set1(trick);
           }
         }
@@ -1042,8 +1017,7 @@ if (shortSecond > static_cast<int>(completeList[hdet.pLong][i]))
             if (pickFlag) holdCtr[709]++;
             lowestRank = Holding::ListToRank(
                    completeList[hdet.pLong][numTopsLongHigh]);
-            trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-              static_cast<unsigned>(lenLong));
+            trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
             return def.Set1(trick);
           }
         }
@@ -1056,8 +1030,7 @@ return false;
 
           lowestRank = Holding::ListToRank(
                  completeList[hdet.pLong][numTopsLongHigh+1]);
-          trick.Set(QT_BOTH, QT_BOTH, lowestRank, 
-            static_cast<unsigned>(lenLong));
+          trick.Set(QT_BOTH, QT_BOTH, lowestRank, lenLong);
           return def.Set1(trick);
         }
       }
