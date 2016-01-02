@@ -270,9 +270,7 @@ bool LoopHold::SolveCrashTricks(
   // or
   // BA or AP (depending on the cards).
 
-  PosType bend, cend;
-  unsigned brank, rrank, crank, crank2, btricks, rtricks, ctricks;
-
+  CrashRecordStruct cr;
   LoopHold::SetDetails();
   PosType oppBest = Holding::GetOppBest();
 
@@ -281,160 +279,78 @@ bool LoopHold::SolveCrashTricks(
   {
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_LHO][0]), true, QT_RHO);
-    LoopHold::SolveCrashTricksHand(length[QT_LHO],
-      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
+    LoopHold::SolveCrashTricksHand(length[QT_LHO], cr);
 
-      unsigned delta = SDS_VOID - suitLength;
-      brank = hdet.mapShiftedToReal[brank-delta] + delta;
-      rrank = hdet.mapShiftedToReal[rrank-delta] + delta;
-      crank = hdet.mapShiftedToReal[crank-delta] + delta;
-      crank2 = hdet.mapShiftedToReal[crank2-delta] + delta;
-
-    PosType bend2, cend2;
-    unsigned brank2, rrank2, crank21, crank22, btricks2, rtricks2, ctricks2;
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_RHO][0]), true, QT_LHO);
-    LoopHold::SolveCrashTricksHand(length[QT_RHO],
-      bend2, cend2, brank2, rrank2, crank21, crank22,
-      btricks2, rtricks2, ctricks2);
+    CrashRecordStruct cr2;
+    LoopHold::SolveCrashTricksHand(length[QT_RHO], cr2);
 
-      brank2 = hdet.mapShiftedToReal[brank2-delta] + delta;
-      rrank2 = hdet.mapShiftedToReal[rrank2-delta] + delta;
-      crank21 = hdet.mapShiftedToReal[crank21-delta] + delta;
-      crank22 = hdet.mapShiftedToReal[crank22-delta] + delta;
-
-    if (ctricks2 < ctricks || (ctricks2 == ctricks && crank21 < crank))
-    {
-      cend = cend2;
-      crank = crank21;
-      ctricks = ctricks2;
-    }
-
-    if (crank22 == SDS_VOID)
-      crank2 = SDS_VOID;
-    else if (crank2 != SDS_VOID)
-      crank2 = Min(crank22, crank2);
-
-    if (rtricks2 > 0)
-    {
-
-    unsigned m = Min(brank, rrank);
-    unsigned m2 = Min(brank2, rrank2);
-    if (rtricks == 0 || rtricks2+btricks2 < rtricks+btricks ||
-       (rtricks2+btricks2 == rtricks+btricks && m2 < m))
-
-    {
-      bend = bend2;
-      brank = brank2;
-      rrank = rrank2;
-      btricks = btricks2;
-      rtricks = rtricks2;
-    }
-    }
-
-    // It can happen that the blocking trick from one side is
-    // more demanding, while the cashing trick from the other
-    // side is more demanding:  AT98 / J76 / KQ / 5432.
-    // So we end up with BB49 or BB2Q+AA2T.  This is actually
-    // a legitimate way to view the situation, but we probably
-    // prefer to reduce this to BB49, as the number of tricks is
-    // the same.
-
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-    {
-      rtricks = 0;
-    }
-
+    LoopHold::MinCrashRecord(cr, cr2);
   }
   else
   {
-  if (oppBest == QT_BOTH)
-  {
-    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
-      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else if (oppBest == QT_LHO && length[QT_LHO] >= length[QT_RHO])
-  {
-    LoopHold::SolveCrashTricksHand(length[QT_LHO],
-      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else if (oppBest == QT_RHO && length[QT_RHO] >= length[QT_LHO])
-  {
-    LoopHold::SolveCrashTricksHand(length[QT_RHO],
-      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
-
-    // See explanation below.
-    if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
-      rtricks = 0;
-  }
-  else
-  {
-    assert(false);
-  }
+    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp, cr);
   }
 
+  // It can happen that the blocking trick from one side is
+  // more demanding, while the cashing trick from the other
+  // side is more demanding:  AT98 / J76 / KQ / 5432.
+  // So we end up with BB49 or BB2Q+AA2T.  This is actually
+  // a legitimate way to view the situation, but we probably
+  // prefer to reduce this to BB49, as the number of tricks is
+  // the same.
 
-  if (rtricks == 0)
+  if (cr.remTricks > 0 && hdet.lenShort > 1 && cr.blockTricks+cr.remTricks == cr.crashTricks)
+    cr.remTricks = 0;
+
+
+  if (cr.remTricks == 0)
   {
-    if (crank2 != SDS_VOID && crank != crank2)
+    if (cr.crashRank2 != SDS_VOID && cr.crashRank != cr.crashRank2)
     {
-      assert(crank < crank2);
+      assert(cr.crashRank < cr.crashRank2);
 
       Trick trick1, trick2;
-      trick1.Set(QT_BOTH, QT_ACE, crank2, ctricks);
-      trick2.Set(QT_ACE, QT_PARD, crank, ctricks);
+      trick1.Set(QT_BOTH, QT_ACE, cr.crashRank2, cr.crashTricks);
+      trick2.Set(QT_ACE, QT_PARD, cr.crashRank, cr.crashTricks);
       def.Set11(trick1, trick2);
     }
     else
     {
       Trick trick;
-      trick.Set(QT_BOTH, cend, crank, ctricks);
+      trick.Set(QT_BOTH, cr.crashEnd, cr.crashRank, cr.crashTricks);
       def.Set1(trick);
     }
-if (brank != SDS_VOID)
-  Holding::Print();
-    rank = Min(brank, rrank);
-    rank = Min(rank, crank);
-assert(brank >= rank);
+    rank = Min(cr.remRank, cr.crashRank);
     return false;
   }
   else
   {
-    PosType blocked = (bend == QT_ACE ? QT_PARD : QT_ACE);
-assert(blocked == SDS_PARTNER[bend]);
-    PosType bstart = (btricks + rtricks > ctricks ? QT_BOTH : bend);
+    PosType blocked = (cr.blockEnd == QT_ACE ? QT_PARD : QT_ACE);
+assert(blocked == SDS_PARTNER[cr.blockEnd]);
+    PosType bstart = (cr.blockTricks + cr.remTricks > cr.crashTricks ? QT_BOTH : cr.blockEnd);
 
     Trick trick1, trick2a, trick2b;
 
     if (bstart == QT_BOTH &&
-        ctricks <= btricks &&
-        ((cend == QT_ACE && blocked == QT_PARD) ||
-         (cend == QT_BOTH && blocked == QT_PARD) ||
-         (cend == QT_BOTH && blocked == QT_ACE)))
+        cr.crashTricks <= cr.blockTricks)
     {
       if (Holding::GetMinDeclLength() == 1)
-        trick1.Set(QT_PARD, QT_ACE, crank, ctricks);
+        trick1.Set(QT_PARD, QT_ACE, cr.crashRank, cr.crashTricks);
       else
-        trick1.Set(QT_BOTH, QT_BOTH, crank, ctricks);
+        trick1.Set(QT_BOTH, QT_BOTH, cr.crashRank, cr.crashTricks);
     }
     else
-      trick1.Set(QT_BOTH, cend, crank, ctricks);
+      trick1.Set(QT_BOTH, cr.crashEnd, cr.crashRank, cr.crashTricks);
 
-    trick2a.Set(bstart, blocked, brank, btricks);
-    trick2b.Set(bend, bend, rrank, rtricks);
+    trick2a.Set(bstart, blocked, cr.blockRank, cr.blockTricks);
+    trick2b.Set(cr.blockEnd, cr.blockEnd, cr.remRank, cr.remTricks);
 
     def.Set12(trick1, trick2a, trick2b);
         
-    rank = Min(brank, rrank);
-    rank = Min(rank, crank);
+    rank = Min(cr.blockRank, cr.remRank);
+    rank = Min(rank, cr.crashRank);
     return true;
   }
 
@@ -443,35 +359,27 @@ assert(blocked == SDS_PARTNER[bend]);
 
 void LoopHold::SolveCrashTricksHand(
   const unsigned& lenOpp,
-  PosType& bend,
-  PosType& cend,
-  unsigned& brank,
-  unsigned& rrank,
-  unsigned& crank,
-  unsigned& crank2,
-  unsigned& btricks,
-  unsigned& rtricks,
-  unsigned& ctricks)
+  CrashRecordStruct& cr) const
 {
   // The crash trick, always present.
 
-  if (hdet.numTopsAll >= lenOpp+1)
-    ctricks = hdet.lenLong;
+  if (hdet.numTopsAll >= lenOpp + 1)
+    cr.crashTricks = hdet.lenLong;
   else
   {
-    ctricks = hdet.numTopsLong;
+    cr.crashTricks = hdet.numTopsLong;
     if (hdet.lenShort >= 2 && hdet.numTopsAll < hdet.declLen)
-      ctricks += Min(hdet.lenShort-1, hdet.xLong);
+      cr.crashTricks += Min(hdet.lenShort-1, hdet.xLong);
   }
 
   if (hdet.lenShort == 1 || 
      (hdet.maxTopShort < hdet.minTopLong && hdet.xLong == 0))
-    cend = hdet.pLong;
+    cr.crashEnd = hdet.pLong;
   else
-    cend = QT_BOTH;
+    cr.crashEnd = QT_BOTH;
 
   unsigned ocash = Max(lenOpp, 1);
-  unsigned ccash = SDS_VOID - Min(ocash, ctricks);
+  unsigned ccash = SDS_VOID - Min(ocash, cr.crashTricks);
 
   unsigned cextra = ccash;
   if ((ccash <= hdet.minTopShort && hdet.xShort == 0) || 
@@ -479,53 +387,55 @@ void LoopHold::SolveCrashTricksHand(
     cextra--;
 
   unsigned cspecial = SDS_VOID;
-  if (hdet.lenLong > hdet.lenShort && hdet.lenShort >= 3 &&
+  if (hdet.lenLong > hdet.lenShort && 
+      hdet.lenShort >= 3 &&
       lenOpp < hdet.lenShort)
-    cspecial = SDS_VOID - (lenOpp+1);
+    cspecial = SDS_VOID - (lenOpp + 1);
 
-  crank = Min(cextra, cspecial);
-  if (cend == QT_BOTH)
+  cr.crashRank = Min(cextra, cspecial);
+  if (cr.crashEnd == QT_BOTH)
   {
     unsigned minMaxTops = Min(hdet.maxTopShort, hdet.maxTopLong);
-    crank = Min(crank, minMaxTops);
+    cr.crashRank = Min(cr.crashRank, minMaxTops);
   }
 
-  crank2 = SDS_VOID;
+  cr.crashRank2 = SDS_VOID;
   if (lenOpp == 0 && hdet.pShort >= 2 &&
     length[QT_ACE] >= length[QT_PARD])
   {
     // Special case where the cash from the ace side only 
     // requires the ace, no matter what else.
-    crank2 = SDS_VOID - 1;
+    cr.crashRank2 = SDS_VOID - 1;
   }
   else if (lenOpp == 1 && length[QT_ACE] == length[QT_PARD])
   {
     // Another special case where the ace is enough, starting
     // from partner's side.  Example AJT9 / Q / K876 / x.
-    crank2 = SDS_VOID - 1;
+    cr.crashRank2 = SDS_VOID - 1;
   }
-  else if (lenOpp > 0 && lenOpp < length[QT_ACE] &&
+  else if (lenOpp > 0 && 
+    lenOpp < length[QT_ACE] &&
     length[QT_ACE] == length[QT_PARD] &&
     completeList[QT_ACE][lenOpp-1] > completeList[QT_PARD][0])
   {
     // AKJ / 87 / QT9 / -.
-    crank2 = SDS_VOID - lenOpp;
+    cr.crashRank2 = SDS_VOID - lenOpp;
   }
   else if (length[QT_ACE] > length[QT_PARD] &&
       length[QT_PARD] >= 2 &&
       hdet.maxTopShort <= SDS_ACE - length[QT_PARD] &&
       lenOpp <= SDS_ACE - hdet.maxTopShort)
   {
-    crank2 = Holding::ListToRank(
+    cr.crashRank2 = Holding::ListToRank(
       completeList[QT_ACE][Max(lenOpp, length[QT_PARD]) - 1]);
   }
 
 
-  // The block trick, sometimes present (if not, rtricks == 0).
+  // The block trick, sometimes present (if not, cr.remTricks == 0).
 
   // To have something, in case of no block.
-  brank = SDS_VOID; 
-  rrank = SDS_VOID; 
+  cr.blockRank = SDS_VOID; 
+  cr.remRank = SDS_VOID; 
 
   // Figure out whether there is a block trick.
   bool poss = (hdet.lenLong > 1 &&
@@ -533,34 +443,83 @@ void LoopHold::SolveCrashTricksHand(
      hdet.minTopLong < hdet.maxTopShort) ?  true : false);
 
   bool must = ((hdet.numTopsAll <= Min(lenOpp, hdet.lenLong) ||
-    (hdet.xShort == 0 && hdet.minTopShort > crank) ) &&
+    (hdet.xShort == 0 && hdet.minTopShort > cr.crashRank) ) &&
     hdet.lenLong > hdet.lenShort ? true : false);
 
   if ((! poss) || (hdet.lenShort > 1 && ! must))
   {
-    btricks = 0;
-    rtricks = 0;
+    cr.blockTricks = 0;
+    cr.remTricks = 0;
     return;
   }
 
   // So now there is a trick.
 
-  btricks = hdet.lenShort;
-  brank = hdet.minTopShort;
-  bend = hdet.pLong;
+  cr.blockTricks = hdet.lenShort;
+  cr.blockRank = hdet.minTopShort;
+  cr.blockEnd = hdet.pLong;
 
   if (hdet.numTopsAll >= lenOpp)
-    rtricks = hdet.lenLong - hdet.numTopsShort;
+    cr.remTricks = hdet.lenLong - hdet.numTopsShort;
   else
-    rtricks = Min(hdet.numTopsLong, hdet.lenLong - hdet.numTopsShort);
+    cr.remTricks = Min(hdet.numTopsLong, 
+      hdet.lenLong - hdet.numTopsShort);
 
   ocash = SDS_VOID - Min(lenOpp, hdet.lenLong);
-  if (ocash >= brank)
-    rrank = SDS_VOID;
+  if (ocash >= cr.blockRank)
+    cr.remRank = SDS_VOID;
   else
   {
-    unsigned x = (hdet.minTopLong >= brank ? SDS_VOID : hdet.minTopLong);
-    rrank = Max(ocash, x);
+    unsigned x = (hdet.minTopLong >= cr.blockRank ? SDS_VOID : 
+      hdet.minTopLong);
+    cr.remRank = Max(ocash, x);
+  }
+}
+
+
+void LoopHold::MinCrashRecord(
+  CrashRecordStruct& cr1,
+  CrashRecordStruct& cr2) const
+{
+  const unsigned delta = SDS_VOID - suitLength;
+
+  cr1.blockRank = hdet.mapShiftedToReal[cr1.blockRank-delta] + delta;
+  cr1.remRank = hdet.mapShiftedToReal[cr1.remRank-delta] + delta;
+  cr1.crashRank = hdet.mapShiftedToReal[cr1.crashRank-delta] + delta;
+  cr1.crashRank2 = hdet.mapShiftedToReal[cr1.crashRank2-delta] + delta;
+
+  cr2.blockRank = hdet.mapShiftedToReal[cr2.blockRank-delta] + delta;
+  cr2.remRank = hdet.mapShiftedToReal[cr2.remRank-delta] + delta;
+  cr2.crashRank = hdet.mapShiftedToReal[cr2.crashRank-delta] + delta;
+  cr2.crashRank2 = hdet.mapShiftedToReal[cr2.crashRank2-delta] + delta;
+
+  if (cr2.crashTricks < cr1.crashTricks || 
+     (cr2.crashTricks == cr1.crashTricks && cr2.crashRank < cr1.crashRank))
+  {
+    cr1.crashEnd = cr2.crashEnd;
+    cr1.crashRank = cr2.crashRank;
+    cr1.crashTricks = cr2.crashTricks;
+  }
+
+  if (cr2.crashRank2 == SDS_VOID)
+    cr1.crashRank2 = SDS_VOID;
+  else if (cr1.crashRank2 != SDS_VOID)
+    cr1.crashRank2 = Min(cr2.crashRank2, cr1.crashRank2);
+
+  if (cr2.remTricks > 0)
+  {
+    unsigned st1 = cr1.remTricks + cr1.blockTricks;
+    unsigned st2 = cr2.remTricks + cr2.blockTricks;
+    unsigned mr1 = Min(cr1.blockRank, cr1.remRank);
+    unsigned mr2 = Min(cr2.blockRank, cr2.remRank);
+    if (cr1.remTricks == 0 || st2 < st1 || (st2 == st1 && mr2 < mr1))
+    {
+      cr1.blockEnd = cr2.blockEnd;
+      cr1.blockRank = cr2.blockRank;
+      cr1.remRank = cr2.remRank;
+      cr1.blockTricks = cr2.blockTricks;
+      cr1.remTricks = cr2.remTricks;
+    }
   }
 }
 

@@ -67,18 +67,23 @@ class LoopHold: public Holding
 
     HoldingDetails hdet;
 
+    struct CrashRecordStruct
+    {
+      PosType blockEnd;
+      PosType crashEnd;
+      unsigned blockRank;
+      unsigned remRank;
+      unsigned crashRank;
+      unsigned crashRank2;
+      unsigned blockTricks;
+      unsigned remTricks;
+      unsigned crashTricks;
+    };
+
 
     void SolveCrashTricksHand(
       const unsigned& lenOpp,
-      PosType& bend,
-      PosType& cend,
-      unsigned& brank,
-      unsigned& rrank,
-      unsigned& crank,
-      unsigned& crank2,
-      unsigned& btricks,
-      unsigned& rtricks,
-      unsigned& ctricks);
+      CrashRecordStruct& cr) const;
       
     void SetDetails();
 
@@ -95,6 +100,10 @@ class LoopHold: public Holding
       const int& oppRank,
       const bool oppSkippedFlag,
       const PosType& oppSkipped);
+
+    void MinCrashRecord(
+      CrashRecordStruct& cr1,
+      CrashRecordStruct& cr2) const;
 
     bool StopFinesse(
       const unsigned mumFinesses,
