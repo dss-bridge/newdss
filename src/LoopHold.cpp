@@ -1310,16 +1310,14 @@ void LoopHold::ShiftMinUp(
   // Compensate for ranks with skipped opponent.
   // This is a bit of a kludge.
 
+  unsigned mapRealToShifted[SDS_MAX_RANKS] = {0};
   for (int k = 0; k < SDS_MAX_RANKS; k++)
-  {
-   zmapRealToShifted[k] = 0;
-   zmapShiftedToReal[k] = 0;
-  }
+    sdet.mapShiftedToReal[k] = 0;
 
   // Compensate for skipped ranks with other opponent.
   // This is a bit of a kludge -- maybe there is a better way.
 
-  int zused[SDS_MAX_RANKS] = {0};
+  int used[SDS_MAX_RANKS] = {0};
   unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
   for (unsigned j = 0; j < length[oppSkipped]; j++)
   {
@@ -1327,39 +1325,34 @@ void LoopHold::ShiftMinUp(
     if (x <= m)
       break;
     else
-      zused[x] = 1;
+      used[x] = 1;
   }
 
-  int i = SDS_VOID - 1;
-  int c = SDS_VOID - 1;
-  zmapRealToShifted[SDS_VOID] = SDS_VOID;
-  zmapShiftedToReal[SDS_VOID] = SDS_VOID;
-
+  unsigned i = SDS_VOID;
+  unsigned c = SDS_VOID;
   do
   {
-    zmapRealToShifted[i] = static_cast<unsigned>(c);
-    zmapShiftedToReal[c] = static_cast<unsigned>(i);
+    mapRealToShifted[i] = c;
+    sdet.mapShiftedToReal[c] = i;
     c--;
     i--;
-    while (zused[i])
-    {
+    while (used[i])
       i--;
-    }
   }
-  while (i >= static_cast<int>(m));
+  while (i >= m);
 
-  sdet.minTopLong = zmapRealToShifted[sdet.minTopLong];
-  sdet.minTopShort = zmapRealToShifted[sdet.minTopShort];
+  sdet.minTopLong = mapRealToShifted[sdet.minTopLong];
+  sdet.minTopShort = mapRealToShifted[sdet.minTopShort];
 }
 
 
 void LoopHold::ShiftMinDown(
   CrashRecordStruct& cr) const
 {
-  cr.blockRank = zmapShiftedToReal[cr.blockRank];
-  cr.remRank = zmapShiftedToReal[cr.remRank];
-  cr.crashRank = zmapShiftedToReal[cr.crashRank];
-  cr.crashRank2 = zmapShiftedToReal[cr.crashRank2];
+  cr.blockRank = sdet.mapShiftedToReal[cr.blockRank];
+  cr.remRank = sdet.mapShiftedToReal[cr.remRank];
+  cr.crashRank = sdet.mapShiftedToReal[cr.crashRank];
+  cr.crashRank2 = sdet.mapShiftedToReal[cr.crashRank2];
 }
 
 

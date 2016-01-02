@@ -70,7 +70,6 @@ class LoopHold: public Holding
       unsigned minTopLong;
       unsigned minTopShort;
 
-      unsigned mapRealToShifted[SDS_MAX_RANKS];
       unsigned mapShiftedToReal[SDS_MAX_RANKS];
     };
 
@@ -89,9 +88,6 @@ class LoopHold: public Holding
       unsigned remTricks;
       unsigned crashTricks;
     };
-
-    unsigned zmapRealToShifted[SDS_MAX_RANKS];
-    unsigned zmapShiftedToReal[SDS_MAX_RANKS];
 
 
     void SolveCrashTricksHand(
