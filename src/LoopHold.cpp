@@ -350,7 +350,6 @@ bool LoopHold::SolveCrashTricks(
     rank = Min(rank, cr.crashRank);
     return true;
   }
-
 }
 
 
@@ -1185,42 +1184,11 @@ void LoopHold::SetSpecificDetails(
     else
       oppRank = Max(completeList[QT_LHO][0], completeList[QT_RHO][0]);
 
-    unsigned i = 0;
-    while (i < hdet.lenLong && completeList[hdet.pLong][i] > oppRank)
-    {
-      hdet.numTopsLong++;
-      hdet.minTopLong = completeList[hdet.pLong][i];
-      i++;
-    }
+    hdet.numTopsLong = Holding::TopsOverRank(hdet.pLong, oppRank);
+    hdet.minTopLong = completeList[hdet.pLong][hdet.numTopsLong-1];
 
-/*
-unsigned t = Holding::TopsOverRank(hdet.pLong, static_cast<unsigned>(oppRank));
-if (hdet.numTopsLong != t)
-{
-  Holding::Print();
-  cout << "oppRank " << oppRank << " plong " << static_cast<int>(hdet.pLong) << "\n";
-  cout << "hdet " << hdet.numTopsLong << " t " << t << "\n";
-  cout.flush();
-  assert(false);
-}
-if (hdet.minTopLong != completeList[hdet.pLong][t-1])
-{
-  Holding::Print();
-  cout << "oppRank " << oppRank << " plong " << static_cast<int>(hdet.pLong) << "\n";
-  cout << "minTop " << hdet.minTopLong << " vs " <<
-    completeList[hdet.pLong][t-1] << "\n";
-  cout.flush();
-  assert(false);
-}
-*/
-
-    i = 0;
-    while (i < hdet.lenShort && completeList[hdet.pShort][i] > oppRank)
-    {
-      hdet.numTopsShort++;
-      hdet.minTopShort = completeList[hdet.pShort][i];
-      i++;
-    }
+    hdet.numTopsShort = Holding::TopsOverRank(hdet.pShort, oppRank);
+    hdet.minTopShort = completeList[hdet.pShort][hdet.numTopsShort-1];
   }
 
   if (oppSkippedFlag)
