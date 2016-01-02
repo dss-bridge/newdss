@@ -1292,82 +1292,15 @@ void LoopHold::SetSpecificDetails(
     sdet.numTopsShort = Min(hdet.numTopsShortLho, hdet.numTopsShortRho);
   }
 
+  // If oppSkippedFlag is set, these two may be modified
+  // in ShiftMinUp().
   sdet.minTopLong = Holding::ListToRank(
     completeList[hdet.pLong][sdet.numTopsLong-1]);
   sdet.minTopShort = Holding::ListToRank(
     completeList[hdet.pShort][sdet.numTopsShort-1]);
 
-  for (int k = 0; k < SDS_MAX_RANKS; k++)
-  {
-   zmapRealToShifted[k] = 0;
-   zmapShiftedToReal[k] = 0;
-  }
-
   if (oppSkippedFlag)
-  {
-    // Compensate for skipped ranks with other opponent.
-    // This is a bit of a kludge -- maybe there is a better way.
-
-    int used[SDS_MAX_RANKS] = {0};
-    unsigned j = 0;
-    unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
-    m -= SDS_VOID - suitLength;
-    while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
-    {
-      used[completeList[oppSkipped][j]] = 1;
-      j++;
-    }
-
-    int i = static_cast<int>(suitLength)-1;
-    int c = static_cast<int>(suitLength)-1;
-    sdet.mapRealToShifted[suitLength] = suitLength; // Void
-    sdet.mapShiftedToReal[suitLength] = suitLength; // Void
-
-    do
-    {
-      sdet.mapRealToShifted[i] = static_cast<unsigned>(c);
-      sdet.mapShiftedToReal[c] = static_cast<unsigned>(i);
-      c--;
-      i--;
-      while (used[i])
-      {
-        i--;
-      }
-    }
-    while (i >= static_cast<int>(m));
-
-    int zused[SDS_MAX_RANKS] = {0};
-    m = Min(sdet.minTopLong, sdet.minTopShort);
-    for (j = 0; j < length[oppSkipped]; j++)
-    {
-      unsigned x = Holding::ListToRank(completeList[oppSkipped][j]);
-      if (x <= m)
-        break;
-      else
-        zused[x] = 1;
-    }
-
-    i = SDS_VOID - 1;
-    c = SDS_VOID - 1;
-    zmapRealToShifted[SDS_VOID] = SDS_VOID;
-    zmapShiftedToReal[SDS_VOID] = SDS_VOID;
-
-    do
-    {
-      zmapRealToShifted[i] = static_cast<unsigned>(c);
-      zmapShiftedToReal[c] = static_cast<unsigned>(i);
-      c--;
-      i--;
-      while (zused[i])
-      {
-        i--;
-      }
-    }
-    while (i >= static_cast<int>(m));
-
-    sdet.minTopLong = zmapRealToShifted[sdet.minTopLong];
-    sdet.minTopShort = zmapRealToShifted[sdet.minTopShort];
-  }
+    LoopHold::ShiftMinUp(oppSkipped);
 
   hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
   hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
@@ -1406,17 +1339,26 @@ void LoopHold::ShiftMinUp(
   // Compensate for ranks with skipped opponent.
   // This is a bit of a kludge.
 
-  int used[SDS_MAX_RANKS] = {0};
-  int i = 0;
-  unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
-  while (i < static_cast<int>(length[oppSkipped]) && 
-    completeList[oppSkipped][i] > m)
+  for (int k = 0; k < SDS_MAX_RANKS; k++)
   {
-    used[completeList[oppSkipped][i]] = 1;
-    i++;
+   zmapRealToShifted[k] = 0;
+   zmapShiftedToReal[k] = 0;
   }
 
-  i = static_cast<int>(suitLength)-1;
+  // Compensate for skipped ranks with other opponent.
+  // This is a bit of a kludge -- maybe there is a better way.
+
+  int used[SDS_MAX_RANKS] = {0};
+  unsigned j = 0;
+  unsigned m = Min(sdet.minTopLong, sdet.minTopShort);
+  m -= SDS_VOID - suitLength;
+  while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
+  {
+    used[completeList[oppSkipped][j]] = 1;
+    j++;
+  }
+
+  int i = static_cast<int>(suitLength)-1;
   int c = static_cast<int>(suitLength)-1;
   sdet.mapRealToShifted[suitLength] = suitLength; // Void
   sdet.mapShiftedToReal[suitLength] = suitLength; // Void
@@ -1434,8 +1376,37 @@ void LoopHold::ShiftMinUp(
   }
   while (i >= static_cast<int>(m));
 
-  sdet.minTopLong = sdet.mapRealToShifted[sdet.minTopLong];
-  sdet.minTopShort = sdet.mapRealToShifted[sdet.minTopShort];
+  int zused[SDS_MAX_RANKS] = {0};
+  m = Min(sdet.minTopLong, sdet.minTopShort);
+  for (j = 0; j < length[oppSkipped]; j++)
+  {
+    unsigned x = Holding::ListToRank(completeList[oppSkipped][j]);
+    if (x <= m)
+      break;
+    else
+      zused[x] = 1;
+  }
+
+  i = SDS_VOID - 1;
+  c = SDS_VOID - 1;
+  zmapRealToShifted[SDS_VOID] = SDS_VOID;
+  zmapShiftedToReal[SDS_VOID] = SDS_VOID;
+
+  do
+  {
+    zmapRealToShifted[i] = static_cast<unsigned>(c);
+    zmapShiftedToReal[c] = static_cast<unsigned>(i);
+    c--;
+    i--;
+    while (zused[i])
+    {
+      i--;
+    }
+  }
+  while (i >= static_cast<int>(m));
+
+  sdet.minTopLong = zmapRealToShifted[sdet.minTopLong];
+  sdet.minTopShort = zmapRealToShifted[sdet.minTopShort];
 }
 
 
