@@ -1307,7 +1307,7 @@ void LoopHold::SetSpecificDetails(
    zmapRealToShifted[k] = 0;
    zmapShiftedToReal[k] = 0;
   }
-  unsigned oldl, olds;
+  // unsigned oldl, olds;
 
   if (oppSkippedFlag)
   {
@@ -1341,9 +1341,6 @@ void LoopHold::SetSpecificDetails(
     }
     while (i >= static_cast<int>(m));
 
-    // sdet.minTopLong = sdet.mapRealToShifted[sdet.minTopLong];
-    // sdet.minTopShort = sdet.mapRealToShifted[sdet.minTopShort];
-
     int zused[SDS_MAX_RANKS] = {0};
     j = 0;
     while (j < length[oppSkipped] && completeList[oppSkipped][j] > m)
@@ -1370,38 +1367,16 @@ void LoopHold::SetSpecificDetails(
     }
     while (i >= static_cast<int>(m));
 
-    oldl = zminTopLong;
-    olds = zminTopShort;
+    // oldl = zminTopLong;
+    // olds = zminTopShort;
+    // sdet.minTopLong = zmapRealToShifted[sdet.minTopLong];
+    // sdet.minTopShort = zmapRealToShifted[sdet.minTopShort];
     zminTopLong = zmapRealToShifted[zminTopLong];
     zminTopShort = zmapRealToShifted[zminTopShort];
   }
 
-  // unsigned delta = SDS_VOID - suitLength;
-  // sdet.minTopLong += delta;
-  // sdet.minTopShort += delta;
-
   sdet.minTopLong = zminTopLong;
   sdet.minTopShort = zminTopShort;
-
-/*
-if (sdet.minTopLong != zminTopLong ||
-    sdet.minTopShort != zminTopShort)
-{
-  Holding::Print();
-  cout << "oppSkipped " << static_cast<int>(oppSkipped) << "\n";
-  cout << "sdet " << sdet.minTopLong << ", " << sdet.minTopShort << "\n";
-  cout << "o " << oldl << ", " << olds << "\n";
-  cout << "z " << zminTopLong << ", " << zminTopShort << "\n";
-  for (int i = 0; i < SDS_MAX_RANKS; i++)
-    cout << i << " " << sdet.mapRealToShifted[i] << " " <<
-      sdet.mapShiftedToReal[i] << "   " <<
-      zmapRealToShifted[i] << " " <<
-      zmapShiftedToReal[i] << "\n";
-      
-  cout.flush();
-  assert(false);
-}
-*/
 
   hdet.maxTopLong = Holding::ListToRank(completeList[hdet.pLong][0]);
   hdet.maxTopShort = Holding::ListToRank(completeList[hdet.pShort][0]);
