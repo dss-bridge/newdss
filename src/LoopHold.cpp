@@ -272,7 +272,6 @@ bool LoopHold::SolveCrashTricks(
 
   PosType bend, cend;
   unsigned brank, rrank, crank, crank2, btricks, rtricks, ctricks;
-  unsigned crankr2;
 
 if (suitLength == 4 && counter == 0x22)
 {
@@ -285,7 +284,7 @@ if (suitLength == 4 && counter == 0x22)
   if (oppBest == QT_BOTH)
   {
     LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp,
-      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
+      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
 
     // See explanation below.
     if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
@@ -294,7 +293,7 @@ if (suitLength == 4 && counter == 0x22)
   else if (oppBest == QT_LHO && length[QT_LHO] >= length[QT_RHO])
   {
     LoopHold::SolveCrashTricksHand(length[QT_LHO],
-      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
+      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
 
     // See explanation below.
     if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
@@ -303,7 +302,7 @@ if (suitLength == 4 && counter == 0x22)
   else if (oppBest == QT_RHO && length[QT_RHO] >= length[QT_LHO])
   {
     LoopHold::SolveCrashTricksHand(length[QT_RHO],
-      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
+      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
 
     // See explanation below.
     if (rtricks > 0 && hdet.lenShort > 1 && btricks+rtricks == ctricks)
@@ -314,38 +313,38 @@ if (suitLength == 4 && counter == 0x22)
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_LHO][0]), true, QT_RHO);
     LoopHold::SolveCrashTricksHand(length[QT_LHO],
-      bend, cend, brank, rrank, crank, crankr2, btricks, rtricks, ctricks);
+      bend, cend, brank, rrank, crank, crank2, btricks, rtricks, ctricks);
 
       unsigned delta = SDS_VOID - suitLength;
       brank = hdet.mapShiftedToReal[brank-delta] + delta;
       rrank = hdet.mapShiftedToReal[rrank-delta] + delta;
       crank = hdet.mapShiftedToReal[crank-delta] + delta;
-      crankr2 = hdet.mapShiftedToReal[crankr2-delta] + delta;
+      crank2 = hdet.mapShiftedToReal[crank2-delta] + delta;
 
     PosType bend2, cend2;
-    unsigned brank2, rrank2, crank22, btricks2, rtricks2, ctricks2;
+    unsigned brank2, rrank2, crank21, crank22, btricks2, rtricks2, ctricks2;
     LoopHold::UpdateDetailsForOpp(
       static_cast<int>(completeList[QT_RHO][0]), true, QT_LHO);
     LoopHold::SolveCrashTricksHand(length[QT_RHO],
-      bend2, cend2, brank2, rrank2, crank2, crank22,
+      bend2, cend2, brank2, rrank2, crank21, crank22,
       btricks2, rtricks2, ctricks2);
 
       brank2 = hdet.mapShiftedToReal[brank2-delta] + delta;
       rrank2 = hdet.mapShiftedToReal[rrank2-delta] + delta;
-      crank2 = hdet.mapShiftedToReal[crank2-delta] + delta;
+      crank21 = hdet.mapShiftedToReal[crank21-delta] + delta;
       crank22 = hdet.mapShiftedToReal[crank22-delta] + delta;
 
-    if (ctricks2 < ctricks || (ctricks2 == ctricks && crank2 < crank))
+    if (ctricks2 < ctricks || (ctricks2 == ctricks && crank21 < crank))
     {
       cend = cend2;
-      crank = crank2;
+      crank = crank21;
       ctricks = ctricks2;
     }
 
     if (crank22 == SDS_VOID)
-      crankr2 = SDS_VOID;
-    else if (crankr2 != SDS_VOID)
-      crankr2 = Min(crank22, crankr2);
+      crank2 = SDS_VOID;
+    else if (crank2 != SDS_VOID)
+      crank2 = Min(crank22, crank2);
 
     if (rtricks2 > 0)
     {
