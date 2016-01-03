@@ -927,6 +927,8 @@ bool LoopHold::CashoutBothSameLength(
     {
       // Both ace holder and partner have tops over pOppLowest.
 
+      unsigned m = Holding::ListToRank(cb.maxPard);
+
       // Skip over lenCashLow top cards with declarer's side.
       unsigned na = 0, np = 0, no = 0;
       while (no < cb.lenCashLow)
@@ -941,16 +943,18 @@ bool LoopHold::CashoutBothSameLength(
       unsigned pa = completeList[QT_ACE][na-1];
       unsigned pl = (na == no ? pa : Min(pa, completeList[QT_PARD][np-1]));
 
-      if (cb.maxPard >= pl)
+      r = Holding::ListToRank(pl);
+
+      if (m >= r)
       {
-        if (pickFlag) holdCtr[906]++;
-        lowestRank = Holding::ListToRank(pl);
+        if (pickFlag) holdCtr[1006]++;
+        lowestRank = r;
         trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
         return def.Set1(trick);
       }
       else if (cb.minAce > cb.maxPard)
       {
-        if (pickFlag) holdCtr[907]++;
+        if (pickFlag) holdCtr[1007]++;
         lowestRank = Holding::ListToRank(
           completeList[QT_ACE][cb.lenCashLow - 1]);
         trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
@@ -958,12 +962,11 @@ bool LoopHold::CashoutBothSameLength(
       }
       else
       {
-        if (pickFlag) holdCtr[908]++;
+        if (pickFlag) holdCtr[1008]++;
         lowestRank = Holding::ListToRank(cb.maxPard);
-        unsigned r2 = Holding::ListToRank(pa);
-        assert(lowestRank < r2);
-          trick.Set(QT_BOTH, QT_ACE, r2, cb.lenLong);
-          trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
+        r = Holding::ListToRank(pa);
+        trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+        trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
         return def.Set11(trick, trick2);
       }
     }
