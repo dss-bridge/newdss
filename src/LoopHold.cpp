@@ -266,31 +266,34 @@ bool LoopHold::SolveCrashTricks(
   // or
   // BA or AP (depending on the cards).
 
+  HoldingDetails hdet;
+  SideDetails sdet;
   CrashRecordStruct cr;
-  LoopHold::SetGeneralDetails();
+  LoopHold::SetGeneralDetails(hdet);
   PosType oppBest = Holding::GetOppBest();
 
   if ((oppBest == QT_LHO && length[QT_LHO] < length[QT_RHO]) ||
       (oppBest == QT_RHO && length[QT_RHO] < length[QT_LHO]))
   {
-    LoopHold::SetSpecificDetails(true, QT_RHO);
-    LoopHold::ShiftMinUp(QT_RHO);
-    LoopHold::SolveCrashTricksHand(length[QT_LHO], cr);
-    LoopHold::ShiftMinDown(cr);
+
+    LoopHold::SetSpecificDetails(hdet, sdet, true, QT_RHO);
+    LoopHold::ShiftMinUp(sdet, QT_RHO);
+    LoopHold::SolveCrashTricksHand(hdet, sdet, length[QT_LHO], cr);
+    LoopHold::ShiftMinDown(sdet, cr);
 
     CrashRecordStruct cr2;
 
-    LoopHold::SetSpecificDetails(true, QT_LHO);
-    LoopHold::ShiftMinUp(QT_LHO);
-    LoopHold::SolveCrashTricksHand(length[QT_RHO], cr2);
-    LoopHold::ShiftMinDown(cr2);
+    LoopHold::SetSpecificDetails(hdet, sdet, true, QT_LHO);
+    LoopHold::ShiftMinUp(sdet, QT_LHO);
+    LoopHold::SolveCrashTricksHand(hdet, sdet, length[QT_RHO], cr2);
+    LoopHold::ShiftMinDown(sdet, cr2);
 
     LoopHold::MinCrashRecord(cr, cr2);
   }
   else
   {
-    LoopHold::SetSpecificDetails(false);
-    LoopHold::SolveCrashTricksHand(hdet.lenMaxOpp, cr);
+    LoopHold::SetSpecificDetails(hdet, sdet, false);
+    LoopHold::SolveCrashTricksHand(hdet, sdet, hdet.lenMaxOpp, cr);
   }
 
   // It can happen that the blocking trick from one side is
@@ -359,6 +362,8 @@ bool LoopHold::SolveCrashTricks(
 
 
 void LoopHold::SolveCrashTricksHand(
+  const HoldingDetails& hdet,
+  const SideDetails& sdet,
   const unsigned lenOpp,
   CrashRecordStruct& cr) const
 {
@@ -521,7 +526,8 @@ bool LoopHold::CashoutBoth(
   DefList& def,
   unsigned& lowestRank)
 {
-  LoopHold::SetGeneralDetails();
+  HoldingDetails hdet;
+  LoopHold::SetGeneralDetails(hdet);
 
   unsigned lenLong = length[hdet.pLong];
   unsigned lenShort = length[hdet.pShort];
@@ -1179,7 +1185,8 @@ bool LoopHold::GetAsymmRanks(
 }
 
 
-void LoopHold::SetGeneralDetails()
+void LoopHold::SetGeneralDetails(
+  HoldingDetails& hdet)
 {
   hdet.declLen = length[QT_ACE] + length[QT_PARD];
 
@@ -1231,6 +1238,8 @@ void LoopHold::SetGeneralDetails()
 
 
 void LoopHold::SetSpecificDetails(
+  const HoldingDetails& hdet,
+  SideDetails& sdet,
   const bool oppSkippedFlag,
   const PosType oppSkipped)
 {
@@ -1269,7 +1278,8 @@ void LoopHold::SetSpecificDetails(
 }
 
 
-void LoopHold::PrintDetails() const
+void LoopHold::PrintDetails(
+  const HoldingDetails& hdet) const
 {
   cout << "Long player " << static_cast<int>(hdet.pLong) << 
     ", short " << static_cast<int>(hdet.pShort) << "\n";
@@ -1289,6 +1299,7 @@ void LoopHold::PrintDetails() const
 
 
 void LoopHold::ShiftMinUp(
+  SideDetails& sdet,
   const PosType oppSkipped)
 {
   // Compensate for ranks with skipped opponent.
@@ -1331,6 +1342,7 @@ void LoopHold::ShiftMinUp(
 
 
 void LoopHold::ShiftMinDown(
+  const SideDetails& sdet,
   CrashRecordStruct& cr) const
 {
   cr.blockRank = sdet.mapShiftedToReal[cr.blockRank];

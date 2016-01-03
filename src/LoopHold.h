@@ -73,9 +73,6 @@ class LoopHold: public Holding
       unsigned mapShiftedToReal[SDS_MAX_RANKS];
     };
 
-    HoldingDetails hdet;
-    SideDetails sdet;
-
     struct CrashRecordStruct
     {
       PosType blockEnd;
@@ -91,6 +88,8 @@ class LoopHold: public Holding
 
 
     void SolveCrashTricksHand(
+      const HoldingDetails& hdet,
+      const SideDetails& sdet,
       const unsigned lenOpp,
       CrashRecordStruct& cr) const;
       
@@ -98,18 +97,24 @@ class LoopHold: public Holding
       CrashRecordStruct& cr1,
       CrashRecordStruct& cr2) const;
 
-    void SetGeneralDetails();
+    void SetGeneralDetails(
+      HoldingDetails& hdet);
 
     void SetSpecificDetails(
+      const HoldingDetails& hdet,
+      SideDetails& sdet,
       const bool oppSkippedFlag,
       const PosType oppSkipped = QT_ACE); // Anything
 
-    void PrintDetails() const;
+    void PrintDetails(
+      const HoldingDetails& hdet) const;
 
     void ShiftMinUp(
+      SideDetails& sdet,
       const PosType oppSkipped);
 
     void ShiftMinDown(
+      const SideDetails& sdet,
       CrashRecordStruct& cr) const;
 
     void GetOppLengths(

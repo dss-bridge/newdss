@@ -14,22 +14,19 @@ Holding
 Dist
 Twiddle
 
+single
 check
 stats
 hist
 sort
 files
 options
+summary
 
 compare.h const.h portab.h
 
   4163  15830 132829 LoopHold.cpp
    198    379   4401 LoopHold.h
-
-   236    577   5185 single.cpp
-   349    824   8971 single.h
-    74    149   1337 summary.cpp
-    42     64    631 summary.h
 
     90    245   2255 Hash.cpp
     55     81    889 Hash.h
