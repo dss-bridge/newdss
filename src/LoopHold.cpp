@@ -702,7 +702,6 @@ bool LoopHold::CashoutBothDiffLength(
   if (length[QT_PARD] > length[QT_ACE] && cb.minAce > cb.maxPard)
   {
     // Blocked.
-    // return false;
 
     if (cb.lenOppMax <= length[QT_ACE])
     {
@@ -726,7 +725,7 @@ bool LoopHold::CashoutBothDiffLength(
     }
   }
 
-  if (cb.numTopsHigh >= cb.lenOppMax)
+  if (cb.numTopsHigh >= Min(cb.lenOppMax, cb.lenLong))
   {
     // Declarer has enough high tops to cash out both opponents.
     return LoopHold::CashoutBothDiffStrongTops(def, lowestRank, cb);
@@ -907,7 +906,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
   Trick trick, trick2;
   unsigned r;
 
-  assert(cb.lenLong > cb.lenOppMax);
+  // assert(cb.lenLong > cb.lenOppMax);
   if (cb.numTopsLongHigh > 0 && cb.numTopsShortHigh > 0)
   {
     // Declarer has tops over pOppHighest on both sides.
