@@ -106,7 +106,7 @@ class LoopHold: public Holding
 
       unsigned minAce; // Lowest card of ace holder
       unsigned maxPard; // Highest card of partner
-      unsigned maxOpp; // Lower of oppMaxHighest and oppMaxLowest
+      unsigned maxOpp; // Higher of oppMaxHighest and oppMaxLowest
       unsigned minOpp; // Lower of oppMaxHighest and oppMaxLowest
 
       unsigned oppMaxHighest; // Highest card of pOppHighest
@@ -121,9 +121,11 @@ class LoopHold: public Holding
       unsigned numTopsHigh; // Sum of numTopsLongHigh and numTopsShortHigh
       unsigned numTopsLow; // Sum of numTopsLongLow and numTopsShortLow
 
-      // x's must be > 0 by assertion.
+      // First two x's must be > 0 by assertion.
       unsigned xLongHigh; // After pOppHighest: lenLong - numTopsLongHigh
       unsigned xShortHigh; // After pOppHighest: lenShort - numTopsShortHigh
+      unsigned xLongLow; // After pOppLowest: lenLong - numTopsLongLow
+      unsigned xShortLow; // After pOppLowest: lenShort - numTopsShortLow
     };
 
 
@@ -171,6 +173,11 @@ class LoopHold: public Holding
       const CashoutBothDetails& cb) const;
      
     bool CashoutBothDiffStrongTops(
+      DefList& def,
+      unsigned& rank,
+      const CashoutBothDetails& cb) const;
+     
+    bool CashoutBothDiffPdLongWeak(
       DefList& def,
       unsigned& rank,
       const CashoutBothDetails& cb) const;

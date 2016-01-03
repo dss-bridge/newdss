@@ -1,3 +1,16 @@
+Odd recursion results
+---------------------
+[1023-1025]
+12 ,0x1a0ab3
+    AT94
+53         K
+    QJ876
+
+Table: BB5J (right), solve BB5T (wrong).
+
+-debug 7 is broken?!
+
+
 SimpleMoves
 -----------
 OK for now.

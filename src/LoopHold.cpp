@@ -731,6 +731,12 @@ bool LoopHold::CashoutBothDiffLength(
     return LoopHold::CashoutBothDiffStrongTops(def, lowestRank, cb);
   }
 
+  if (cb.numTopsLongHigh == 0)
+  {
+    if (cb.xShortLow > 0)
+      return LoopHold::CashoutBothDiffPdLongWeak(def, lowestRank, cb);
+  }
+
 
   if (cb.numTopsLongLow > 0 && 
       cb.numTopsShortLow > 0 &&
@@ -1001,6 +1007,62 @@ bool LoopHold::CashoutBothDiffStrongTops(
 }
 
 
+bool LoopHold::CashoutBothDiffPdLongWeak(
+  DefList& def,
+  unsigned& lowestRank,
+  const CashoutBothDetails& cb) const
+{
+  Trick trick;
+
+  // First use up cb.numTopsShortHigh.
+  unsigned no = cb.numTopsShortHigh;
+  unsigned na = no;
+  unsigned np = 0;
+  unsigned m = completeList[QT_ACE][na-1];
+
+  // Then cash out the opponents.
+  unsigned l = Min(cb.lenOppMax, cb.lenLong);
+  while (no < l)
+  {
+    if (completeList[QT_ACE][na] > completeList[QT_PARD][np])
+      m = completeList[QT_ACE][na++];
+    else
+      m = completeList[QT_PARD][np++];
+    no++;
+  }
+
+  if (l >= cb.lenShort)
+  {
+    // We've also cashed out the ace holder already.
+    assert(np > 0);
+    if (pickFlag) holdCtr[1023]++;
+    lowestRank = Holding::ListToRank(m);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
+  else if (np > 0 && completeList[QT_ACE][na] > 
+    Max(completeList[QT_PARD][np], cb.oppMaxLowest))
+  {
+    // We should have cashed partner's intermediate card first.
+    if (pickFlag) holdCtr[1024]++;
+    lowestRank = Holding::ListToRank(completeList[QT_ACE][na]);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
+  else if (completeList[QT_PARD][np] > cb.minAce)
+  {
+    // Need one more high card with partner.
+    assert(np < cb.lenLong);
+    if (pickFlag) holdCtr[1025]++;
+    lowestRank = Holding::ListToRank(completeList[QT_PARD][np]);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
+  else
+    return false;
+}
+
+
 bool LoopHold::SetCashoutBothDetails(
   CashoutBothDetails& cb) const
 {
@@ -1063,6 +1125,9 @@ bool LoopHold::SetCashoutBothDetails(
   cb.xShortHigh = cb.lenShort - cb.numTopsShortHigh;
   if (cb.xLongHigh == 0 || cb.xShortHigh == 0)
     return false;
+
+  cb.xLongLow = cb.lenLong - cb.numTopsLongLow;
+  cb.xShortLow = cb.lenShort - cb.numTopsShortLow;
 
   return true;
 }
