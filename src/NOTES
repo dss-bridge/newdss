@@ -9,6 +9,9 @@ MakeComplexSingleMove.
 
 Why does -h option change the binary sums?
 
+Get examples of broken results from recursion, by looking in
+simpleDiff.txt.
+
 
 defMerged shrinks
 -----------------

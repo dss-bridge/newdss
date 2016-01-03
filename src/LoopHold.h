@@ -170,6 +170,11 @@ class LoopHold: public Holding
       unsigned& rank,
       const CashoutBothDetails& cb) const;
      
+    bool CashoutBothDiffStrongTops(
+      DefList& def,
+      unsigned& rank,
+      const CashoutBothDetails& cb) const;
+     
     bool SetCashoutBothDetails(
       CashoutBothDetails& cb) const;
 
