@@ -695,15 +695,36 @@ bool LoopHold::CashoutBothDiffLength(
     if (pickFlag) holdCtr[1020]++;
     return false;
   }
-  else if (length[QT_PARD] > length[QT_ACE] && cb.minAce > cb.maxPard)
-  {
-    // Blocked.
-    if (pickFlag) holdCtr[1021]++;
-    return false;
-  }
 
   Trick trick, trick2;
   unsigned r;
+
+  if (length[QT_PARD] > length[QT_ACE] && cb.minAce > cb.maxPard)
+  {
+    // Blocked.
+    // return false;
+
+    if (cb.lenOppMax <= length[QT_ACE])
+    {
+      // Not so clear that cb.lenShort is right here always.
+      if (pickFlag) holdCtr[1021]++;
+      lowestRank = Holding::ListToRank(
+        completeList[QT_ACE][cb.lenShort-1]);
+      trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenShort);
+      trick2.Set(QT_PARD, QT_PARD, SDS_VOID, cb.lenLong - cb.lenShort);
+      return def.Set2(trick, trick2);
+    }
+    else
+    {
+      if (pickFlag) holdCtr[1022]++;
+      unsigned l = Min(cb.lenLong, cb.lenOppMax) - cb.lenShort;
+      r = Holding::ListToRank(cb.minAce);
+      lowestRank = Holding::ListToRank(completeList[QT_PARD][l-1]);
+      trick.Set(QT_BOTH, QT_ACE, r, cb.lenShort);
+      trick2.Set(QT_PARD, QT_PARD, lowestRank, cb.lenLong - cb.lenShort);
+      return def.Set2(trick, trick2);
+    }
+  }
 
   if (cb.numTopsHigh >= cb.lenOppMax)
   {
@@ -723,6 +744,13 @@ bool LoopHold::CashoutBothDiffLength(
 
 
   if (pickFlag) holdCtr[932]++;
+
+  if (cb.numTopsLongHigh == 0)
+    holdCtr[801]++;
+  if (cb.numTopsShortHigh == 0)
+    holdCtr[802]++;
+  if (cb.numTopsLongHigh == 0 && cb.numTopsShortHigh == 0)
+    holdCtr[803]++;
 
   if (cb.numTopsLongHigh == 0 || cb.numTopsShortHigh == 0)
   {
@@ -821,6 +849,7 @@ if (shortSecond > completeList[cb.pLong][i])
           {
             // Need JT.
             if (pickFlag) holdCtr[708]++;
+            // Is -1 in the wrong place?!
             lowestRank = Holding::ListToRank(
                    completeList[cb.pLong][cb.numTopsLongHigh] - 1);
             trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
