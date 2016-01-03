@@ -735,14 +735,14 @@ bool LoopHold::CashoutBothDiffLength(
         return def.Set1(trick);
       }
     }
-    else if (cb.lenShort <= cb.lenOppHighest ||
-      (cb.lenShort <= cb.lenOppLowest && cb.maxPard < cb.minOpp))
+    else if (length[QT_PARD] <= cb.lenOppHighest ||
+      (length[QT_PARD] <= cb.lenOppLowest && cb.maxPard < cb.minOpp))
     {
       // The short side's length is <= a relevant opponent's suit.
       if (pickFlag) holdCtr[1040]++;
       lowestRank = Holding::ListToRank(
-        completeList[cb.pLong][cb.lenOppMax - 1]);
-      trick.Set(QT_BOTH, cb.pLong, lowestRank, cb.lenLong);
+        completeList[QT_ACE][cb.lenOppMax - 1]);
+      trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
       return def.Set1(trick);
     }
     else if (length[QT_PARD] > length[QT_ACE])
@@ -754,7 +754,7 @@ bool LoopHold::CashoutBothDiffLength(
     }
     else if (cb.maxPard < cb.minAce)
     {
-      // Declarer remains on the ace side.
+      // Declarer cannot leave the ace side.
       if (pickFlag) holdCtr[1042]++;
       unsigned l = cb.lenOppMax + (cb.lenShort > cb.lenOppMax ? 1 : 0);
       lowestRank = Holding::ListToRank(
