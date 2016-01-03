@@ -703,6 +703,8 @@ bool LoopHold::CashoutBothDiffLength(
 
   if (cb.numTopsHigh >= cb.lenOppMax)
   {
+    // Declarer has enough tops to cash out both opponents.
+
     assert(cb.lenLong > cb.lenOppMax);
     if (cb.numTopsLongHigh > 0 && cb.numTopsShortHigh > 0)
     {
@@ -733,20 +735,11 @@ bool LoopHold::CashoutBothDiffLength(
         return def.Set1(trick);
       }
     }
-    else if (cb.maxPard < cb.minAce && length[QT_ACE] > length[QT_PARD])
-    {
-      // Declarer remains on the ace side.
-      if (pickFlag) holdCtr[1040]++;
-      unsigned l = cb.lenOppMax + (cb.lenShort > cb.lenOppMax ? 1 : 0);
-      lowestRank = Holding::ListToRank(
-        completeList[cb.pLong][l - 1]);
-      trick.Set(QT_BOTH, cb.pLong, lowestRank, cb.lenLong);
-      return def.Set1(trick);
-    }
     else if (cb.lenShort <= cb.lenOppHighest ||
       (cb.lenShort <= cb.lenOppLowest && cb.maxPard < cb.minOpp))
     {
-      if (pickFlag) holdCtr[1041]++;
+      // The short side's length is <= a relevant opponent's suit.
+      if (pickFlag) holdCtr[1040]++;
       lowestRank = Holding::ListToRank(
         completeList[cb.pLong][cb.lenOppMax - 1]);
       trick.Set(QT_BOTH, cb.pLong, lowestRank, cb.lenLong);
@@ -754,14 +747,37 @@ bool LoopHold::CashoutBothDiffLength(
     }
     else if (length[QT_PARD] > length[QT_ACE])
     {
-      if (pickFlag) holdCtr[1042]++;
+      if (pickFlag) holdCtr[1041]++;
       lowestRank = Holding::ListToRank(cb.maxPard);
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
+    }
+    else if (cb.maxPard < cb.minAce)
+    {
+      // Declarer remains on the ace side.
+      if (pickFlag) holdCtr[1042]++;
+      unsigned l = cb.lenOppMax + (cb.lenShort > cb.lenOppMax ? 1 : 0);
+      lowestRank = Holding::ListToRank(
+        completeList[cb.pLong][l - 1]);
+      trick.Set(QT_BOTH, cb.pLong, lowestRank, cb.lenLong);
+      return def.Set1(trick);
+    }
+    else if (length[QT_PARD] > cb.lenOppHighest + 1 &&
+        cb.lenOppLowest < cb.lenOppHighest &&
+        cb.pOppHighest == QT_LHO && 
+        completeList[QT_ACE][cb.lenOppHighest] < cb.maxPard &&
+        completeList[QT_ACE][cb.lenOppHighest] > 
+          completeList[QT_PARD][length[QT_PARD]-1])
+    {
+      if (pickFlag) holdCtr[1043]++;
+      lowestRank = Holding::ListToRank(
+        completeList[QT_ACE][cb.lenOppHighest]);
       trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
       return def.Set1(trick);
     }
 
     
-    else if (length[QT_PARD] == cb.lenOppHighest + 1)
+    if (length[QT_PARD] == cb.lenOppHighest + 1)
     {
       // Either blocked, or block/crash.
       if (pickFlag) holdCtr[823]++;
