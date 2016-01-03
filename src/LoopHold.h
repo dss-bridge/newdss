@@ -73,7 +73,7 @@ class LoopHold: public Holding
       unsigned mapShiftedToReal[SDS_MAX_RANKS];
     };
 
-    struct CrashRecordStruct
+    struct CrashDetails
     {
       PosType blockEnd;
       PosType crashEnd;
@@ -86,19 +86,59 @@ class LoopHold: public Holding
       unsigned crashTricks;
     };
 
+    struct CashoutBothDetails
+    {
+      unsigned lenLong; // Length of longest NS player
+      unsigned lenShort; // Length of shortest NS player
+
+      PosType pLong; // Longest NS player
+      PosType pShort; // Other NS player
+      PosType pOppHighest; // Opponent with highest card
+      PosType pOppLowest; // Other opponent
+
+      unsigned lenOppHighest; // Length of pOppHighest
+      unsigned lenOppLowest; // Effective length of pOppLowest.
+          // May be 0 if irrelevant, may be > lenOppHighest
+      unsigned lenOppMax; // Maximum of the two
+
+      unsigned lenCashHigh; // Lower of lenLong and lenOppHighest
+      unsigned lenCashLow; // Lower of lenLong and lenOppLowest
+
+      unsigned minAce; // Lowest card of ace holder
+      unsigned maxPard; // Highest card of partner
+      unsigned maxOpp; // Lower of oppMaxHighest and oppMaxLowest
+      unsigned minOpp; // Lower of oppMaxHighest and oppMaxLowest
+
+      unsigned oppMaxHighest; // Highest card of pOppHighest
+      unsigned oppMaxLowest; // Highest card of pOppLowest;
+
+      // The "long" declarer is the ace holder if same length.
+      unsigned numTopsLongHigh; // Long's tops over pOppHighest
+      unsigned numTopsLongLow; // Long's tops over pOppLowest
+      unsigned numTopsShortHigh; // Short's tops over pOppHighest;
+      unsigned numTopsShortLow; // Short's tops over pOppLowest;
+
+      unsigned numTopsHigh; // Sum of numTopsLongHigh and numTopsShortHigh
+      unsigned numTopsLow; // Sum of numTopsLongLow and numTopsShortLow
+
+      // x's must be > 0 by assertion.
+      unsigned xLongHigh; // After pOppHighest: lenLong - numTopsLongHigh
+      unsigned xShortHigh; // After pOppHighest: lenShort - numTopsShortHigh
+    };
+
 
     void SolveCrashTricksHand(
       const HoldingDetails& hdet,
       const SideDetails& sdet,
       const unsigned lenOpp,
-      CrashRecordStruct& cr) const;
+      CrashDetails& cr) const;
       
-    void MinCrashRecord(
-      CrashRecordStruct& cr1,
-      CrashRecordStruct& cr2) const;
+    void MinCrashDetails(
+      CrashDetails& cr1,
+      CrashDetails& cr2) const;
 
     void SetGeneralDetails(
-      HoldingDetails& hdet);
+      HoldingDetails& hdet) const;
 
     void SetSpecificDetails(
       const HoldingDetails& hdet,
@@ -106,8 +146,11 @@ class LoopHold: public Holding
       const bool oppSkippedFlag,
       const PosType oppSkipped = QT_ACE); // Anything
 
-    void PrintDetails(
+    void PrintHoldingDetails(
       const HoldingDetails& hdet) const;
+
+    void PrintCashoutDetails(
+      const CashoutBothDetails& cb) const;
 
     void ShiftMinUp(
       SideDetails& sdet,
@@ -115,13 +158,13 @@ class LoopHold: public Holding
 
     void ShiftMinDown(
       const SideDetails& sdet,
-      CrashRecordStruct& cr) const;
+      CrashDetails& cr) const;
+
+    bool SetCashoutBothDetails(
+      CashoutBothDetails& cb) const;
 
     void GetOppLengths(
-      PosType& pOppHighest,
-      PosType& pOppLowest,
-      unsigned& lenOppHighest,
-      unsigned& lenOppLowest) const;
+      CashoutBothDetails& cb) const;
 
     bool GetAsymmRanks(
       const PosType plong,
