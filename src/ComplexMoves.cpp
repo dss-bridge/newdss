@@ -139,7 +139,6 @@ void MakeComplexMoves()
           unsigned gl2 = holding.GetLength(QT_PARD);
           unsigned gl = Max(gl1, gl2);
 
-#if 0
           if (t < gl)
           {
             DumpMoves(files.simpleShort, holding, 
@@ -147,7 +146,6 @@ void MakeComplexMoves()
             summary.countShort++;
           }
           else 
-#endif
           if (gl1 == gl2)
           {
             DumpMoves(files.simpleEqual, holding, 

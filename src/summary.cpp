@@ -60,13 +60,13 @@ void PrintSummary(
   PrintSideSummary(out, "A", summary.A);
   PrintSideSummary(out, "P", summary.P);
 
-  setfill(' ');
   if (summary.countShort)
     cout << setw(18) << left << "Moves short" << summary.countShort << "\n";
   if (summary.countEqual)
     cout << setw(18) << left << "Moves equal" << summary.countEqual << "\n";
   if (summary.countDiff)
-    cout << setw(18) << left << "Moves diff" << summary.countDiff << "\n";
+    cout << setfill(' ') << setw(18) << left << 
+      "Moves diff" << summary.countDiff << "\n";
 }
 
 

@@ -92,7 +92,7 @@ int main(int argc, char * argv[])
     cout << "Direct solve:\n";
     def1.Print();
     def2.Print();
-    PrintHoldCounter(files.statsAll);
+    PrintHoldCounter(cout);
     FreeSingles();
     CloseFiles();
     exit(1);
