@@ -154,14 +154,12 @@ void MakeComplexMoves()
               def1, def2, summary.countEqual);
             summary.countEqual++;
           }
-#if 0
           else
           {
             DumpMoves(files.simpleDiff, holding, 
               def1, def2, summary.countDiff);
             summary.countDiff++;
           }
-#endif
 
           // Other possibility:
           // unsigned c = holding.GetCounter();
