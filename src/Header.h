@@ -70,7 +70,8 @@ class Header
     unsigned GetRankKey() const;
     unsigned GetMaxRank() const;
     unsigned GetKeyNew() const;
-    unsigned GetSymmTricks() const;
+    unsigned GetSymmTricks(
+      const unsigned r) const;
 
     void PrintKey(
       std::ostream& out,

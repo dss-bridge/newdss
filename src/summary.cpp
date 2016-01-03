@@ -60,6 +60,7 @@ void PrintSummary(
   PrintSideSummary(out, "A", summary.A);
   PrintSideSummary(out, "P", summary.P);
 
+  setfill(' ');
   if (summary.countShort)
     cout << setw(18) << left << "Moves short" << summary.countShort << "\n";
   if (summary.countEqual)

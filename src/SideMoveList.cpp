@@ -143,7 +143,11 @@ unsigned SideMoveList::GetMaxRank(
 unsigned SideMoveList::GetSymmTricks(
   const unsigned no) const
 {
-  return list[no].header.GetSymmTricks();
+  Holding holding;
+  holding.Set(list[no].suitLengthExample, list[no].counterExample);
+  unsigned r = holding.GetMaxOppRank();
+
+  return list[no].header.GetSymmTricks(r);
 }
 
 

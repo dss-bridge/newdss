@@ -269,14 +269,17 @@ void Header::GetAD(
   asum = aCum;
 }
 
-unsigned Header::GetSymmTricks() const
+unsigned Header::GetSymmTricks(
+  const unsigned r) const
 {
   if (cashTricks[QT_ACE] != cashTricks[QT_PARD] &&
       cashTricks[QT_ACE] != 0 &&
       cashTricks[QT_PARD] != 0)
     return 0;
 
-  if (cashTricks[QT_ACE] == 0)
+  if (cashRanks[QT_ACE] < r || cashRanks[QT_PARD] < r)
+    return 0;
+  else if (cashTricks[QT_ACE] == 0)
     return (maxTricks == cashTricks[QT_PARD] ? maxTricks : 0);
   else if (cashTricks[QT_PARD] == 0)
     return (maxTricks == cashTricks[QT_ACE] ? maxTricks : 0);
