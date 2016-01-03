@@ -137,14 +137,23 @@ void MakeComplexMoves()
           unsigned gl = Max(gl1, gl2);
 
           if (t < gl)
+          {
             DumpMoves(files.simpleShort, holding, 
               def1, def2, summary.countShort);
+            summary.countShort++;
+          }
           else if (gl1 == gl2)
+          {
             DumpMoves(files.simpleEqual, holding, 
               def1, def2, summary.countEqual);
+            summary.countEqual++;
+          }
           else
+          {
             DumpMoves(files.simpleDiff, holding, 
               def1, def2, summary.countDiff);
+            summary.countDiff++;
+          }
 
           // Other possibility:
           // unsigned c = holding.GetCounter();

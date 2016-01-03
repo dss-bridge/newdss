@@ -16,6 +16,7 @@
 #include "Holding.h"
 #include "DefList.h"
 #include "Hash.h"
+#include "summary.h"
 #include "const.h"
 
 
@@ -58,10 +59,12 @@ class SideMoveList
     void Extend();
 
     void PrintMoveStats(
-      std::ostream& out = std::cout) const;
+      std::ostream& out,
+      SideSummaryType& ssumm) const;
 
     void PrintHashStats(
-      std::ostream& out = std::cout) const;
+      std::ostream& out,
+      SideSummaryType& ssumm) const;
     
     void PrintList(
       std::ostream& out,
@@ -107,7 +110,8 @@ class SideMoveList
       std::ostream& out = std::cout);
 
     void PrintLists(
-      std::ostream& out) const;
+      std::ostream& out,
+      SideSummaryType& ssumm) const;
 
     void PrintStats(
       std::ostream& out) const;

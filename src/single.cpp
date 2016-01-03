@@ -131,10 +131,10 @@ int main(int argc, char * argv[])
   PrintTimerList();
   PrintHoldCounter(files.statsAll);
 
-  files.statsAll << "Maxdef/alt " << highestDefNo << " " << 
-    highestAltNo << "\n";
-
   CloseFiles();
+
+  SumFiles();
+  PrintSummary(cout);
 }
 
 

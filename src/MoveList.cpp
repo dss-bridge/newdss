@@ -19,6 +19,7 @@ using namespace std;
 #define MOVE_CHUNK_SIZE 1000
 
 extern FilesType files;
+extern SummaryType summary;
 
 
 MoveList::MoveList()
@@ -325,8 +326,8 @@ void MoveList::PrintStats() const
 
 void MoveList::PrintLists() const
 {
-  sideComb.PrintLists(files.movesComb);
-  sideList1.PrintLists(files.movesA);
-  sideList2.PrintLists(files.movesP);
+  sideComb.PrintLists(files.movesComb, summary.comb);
+  sideList1.PrintLists(files.movesA, summary.A);
+  sideList2.PrintLists(files.movesP, summary.P);
 }
 

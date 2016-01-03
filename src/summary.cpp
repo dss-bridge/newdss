@@ -58,6 +58,13 @@ void PrintSummary(
   PrintSideSummary(out, "comb", summary.comb);
   PrintSideSummary(out, "A", summary.A);
   PrintSideSummary(out, "P", summary.P);
+
+  if (summary.countShort)
+    cout << "Moves short: " << summary.countShort << "\n";
+  if (summary.countEqual)
+    cout << "Moves equal: " << summary.countEqual << "\n";
+  if (summary.countDiff)
+    cout << "Moves diff : " << summary.countDiff << "\n";
 }
 
 
@@ -66,13 +73,25 @@ void PrintSideSummary(
   const string text,
   const SideSummaryType& side)
 {
+  if (side.numMoves == "" &&
+      side.sumMoves == "")
+    return;
+
   out << text << "\n";
-  out << side.numMoves << "\n";
-  out << side.sumMoves << "\n";
-  out << side.gini << "\n";
-  out << side.search << "\n";
-  out << side.dsum << "\n";
-  out << side.asum << "\n";
+  out << "----\n";
+
+  if (side.numMoves != "")
+    out << side.numMoves << "\n";
+  if (side.sumMoves != "")
+    out << side.sumMoves << "\n";
+  if (side.gini != "")
+    out << side.gini << "\n";
+  if (side.search != "")
+    out << side.search << "\n";
+  if (side.dsum != "")
+    out << side.dsum << "\n";
+  if (side.asum != "")
+    out << side.asum << "\n";
   out << "\n";
 }
 

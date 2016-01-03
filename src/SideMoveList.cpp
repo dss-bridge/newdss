@@ -7,6 +7,7 @@
 */
 
 #include <iomanip>
+#include <sstream>
 #include <algorithm>
 #include <assert.h>
 
@@ -16,6 +17,9 @@
 #include "portab.h"
 
 using namespace std;
+
+extern unsigned highestDefNo;
+extern unsigned highestAltNo;
 
 
 SideMoveList::SideMoveList()
@@ -229,7 +233,8 @@ void SideMoveList::PrintMove(
 
 
 void SideMoveList::PrintMoveStats(
-  ostream& out) const
+  ostream& out,
+  SideSummaryType& ssumm) const
 {
   vector<SortType> sortList(numEntries-1);
   for (unsigned i = 1; i < numEntries; i++)
@@ -246,11 +251,27 @@ void SideMoveList::PrintMoveStats(
       setw(8) << sortList[i].no <<
       setw(10) << sortList[i].count << "\n";
   out << "\n";
+
+  ostringstream s;
+  s << setw(18) << left << "Number of moves" <<
+    setw(8) << numEntries;
+  ssumm.numMoves = s.str();
+  s.str("");
+
+  s << setw(18) << left << "Defense max" <<
+    setw(8) << highestDefNo;
+  ssumm.dsum = s.str();
+  s.str("");
+
+  s << setw(18) << left << "Alt max" <<
+    setw(8) << highestAltNo;
+  ssumm.asum = s.str();
 }
 
 
 void SideMoveList::PrintHashStats(
-  ostream& out) const
+  ostream& out,
+  SideSummaryType& ssumm) const
 {
   unsigned p = 0;
   unsigned clist[1 << 14] = {0};
@@ -286,13 +307,23 @@ void SideMoveList::PrintHashStats(
     psum += i * clist[i];
   }
   double giniCoeff = 2 * psum / (p * sum) - (p+1.) / p;
+  double avgSearch = sumsq / (2. * ssum);
 
+  ostringstream s;
+  s << setw(18) << left << "Gini coefficient" <<
+    setw(8) << fixed << setprecision(4) << giniCoeff;
+  ssumm.gini = s.str();
+  s.str("");
+
+  s << setw(18) << left << "Average search" <<
+    setw(8) << fixed << setprecision(4) << avgSearch;
+  ssumm.search = s.str();
 
   out << "\nGini coefficient " <<
     setw(6) << fixed << setprecision(4) << giniCoeff <<
     ", number " << p << "\n";
   out << "\nAverage search   " <<
-    setw(6) << fixed << setprecision(4) << sumsq / (2. * ssum) <<
+    setw(6) << fixed << setprecision(4) << avgSearch <<
     "\n";
 }
 
@@ -315,13 +346,14 @@ void SideMoveList::PrintList(
 
 
 void SideMoveList::PrintLists(
-  ostream& out) const
+  ostream& out,
+  SideSummaryType& ssumm) const
 {
   if (numEntries == 1)
     return;
 
-  SideMoveList::PrintMoveStats(out);
-  SideMoveList::PrintHashStats(out);
+  SideMoveList::PrintMoveStats(out, ssumm);
+  SideMoveList::PrintHashStats(out, ssumm);
 }
 
 

@@ -35,5 +35,7 @@ void InitFiles();
 
 void CloseFiles();
 
+void SumFiles();
+
 #endif
 

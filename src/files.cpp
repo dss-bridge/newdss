@@ -7,14 +7,21 @@
 */
 
 #include <iostream>
-#include <fstream>
+#include <iomanip>
+#include <sstream>
 #include <assert.h>
 
+#include "summary.h"
 #include "files.h"
 
 using namespace std;
 
 extern FilesType files;
+extern SummaryType summary;
+
+void SumFile(
+  const char fname[],
+  string& result);
 
 
 void InitFiles()
@@ -70,3 +77,36 @@ void CloseFiles()
   files.debug.close();
 }
 
+
+void SumFiles()
+{
+  SumFile("output/movesAll.txt", summary.all.sumMoves);
+  SumFile("output/movesComb.txt", summary.comb.sumMoves);
+  SumFile("output/movesA.txt", summary.A.sumMoves);
+  SumFile("output/movesP.txt", summary.P.sumMoves);
+}
+
+
+void SumFile(
+  const char fname[],
+  string& result)
+{
+  char cmd[100];
+  sprintf(cmd, "sum %s", fname);
+
+  FILE *fp = popen(cmd, "r");
+  if (! fp)
+    return;
+
+  char buffer[100];
+  char * lp = fgets(buffer, sizeof(buffer), fp);
+
+  ostringstream s;
+  s << setw(18) << left << "Binary sum" <<
+    setw(8) << buffer;
+  result = s.str();
+  result.erase(result.end() - 1);
+
+  if (result.find("00000") != string::npos)
+    result = "";
+}
