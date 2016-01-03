@@ -88,7 +88,7 @@ class SideMoveList
       const unsigned no);
 
     unsigned GetSymmTricks(
-      const unsigned no);
+      const unsigned no) const;
 
     DefList& GetMove(
       const unsigned no);

@@ -202,7 +202,7 @@ unsigned MoveList::GetMaxRank(
 }
 
 unsigned MoveList::GetSymmTricks(
-  const unsigned no)
+  const unsigned no) const
 {
   if (noToAggr[no].noComb)
     return sideComb.GetSymmTricks(noToAggr[no].noComb);

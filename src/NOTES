@@ -4,6 +4,10 @@ OK for now.
 Later, swap two functions around.
 
 
+Maybe make an input option to control creation of track.txt file.
+MakeComplexSingleMove.
+
+
 defMerged shrinks
 -----------------
 There are a couple of places where we merge to less than the product

@@ -72,7 +72,7 @@ class MoveList
       const unsigned no);
 
     unsigned GetSymmTricks(
-      const unsigned no);
+      const unsigned no) const;
 
     DefList GetCombinedMove(
       const unsigned no);

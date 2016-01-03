@@ -16,7 +16,7 @@
 using namespace std;
 
 
-#define NUM_COUNTERS 1000
+#define NUM_COUNTERS 2000
 
 extern vector<unsigned> holdCtr;
 

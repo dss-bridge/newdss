@@ -8,6 +8,7 @@
 
 using namespace std;
 
+#include <iomanip>
 #include "summary.h"
 
 extern SummaryType summary;
@@ -60,11 +61,11 @@ void PrintSummary(
   PrintSideSummary(out, "P", summary.P);
 
   if (summary.countShort)
-    cout << "Moves short: " << summary.countShort << "\n";
+    cout << setw(18) << left << "Moves short" << summary.countShort << "\n";
   if (summary.countEqual)
-    cout << "Moves equal: " << summary.countEqual << "\n";
+    cout << setw(18) << left << "Moves equal" << summary.countEqual << "\n";
   if (summary.countDiff)
-    cout << "Moves diff : " << summary.countDiff << "\n";
+    cout << setw(18) << left << "Moves diff" << summary.countDiff << "\n";
 }
 
 

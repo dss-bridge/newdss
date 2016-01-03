@@ -141,7 +141,7 @@ unsigned SideMoveList::GetMaxRank(
 
 
 unsigned SideMoveList::GetSymmTricks(
-  const unsigned no)
+  const unsigned no) const
 {
   return list[no].header.GetSymmTricks();
 }

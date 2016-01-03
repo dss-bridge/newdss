@@ -125,6 +125,9 @@ void MakeComplexMoves()
           holding, newFlag);
         EndTimer();
 
+        unsigned r = moveList.GetMaxRank(singles[sl][c].moveNo);
+        UpdateHist(HIST_COMPLEX, singles[sl][c].declLen, r, newFlag);
+
         if (options.findFlag)
         {
           // To help in table development, certain tricks are printed.
@@ -136,24 +139,29 @@ void MakeComplexMoves()
           unsigned gl2 = holding.GetLength(QT_PARD);
           unsigned gl = Max(gl1, gl2);
 
+#if 0
           if (t < gl)
           {
             DumpMoves(files.simpleShort, holding, 
               def1, def2, summary.countShort);
             summary.countShort++;
           }
-          else if (gl1 == gl2)
+          else 
+#endif
+          if (gl1 == gl2)
           {
             DumpMoves(files.simpleEqual, holding, 
               def1, def2, summary.countEqual);
             summary.countEqual++;
           }
+#if 0
           else
           {
             DumpMoves(files.simpleDiff, holding, 
               def1, def2, summary.countDiff);
             summary.countDiff++;
           }
+#endif
 
           // Other possibility:
           // unsigned c = holding.GetCounter();
@@ -162,9 +170,6 @@ void MakeComplexMoves()
           // Specialized: AKQJ with ace.
           // if (top == 0) ...
         }
-
-        unsigned r = moveList.GetMaxRank(singles[sl][c].moveNo);
-        UpdateHist(HIST_COMPLEX, singles[sl][c].declLen, r, newFlag);
       }
     }
   }
@@ -178,8 +183,8 @@ void MakeComplexSingleMove(
 {
   if (options.numCores == 1)
   {
-    holding.Print(files.track);
-    files.track.flush();
+    // holding.Print(files.track);
+    // files.track.flush();
   }
 
   assert(holding.GetLength(QT_ACE) > 0);
