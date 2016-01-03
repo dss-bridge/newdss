@@ -7,6 +7,8 @@ Later, swap two functions around.
 Maybe make an input option to control creation of track.txt file.
 MakeComplexSingleMove.
 
+Why does -h option change the binary sums?
+
 
 defMerged shrinks
 -----------------

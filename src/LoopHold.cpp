@@ -743,12 +743,10 @@ bool LoopHold::CashoutBothDiffLength(
       trick.Set(QT_BOTH, cb.pLong, lowestRank, cb.lenLong);
       return def.Set1(trick);
     }
-
-
     else if (cb.lenShort <= cb.lenOppHighest ||
       (cb.lenShort <= cb.lenOppLowest && cb.maxPard < cb.minOpp))
     {
-      if (pickFlag) holdCtr[922]++;
+      if (pickFlag) holdCtr[1041]++;
       lowestRank = Holding::ListToRank(
         completeList[cb.pLong][cb.lenOppMax - 1]);
       trick.Set(QT_BOTH, cb.pLong, lowestRank, cb.lenLong);
@@ -756,11 +754,13 @@ bool LoopHold::CashoutBothDiffLength(
     }
     else if (length[QT_PARD] > length[QT_ACE])
     {
-      if (pickFlag) holdCtr[923]++;
+      if (pickFlag) holdCtr[1042]++;
       lowestRank = Holding::ListToRank(cb.maxPard);
       trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
       return def.Set1(trick);
     }
+
+    
     else if (length[QT_PARD] == cb.lenOppHighest + 1)
     {
       // Either blocked, or block/crash.
@@ -772,6 +772,7 @@ bool LoopHold::CashoutBothDiffLength(
       // Not addressed yet
       // -------------------------------------
       if (pickFlag) holdCtr[998]++;
+      return false;
       // Holding::Print();
     }
     else if (completeList[QT_ACE][cb.lenOppHighest] < cb.maxPard)
@@ -817,14 +818,19 @@ bool LoopHold::CashoutBothDiffLength(
       return true;
     }
   }
-  else if (cb.numTopsLongLow > 0 && 
-      cb.numTopsShortLow > 0 &&
-      cb.lenOppLowest > 0 && 
-      cb.numTopsHigh >= cb.lenOppHighest)
+  else
   {
-    // if (pickFlag) holdCtr[921]++;
-    // Holding::Print();
+    if (cb.numTopsLongLow > 0 && 
+        cb.numTopsShortLow > 0 &&
+        cb.lenOppLowest > 0 && 
+        cb.numTopsHigh >= cb.lenOppHighest)
+    {
+      // if (pickFlag) holdCtr[921]++;
+      // Holding::Print();
+    }
   }
+
+  assert (cb.numTopsHigh < cb.lenOppMax);
 
 
   if (pickFlag) holdCtr[932]++;
