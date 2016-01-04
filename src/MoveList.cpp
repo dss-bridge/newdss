@@ -225,8 +225,8 @@ DefList MoveList::GetCombinedMove(
     return sideComb.GetMove(noToAggr[no].noComb);
   else
   {
-    DefList def1 = sideList1.GetMove(noToAggr[no].no1);
-    DefList def2 = sideList2.GetMove(noToAggr[no].no2);
+    const DefList def1 = sideList1.GetMove(noToAggr[no].no1);
+    const DefList def2 = sideList2.GetMove(noToAggr[no].no2);
     DefList defMerged;
     defMerged.MergeSidesHard(def1, def2);
     return defMerged;

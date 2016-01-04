@@ -22,14 +22,15 @@ extern MoveList moveList;
 
 
 void CompareRecurse(
-  unsigned moveNo,
-  Holding& holding,
+  const unsigned moveNo,
+  const Holding& holding,
   const HistIndexType histNo)
 {
   const DefList& def = moveList.GetCombinedMove(moveNo);
 
   DefList defCmp1, defCmp2;
-  MakeComplexSingleMove(holding, defCmp1, defCmp2);
+  Holding htmp = holding;
+  MakeComplexSingleMove(htmp, defCmp1, defCmp2);
 
   DefList defCmp;
   if (! defCmp.MergeSidesSoft(defCmp1, defCmp2))

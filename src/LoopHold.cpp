@@ -1007,18 +1007,12 @@ bool LoopHold::CashoutBothDiffStrongTops(
       cb.lenOppLowest < cb.lenOppHighest &&
       completeList[QT_ACE][cb.lenOppHighest] > cb.maxPard)
   {
-    // This is probably mostly correct.  But it exposes problems
-    // in the recursion, so it is commented out for now.
-
     if (pickFlag) holdCtr[1044]++;
-    return false;
-
-    // Holding::Print();
-    // r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppHighest]);
-    // lowestRank = Holding::ListToRank(cb.maxPard);
-    // trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
-    // trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
-    // return def.Set11(trick, trick2);
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppHighest]);
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
+    return def.Set11(trick, trick2);
   }
   else
   {

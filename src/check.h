@@ -15,8 +15,8 @@ class Holding;
 
 
 void CompareRecurse(
-  unsigned moveNo,
-  Holding& Holding,
+  const unsigned moveNo,
+  const Holding& Holding,
   const HistIndexType histNo);
 
 #endif

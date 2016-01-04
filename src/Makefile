@@ -102,11 +102,11 @@ stats.o: portab.h stats.h
 DefList.o: Trick.h compare.h const.h Header.h DefList.h AltList.h TrickList.h
 DefList.o: Segment.h AltMatrix2D.h files.h options.h
 MoveList.o: Header.h Trick.h compare.h const.h MoveList.h SideMoveList.h
-MoveList.o: Holding.h DefList.h AltList.h TrickList.h Segment.h Hash.h sort.h
-MoveList.o: files.h
+MoveList.o: Holding.h DefList.h AltList.h TrickList.h Segment.h Hash.h
+MoveList.o: summary.h sort.h files.h
 SideMoveList.o: Header.h Trick.h compare.h const.h SideMoveList.h Holding.h
-SideMoveList.o: DefList.h AltList.h TrickList.h Segment.h Hash.h sort.h
-SideMoveList.o: portab.h
+SideMoveList.o: DefList.h AltList.h TrickList.h Segment.h Hash.h summary.h
+SideMoveList.o: sort.h portab.h
 Trick.o: Trick.h compare.h const.h Holding.h
 Segment.o: Trick.h compare.h const.h Segment.h Holding.h
 TrickList.o: Holding.h Trick.h compare.h const.h TrickList.h Segment.h
@@ -120,25 +120,26 @@ LoopHold.o: Trick.h compare.h const.h LoopHold.h Holding.h DefList.h
 LoopHold.o: AltList.h TrickList.h Segment.h Header.h
 SimpleMoves.o: Trick.h compare.h const.h Header.h DefList.h AltList.h
 SimpleMoves.o: TrickList.h Segment.h MoveList.h SideMoveList.h Holding.h
-SimpleMoves.o: Hash.h sort.h SimpleMoves.h ComplexMoves.h Twiddle.h hist.h
-SimpleMoves.o: Dist.h LoopHold.h single.h
+SimpleMoves.o: Hash.h summary.h sort.h SimpleMoves.h ComplexMoves.h Twiddle.h
+SimpleMoves.o: hist.h Dist.h LoopHold.h single.h
 ComplexMoves.o: Header.h Trick.h compare.h const.h DefList.h AltList.h
 ComplexMoves.o: TrickList.h Segment.h MoveList.h SideMoveList.h Holding.h
-ComplexMoves.o: Hash.h sort.h ComplexMoves.h stats.h portab.h files.h
-ComplexMoves.o: single.h options.h summary.h hist.h
+ComplexMoves.o: Hash.h summary.h sort.h ComplexMoves.h stats.h portab.h
+ComplexMoves.o: files.h single.h options.h hist.h
 Header.o: Header.h Trick.h compare.h const.h
 Hash.o: Hash.h Header.h Trick.h compare.h const.h
 Twiddle.o: Twiddle.h hist.h check.h options.h single.h const.h
-Dist.o: Dist.h hist.h Holding.h Trick.h compare.h const.h single.h
+Dist.o: Dist.h hist.h Holding.h Trick.h compare.h const.h single.h check.h
+Dist.o: options.h
 sort.o: sort.h
-files.o: files.h
+files.o: summary.h files.h
 check.o: MoveList.h SideMoveList.h Header.h Trick.h compare.h const.h
-check.o: Holding.h DefList.h AltList.h TrickList.h Segment.h Hash.h sort.h
-check.o: ComplexMoves.h hist.h check.h
+check.o: Holding.h DefList.h AltList.h TrickList.h Segment.h Hash.h summary.h
+check.o: sort.h ComplexMoves.h hist.h check.h
 hist.o: hist.h const.h
 options.o: single.h options.h const.h
 summary.o: summary.h
 single.o: portab.h Header.h Trick.h compare.h const.h MoveList.h
 single.o: SideMoveList.h Holding.h DefList.h AltList.h TrickList.h Segment.h
-single.o: Hash.h sort.h SimpleMoves.h ComplexMoves.h stats.h Twiddle.h hist.h
-single.o: Dist.h LoopHold.h files.h options.h summary.h single.h
+single.o: Hash.h summary.h sort.h SimpleMoves.h ComplexMoves.h stats.h
+single.o: Twiddle.h hist.h Dist.h LoopHold.h files.h options.h single.h

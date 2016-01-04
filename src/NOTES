@@ -1,12 +1,14 @@
 Maybe make an input option to control creation of track.txt file.
 option goes in MakeComplexSingleMove.
 
-Why does -h 7 option change the binary sums?
-
 Get examples of broken results from recursion, by looking in
 simpleDiff.txt.
 
-Wrapper may need to be modified for one Solver.
+Wrapper may need to be modified for one Solver (see 13, 0x38a47f
+below!).
+
+-h 7 probably causes early change in singles.  So we should find
+those changes and include them as simple moves!
 
 
 
