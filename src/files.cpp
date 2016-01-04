@@ -94,7 +94,11 @@ void SumFile(
   char cmd[100];
   sprintf(cmd, "sum %s", fname);
 
+#ifdef _MSC_VER
+  FILE *fp = _popen(cmd, "rt");
+#else
   FILE *fp = popen(cmd, "r");
+#endif
   if (! fp)
     return;
 

@@ -250,7 +250,8 @@ class LoopHold: public Holding
 
     bool SolveCrashTricks(
       DefList& def,
-      unsigned& rank);
+      unsigned& rank,
+      bool& flag);
 
     bool CashoutBoth(
       DefList& def,

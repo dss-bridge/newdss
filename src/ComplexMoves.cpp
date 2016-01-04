@@ -188,6 +188,9 @@ void MakeComplexSingleMove(
   {
     holding.SetSide(QT_ACE);
     BestMoveAfterSide(holding, def1);
+
+    if (options.debugFlow)
+      DumpStatus(def1, "MakeComplexSingleMove");
   }
   else
   {
@@ -196,10 +199,10 @@ void MakeComplexSingleMove(
 
     holding.SetSide(QT_PARD);
     BestMoveAfterSide(holding, def2);
-  }
 
-  if (options.debugFlow)
-    DumpStatus(def1, def2, "MakeComplexSingleMove");
+    if (options.debugFlow)
+      DumpStatus(def1, def2, "MakeComplexSingleMove");
+  }
 }
 
 

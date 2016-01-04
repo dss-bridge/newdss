@@ -428,7 +428,7 @@ CmpDetailType Trick::Compare(
   if (runningScore == SDS_DIFFERENT)
     return SDS_HEADER_PLAY_DIFFERENT;
 
-  if (runningScore != SDS_SAME)
+  if (runningScore != SDS_SAME && trick.cashing != t1.trick.cashing)
     return cmpPlayToDetail[runningScore];
 
   CmpType rankScore;
@@ -441,9 +441,15 @@ CmpDetailType Trick::Compare(
 
   if (runningScore == SDS_SAME)
     return cmpRanksToDetail[rankScore];
+  else if (rankScore == SDS_SAME)
+    return cmpPlayToDetail[runningScore];
+  else if (runningScore == rankScore)
+    return cmpPlayToDetail[rankScore];
+  else
+    return SDS_HEADER_RANK_DIFFERENT;
 
-  runningScore = cmpMergeMatrix[runningScore][rankScore];
-  return cmpPlayToDetail[runningScore];
+  // SDS_HEADER_RANK_DIFFERENT signifies that one move would win
+  // on end range, but the other would win on rank.
 }
 
 

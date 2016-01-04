@@ -70,7 +70,37 @@ bool MakeSimpleSingleMoveWrapper(
   DefList& def,
   LoopHold& holding)
 {
-  return MakeSimpleSingleMove(sl, c, def, holding);
+  unsigned r;
+  bool flag;
+
+  if (holding.GetLength(QT_ACE) == holding.GetNumTops())
+  {
+    if (holding.GetLength(QT_PARD) > holding.GetLength(QT_ACE) && 
+        holding.CashoutAceSideBlocked(def, r))
+      return true;
+    else
+    {
+      holding.CashAceShort(def, r);
+      return true;
+    }
+  }
+  else if (singles[sl][c].minLen == 0)
+  {
+    holding.CashoutAce(def, r);
+    return true;
+  }
+  // SolveCrashTricks at the moment does not test whether it has
+  // a solution.  I wonder whether it self-protects with asserts?
+  // We'll see later...
+  else if (holding.SolveCrashTricks(def, r, flag))
+    return true;
+  else if (holding.SolveStopped(def, r))
+    return true;
+  else if (holding.CashoutBoth(def, r))
+    return true;
+  else
+    return false;
+
 }
 
 
@@ -113,7 +143,6 @@ inline bool MakeSimpleSingleMove(
       unsigned mno = moveList.AddMove(def, holding, newFlag);
       SetAllPermutations(sl, c, mno, holding, r, HIST_PARD_VOID, newFlag);
     }
-
     // Can also make some crash positions out of this, e.g. AQ / K.
 
     unsigned numTops = holding.GetNumTops();
@@ -126,23 +155,22 @@ inline bool MakeSimpleSingleMove(
 
       LoopHold hNew;
       hNew.Set(sl, cNew);
+
       // No complete blocks.
       if (hNew.GetNumTops() == hNew.GetLength(QT_ACE))
         continue;
 
-      if (hNew.SolveCrashTricks(def, r))
+      bool flag;
+      if (hNew.SolveCrashTricks(def, r, flag))
       {
         unsigned mno = moveList.AddMove(def, hNew, newFlag);
-        SetAllPermutations(sl, cNew, mno, hNew, r, HIST_CRASH, newFlag);
-      }
-      else
-      {
-        unsigned mno = moveList.AddMove(def, hNew, newFlag);
-        SetAllLowCards(sl, cNew, mno, r, HIST_CRASH, newFlag);
+        if (flag)
+          SetAllPermutations(sl, cNew, mno, hNew, r, HIST_CRASH, newFlag);
+        else
+          SetAllLowCards(sl, cNew, mno, r, HIST_CRASH, newFlag);
       }
     }
   }
-
   if (singles[sl][c].moveNo)
     return true;
 

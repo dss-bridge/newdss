@@ -65,6 +65,28 @@ int main(int argc, char * argv[])
   InitSingles();
   InitDist();
 
+#if 0
+  options.suitLength = 9;
+  options.counter = 0xca2f;
+  options.debugFlow = true;
+  options.debugDef = true;
+  options.debugAlt = true;
+#endif
+#if 0
+LoopHold lh;
+lh.Set(13, 0xe9058a);
+// lh.Set(8, 0x82b);
+// lh.Set(8, 0x829);
+lh.Print();
+DefList def;
+unsigned r;
+// lh.SolveCrashTricks(def, r);
+lh.CashoutBoth(def, r);
+def.Print();
+cout << endl;
+PrintHoldCounter(cout);
+exit(0);
+#endif
   if (options.suitLength)
   {
     LoopHold holding;

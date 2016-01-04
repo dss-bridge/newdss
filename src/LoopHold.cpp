@@ -257,7 +257,8 @@ void LoopHold::CashoutAce(
 
 bool LoopHold::SolveCrashTricks(
   DefList& def,
-  unsigned& rank)
+  unsigned& rank,
+  bool& flag)
 {
   // There is always only a single defense.
   // If the function returns true, the solution is of the form
@@ -333,7 +334,8 @@ bool LoopHold::SolveCrashTricks(
       def.Set1(trick);
     }
     rank = Min(cr.remRank, cr.crashRank);
-    return false;
+    flag = false;
+    return true;
   }
   else
   {
@@ -361,6 +363,7 @@ bool LoopHold::SolveCrashTricks(
         
     rank = Min(cr.blockRank, cr.remRank);
     rank = Min(rank, cr.crashRank);
+    flag = true;
     return true;
   }
 }
@@ -428,13 +431,22 @@ void LoopHold::SolveCrashTricksHand(
     // from partner's side.  Example AJT9 / Q / K876 / x.
     cr.crashRank2 = SDS_VOID - 1;
   }
-  else if (lenOpp > 0 && 
-    lenOpp < length[QT_ACE] &&
-    length[QT_ACE] == length[QT_PARD] &&
-    completeList[QT_ACE][lenOpp-1] > completeList[QT_PARD][0])
+  else if (lenOpp > 0 &&
+    lenOpp < Max(hdet.numTopsLongLho, hdet.numTopsLongRho) &&
+    length[QT_ACE] > length[QT_PARD])
   {
-    // AKJ / 87 / QT9 / -.
-    cr.crashRank2 = SDS_VOID - lenOpp;
+    if (length[QT_PARD] > lenOpp &&
+      completeList[QT_ACE][lenOpp] > completeList[QT_PARD][0])
+    {
+      // AKJT / 7 / Q98 / -.
+      cr.crashRank2 = SDS_VOID - (lenOpp+1);
+    }
+    else if (length[QT_PARD] <= lenOpp &&
+      completeList[QT_ACE][lenOpp-1] > completeList[QT_PARD][0])
+    {
+      // AKQJ9 / - / T8 -/ 76.
+      cr.crashRank2 = SDS_VOID - lenOpp;
+    }
   }
   else if (length[QT_ACE] > length[QT_PARD] &&
       length[QT_PARD] >= 2 &&
@@ -443,6 +455,14 @@ void LoopHold::SolveCrashTricksHand(
   {
     cr.crashRank2 = Holding::ListToRank(
       completeList[QT_ACE][Max(lenOpp, length[QT_PARD]) - 1]);
+  }
+  else if (lenOpp > 0 && 
+    lenOpp < length[QT_ACE] &&
+    length[QT_ACE] == length[QT_PARD] &&
+    completeList[QT_ACE][lenOpp-1] > completeList[QT_PARD][0])
+  {
+    // AKJ / 87 / QT9 / -.
+    cr.crashRank2 = SDS_VOID - lenOpp;
   }
 
 
@@ -536,6 +556,7 @@ bool LoopHold::CashoutBoth(
   {
     Holding::Print();
     PrintCashoutDetails(cb);
+    return false;
     assert(false);
   }
 
@@ -1049,9 +1070,17 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  else if (completeList[QT_PARD][np] > cb.minAce)
+  else if (completeList[QT_PARD][np] > cb.minAce &&
+      (cb.pOppHighest == QT_LHO ||
+       cb.lenShort != 4 ||
+       cb.lenLong != 5 ||
+       cb.lenOppHighest != 1 ||
+       cb.lenOppLowest != 3 ||
+       cb.numTopsHigh != 1 ||
+       cb.numTopsLow != 3))
   {
     // Need one more high card with partner.
+    // It turns out A98x / Txx / QJxxx / K is a finesse position...
     assert(np < cb.lenLong);
     if (pickFlag) holdCtr[1025]++;
     lowestRank = Holding::ListToRank(completeList[QT_PARD][np]);

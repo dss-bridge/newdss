@@ -13,11 +13,14 @@
 #include "Dist.h"
 #include "Holding.h"
 #include "single.h"
+#include "check.h"
+#include "options.h"
 #include "const.h"
 
 using namespace std;
 
 extern SingleType * singles[14];
+extern OptionsType options;
 
 
 const unsigned SDS_DIST_LENGTH0 = 0x1;
@@ -164,6 +167,14 @@ void SetAllLowCards(
 
   histCalls++;
   histXes[numXes]++;
+
+  if (options.histCompare == HIST_CRASH ||
+      options.histCompare == HIST_COMPLEX)
+  {
+    Holding holding;
+    holding.Set(suitLength, counter);
+    CompareRecurse(moveNo, holding, histNo);
+  }
 
   if (numXes == 1)
   {

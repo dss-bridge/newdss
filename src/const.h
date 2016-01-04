@@ -16,7 +16,7 @@
 #define SDS_ACE 12
 
 #define SDS_MAX_DEF 4
-#define SDS_MAX_ALT 6
+#define SDS_MAX_ALT 7
 
 #define Max(x, y) (((x) >= (y)) ? (x) : (y))
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
