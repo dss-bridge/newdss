@@ -22,7 +22,7 @@ class LoopHold: public Holding
   private:
 
     typedef bool (LoopHold::*SolvePtr)(Trick& move) const;
-    SolvePtr SolveStoppedFunction[64];
+    SolvePtr SolveSimpleFunction[64];
 
     struct htopType
     {
@@ -202,32 +202,32 @@ class LoopHold: public Holding
       const bool ignoreOtherOpp,
       const PosType anchor) const;
 
-    bool SolveStopped0(Trick& move) const;
-    bool SolveStopped1(Trick& move) const;
-    bool SolveStopped2(Trick& move) const;
-    bool SolveStopped3(Trick& move) const;
-    bool SolveStopped5(Trick& move) const;
-    bool SolveStopped6(Trick& move) const;
-    bool SolveStopped7(Trick& move) const;
-    bool SolveStopped9(Trick& move) const;
-    bool SolveStopped11(Trick& move) const;
-    bool SolveStopped12(Trick& move) const;
-    bool SolveStopped14(Trick& move) const;
-    bool SolveStopped15(Trick& move) const;
-    bool SolveStopped18(Trick& move) const;
-    bool SolveStopped19(Trick& move) const;
-    bool SolveStopped20(Trick& move) const;
-    bool SolveStopped26(Trick& move) const;
-    bool SolveStopped27(Trick& move) const;
-    bool SolveStopped28(Trick& move) const;
-    bool SolveStopped36(Trick& move) const;
-    bool SolveStopped41(Trick& move) const;
-    bool SolveStopped43(Trick& move) const;
-    bool SolveStopped44(Trick& move) const;
-    bool SolveStopped48(Trick& move) const;
-    bool SolveStopped49(Trick& move) const;
-    bool SolveStopped57(Trick& move) const;
-    bool SolveStopped60(Trick& move) const;
+    bool SolveSimple0(Trick& move) const;
+    bool SolveSimple1(Trick& move) const;
+    bool SolveSimple2(Trick& move) const;
+    bool SolveSimple3(Trick& move) const;
+    bool SolveSimple5(Trick& move) const;
+    bool SolveSimple6(Trick& move) const;
+    bool SolveSimple7(Trick& move) const;
+    bool SolveSimple9(Trick& move) const;
+    bool SolveSimple11(Trick& move) const;
+    bool SolveSimple12(Trick& move) const;
+    bool SolveSimple14(Trick& move) const;
+    bool SolveSimple15(Trick& move) const;
+    bool SolveSimple18(Trick& move) const;
+    bool SolveSimple19(Trick& move) const;
+    bool SolveSimple20(Trick& move) const;
+    bool SolveSimple26(Trick& move) const;
+    bool SolveSimple27(Trick& move) const;
+    bool SolveSimple28(Trick& move) const;
+    bool SolveSimple36(Trick& move) const;
+    bool SolveSimple41(Trick& move) const;
+    bool SolveSimple43(Trick& move) const;
+    bool SolveSimple44(Trick& move) const;
+    bool SolveSimple48(Trick& move) const;
+    bool SolveSimple49(Trick& move) const;
+    bool SolveSimple57(Trick& move) const;
+    bool SolveSimple60(Trick& move) const;
 
 
   public:
@@ -257,7 +257,7 @@ class LoopHold: public Holding
       DefList& def,
       unsigned& rank);
      
-    bool SolveStopped(
+    bool SolveSimple(
       DefList& def,
       unsigned& rank);
 };

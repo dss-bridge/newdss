@@ -38,76 +38,76 @@ LoopHold::LoopHold()
   // The dispatch table includes both this translation and the
   // fact that one function sometime covers several combination.
 
-  SolveStoppedFunction[0] = &LoopHold::SolveStopped0;
-  SolveStoppedFunction[1] = &LoopHold::SolveStopped1;
-  SolveStoppedFunction[2] = &LoopHold::SolveStopped2;
-  SolveStoppedFunction[3] = &LoopHold::SolveStopped48;
-  SolveStoppedFunction[4] = &LoopHold::SolveStopped1;
-  SolveStoppedFunction[5] = &LoopHold::SolveStopped20;
-  SolveStoppedFunction[6] = &LoopHold::SolveStopped36;
-  SolveStoppedFunction[7] = &LoopHold::SolveStopped28;
-  SolveStoppedFunction[8] = &LoopHold::SolveStopped2;
-  SolveStoppedFunction[9] = &LoopHold::SolveStopped18;
+  SolveSimpleFunction[0] = &LoopHold::SolveSimple0;
+  SolveSimpleFunction[1] = &LoopHold::SolveSimple1;
+  SolveSimpleFunction[2] = &LoopHold::SolveSimple2;
+  SolveSimpleFunction[3] = &LoopHold::SolveSimple48;
+  SolveSimpleFunction[4] = &LoopHold::SolveSimple1;
+  SolveSimpleFunction[5] = &LoopHold::SolveSimple20;
+  SolveSimpleFunction[6] = &LoopHold::SolveSimple36;
+  SolveSimpleFunction[7] = &LoopHold::SolveSimple28;
+  SolveSimpleFunction[8] = &LoopHold::SolveSimple2;
+  SolveSimpleFunction[9] = &LoopHold::SolveSimple18;
 
-  SolveStoppedFunction[10] = &LoopHold::SolveStopped2;
-  SolveStoppedFunction[11] = &LoopHold::SolveStopped26;
-  SolveStoppedFunction[12] = &LoopHold::SolveStopped12;
-  SolveStoppedFunction[13] = &LoopHold::SolveStopped28;
-  SolveStoppedFunction[14] = &LoopHold::SolveStopped44;
-  SolveStoppedFunction[15] = &LoopHold::SolveStopped60;
-  SolveStoppedFunction[16] = &LoopHold::SolveStopped1;
-  SolveStoppedFunction[17] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[18] = &LoopHold::SolveStopped9;
-  SolveStoppedFunction[19] = &LoopHold::SolveStopped49;
+  SolveSimpleFunction[10] = &LoopHold::SolveSimple2;
+  SolveSimpleFunction[11] = &LoopHold::SolveSimple26;
+  SolveSimpleFunction[12] = &LoopHold::SolveSimple12;
+  SolveSimpleFunction[13] = &LoopHold::SolveSimple28;
+  SolveSimpleFunction[14] = &LoopHold::SolveSimple44;
+  SolveSimpleFunction[15] = &LoopHold::SolveSimple60;
+  SolveSimpleFunction[16] = &LoopHold::SolveSimple1;
+  SolveSimpleFunction[17] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[18] = &LoopHold::SolveSimple9;
+  SolveSimpleFunction[19] = &LoopHold::SolveSimple49;
 
-  SolveStoppedFunction[20] = &LoopHold::SolveStopped5;
-  SolveStoppedFunction[21] = &LoopHold::SolveStopped5;
-  SolveStoppedFunction[22] = &LoopHold::SolveStopped5;
-  SolveStoppedFunction[23] = &LoopHold::SolveStopped5;
-  SolveStoppedFunction[24] = &LoopHold::SolveStopped9;
-  SolveStoppedFunction[25] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[26] = &LoopHold::SolveStopped41;
-  SolveStoppedFunction[27] = &LoopHold::SolveStopped57;
-  SolveStoppedFunction[28] = &LoopHold::SolveStopped7;
-  SolveStoppedFunction[29] = &LoopHold::SolveStopped15;
+  SolveSimpleFunction[20] = &LoopHold::SolveSimple5;
+  SolveSimpleFunction[21] = &LoopHold::SolveSimple5;
+  SolveSimpleFunction[22] = &LoopHold::SolveSimple5;
+  SolveSimpleFunction[23] = &LoopHold::SolveSimple5;
+  SolveSimpleFunction[24] = &LoopHold::SolveSimple9;
+  SolveSimpleFunction[25] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[26] = &LoopHold::SolveSimple41;
+  SolveSimpleFunction[27] = &LoopHold::SolveSimple57;
+  SolveSimpleFunction[28] = &LoopHold::SolveSimple7;
+  SolveSimpleFunction[29] = &LoopHold::SolveSimple15;
 
-  SolveStoppedFunction[30] = &LoopHold::SolveStopped7;
-  SolveStoppedFunction[31] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[32] = &LoopHold::SolveStopped2;
-  SolveStoppedFunction[33] = &LoopHold::SolveStopped18;
-  SolveStoppedFunction[34] = &LoopHold::SolveStopped2;
-  SolveStoppedFunction[35] = &LoopHold::SolveStopped26;
-  SolveStoppedFunction[36] = &LoopHold::SolveStopped6;
-  SolveStoppedFunction[37] = &LoopHold::SolveStopped20;
-  SolveStoppedFunction[38] = &LoopHold::SolveStopped14;
-  SolveStoppedFunction[39] = &LoopHold::SolveStopped28;
+  SolveSimpleFunction[30] = &LoopHold::SolveSimple7;
+  SolveSimpleFunction[31] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[32] = &LoopHold::SolveSimple2;
+  SolveSimpleFunction[33] = &LoopHold::SolveSimple18;
+  SolveSimpleFunction[34] = &LoopHold::SolveSimple2;
+  SolveSimpleFunction[35] = &LoopHold::SolveSimple26;
+  SolveSimpleFunction[36] = &LoopHold::SolveSimple6;
+  SolveSimpleFunction[37] = &LoopHold::SolveSimple20;
+  SolveSimpleFunction[38] = &LoopHold::SolveSimple14;
+  SolveSimpleFunction[39] = &LoopHold::SolveSimple28;
 
-  SolveStoppedFunction[40] = &LoopHold::SolveStopped2;
-  SolveStoppedFunction[41] = &LoopHold::SolveStopped26;
-  SolveStoppedFunction[42] = &LoopHold::SolveStopped2;
-  SolveStoppedFunction[43] = &LoopHold::SolveStopped18;
-  SolveStoppedFunction[44] = &LoopHold::SolveStopped14;
-  SolveStoppedFunction[45] = &LoopHold::SolveStopped28;
-  SolveStoppedFunction[46] = &LoopHold::SolveStopped6;
-  SolveStoppedFunction[47] = &LoopHold::SolveStopped60;
-  SolveStoppedFunction[48] = &LoopHold::SolveStopped3;
-  SolveStoppedFunction[49] = &LoopHold::SolveStopped19;
+  SolveSimpleFunction[40] = &LoopHold::SolveSimple2;
+  SolveSimpleFunction[41] = &LoopHold::SolveSimple26;
+  SolveSimpleFunction[42] = &LoopHold::SolveSimple2;
+  SolveSimpleFunction[43] = &LoopHold::SolveSimple18;
+  SolveSimpleFunction[44] = &LoopHold::SolveSimple14;
+  SolveSimpleFunction[45] = &LoopHold::SolveSimple28;
+  SolveSimpleFunction[46] = &LoopHold::SolveSimple6;
+  SolveSimpleFunction[47] = &LoopHold::SolveSimple60;
+  SolveSimpleFunction[48] = &LoopHold::SolveSimple3;
+  SolveSimpleFunction[49] = &LoopHold::SolveSimple19;
 
-  SolveStoppedFunction[50] = &LoopHold::SolveStopped11;
-  SolveStoppedFunction[51] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[52] = &LoopHold::SolveStopped7;
-  SolveStoppedFunction[53] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[54] = &LoopHold::SolveStopped7;
-  SolveStoppedFunction[55] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[56] = &LoopHold::SolveStopped11;
-  SolveStoppedFunction[57] = &LoopHold::SolveStopped27;
-  SolveStoppedFunction[58] = &LoopHold::SolveStopped43;
-  SolveStoppedFunction[59] = &LoopHold::SolveStopped15;
+  SolveSimpleFunction[50] = &LoopHold::SolveSimple11;
+  SolveSimpleFunction[51] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[52] = &LoopHold::SolveSimple7;
+  SolveSimpleFunction[53] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[54] = &LoopHold::SolveSimple7;
+  SolveSimpleFunction[55] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[56] = &LoopHold::SolveSimple11;
+  SolveSimpleFunction[57] = &LoopHold::SolveSimple27;
+  SolveSimpleFunction[58] = &LoopHold::SolveSimple43;
+  SolveSimpleFunction[59] = &LoopHold::SolveSimple15;
 
-  SolveStoppedFunction[60] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[61] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[62] = &LoopHold::SolveStopped15;
-  SolveStoppedFunction[63] = &LoopHold::SolveStopped15;
+  SolveSimpleFunction[60] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[61] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[62] = &LoopHold::SolveSimple15;
+  SolveSimpleFunction[63] = &LoopHold::SolveSimple15;
 }
 
 
@@ -1489,7 +1489,7 @@ void LoopHold::ShiftMinDown(
 }
 
 
-bool LoopHold::SolveStopped(
+bool LoopHold::SolveSimple(
   DefList& def,
   unsigned& rank)
 {
@@ -1520,7 +1520,7 @@ bool LoopHold::SolveStopped(
 
   unsigned topIndex = (counter >> (2*(suitLength-4))) & 0x3f;
   Trick trick;
-  if ((this->*SolveStoppedFunction[topIndex])(trick))
+  if ((this->*SolveSimpleFunction[topIndex])(trick))
   {
     def.Set1(trick);
     rank = trick.GetRanks();
@@ -1649,7 +1649,7 @@ bool LoopHold::StopFinesse(
 }
 
 
-bool LoopHold::SolveStopped0(Trick& move) const
+bool LoopHold::SolveSimple0(Trick& move) const
 {
   // ==== G0 ===========================================================
   //      AKQJ+
@@ -1727,7 +1727,7 @@ bool LoopHold::SolveStopped0(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped1(Trick& move) const
+bool LoopHold::SolveSimple1(Trick& move) const
 {
   // ==== G1 ================= G4 ================= G16 ================
   //      AQJ+       |         AKJ+       |         AKQ+
@@ -1836,7 +1836,7 @@ bool LoopHold::SolveStopped1(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped2(Trick& move) const
+bool LoopHold::SolveSimple2(Trick& move) const
 {
   // ==== G2 ================= G8 ================= G32 ================
   //      AQJ+       |         AKJ+       |         AKQ+
@@ -1955,7 +1955,7 @@ bool LoopHold::SolveStopped2(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped3(Trick& move) const
+bool LoopHold::SolveSimple3(Trick& move) const
 {
   // ==== G3 ===========================================================
   //      AQJ+
@@ -1996,7 +1996,7 @@ bool LoopHold::SolveStopped3(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped5(Trick& move) const
+bool LoopHold::SolveSimple5(Trick& move) const
 {
   // ==== G5 ============== G21 =========== G37 =========== G53 ========
   //      AJ+        |      A+       |      A+       |      A+
@@ -2009,7 +2009,7 @@ bool LoopHold::SolveStopped5(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped6(Trick& move) const
+bool LoopHold::SolveSimple6(Trick& move) const
 {
   // ==== G6 ================= G46 =====================================
   //      AJ+        |         A+
@@ -2304,7 +2304,7 @@ bool LoopHold::SolveStopped6(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped7(Trick& move) const
+bool LoopHold::SolveSimple7(Trick& move) const
 {
   // ==== G7 ============== G13 =========== G39 =========== G45 ========
   //      AJ+        |      AJ+      |      A+       |      A+
@@ -2345,7 +2345,7 @@ bool LoopHold::SolveStopped7(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped9(Trick& move) const
+bool LoopHold::SolveSimple9(Trick& move) const
 {
   // ==== G9 ================= G33 =====================================
   //      AJ+        |         AQ+    
@@ -2425,7 +2425,7 @@ bool LoopHold::SolveStopped9(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped11(Trick& move) const
+bool LoopHold::SolveSimple11(Trick& move) const
 {
   // ==== G11 ================ G35 =====================================
   //      AJ+        |         AQ+    
@@ -2523,7 +2523,7 @@ return false;
 }
 
 
-bool LoopHold::SolveStopped12(Trick& move) const
+bool LoopHold::SolveSimple12(Trick& move) const
 {
   // ==== G12 ==========================================================
   //      AKJ+    
@@ -2577,7 +2577,7 @@ bool LoopHold::SolveStopped12(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped14(Trick& move) const
+bool LoopHold::SolveSimple14(Trick& move) const
 {
   // ==== G14 ================ G38 =====================================
   //      AJ+        |         A+
@@ -2699,7 +2699,7 @@ bool LoopHold::SolveStopped14(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped15(Trick& move) const
+bool LoopHold::SolveSimple15(Trick& move) const
 {
   // ==== G15 ================ G17 ================ G23 ================
   //      AJ+        |         AQ+        |         A+  
@@ -2756,7 +2756,7 @@ bool LoopHold::SolveStopped15(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped18(Trick& move) const
+bool LoopHold::SolveSimple18(Trick& move) const
 {
   // ==== G18 ================ G24 ================ G58 ================
   //      AQ+        |         AK+        |         A+
@@ -2958,7 +2958,7 @@ bool LoopHold::SolveStopped18(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped19(Trick& move) const
+bool LoopHold::SolveSimple19(Trick& move) const
 {
   // ==== G19 ==========================================================
   //      AQ+    
@@ -2991,7 +2991,7 @@ bool LoopHold::SolveStopped19(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped20(Trick& move) const
+bool LoopHold::SolveSimple20(Trick& move) const
 {
   // ==== G20 ============= G22 ========================================
   //      AK+        |      A+     
@@ -3095,7 +3095,7 @@ bool LoopHold::SolveStopped20(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped26(Trick& move) const
+bool LoopHold::SolveSimple26(Trick& move) const
 {
   // ==== G26 ================ G50 ================ G56 ================
   //      A+         |         AQ+        |         AK+ 
@@ -3221,7 +3221,7 @@ bool LoopHold::SolveStopped26(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped27(Trick& move) const
+bool LoopHold::SolveSimple27(Trick& move) const
 {
   // ==== G27 ==========================================================
   //      A+     
@@ -3323,7 +3323,7 @@ bool LoopHold::SolveStopped27(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped28(Trick& move) const
+bool LoopHold::SolveSimple28(Trick& move) const
 {
   // ==== G28 ============= G30 =========== G52 =========== G54 ========
   //      AK+        |      A+       |      AK+      |      A+
@@ -3505,7 +3505,7 @@ bool LoopHold::SolveStopped28(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped36(Trick& move) const
+bool LoopHold::SolveSimple36(Trick& move) const
 {
   // ==== G36 ==========================================================
   //      AK+     
@@ -3617,7 +3617,7 @@ bool LoopHold::SolveStopped36(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped41(Trick& move) const
+bool LoopHold::SolveSimple41(Trick& move) const
 {
   // ==== G41 ==========================================================
   //      A+      
@@ -3710,7 +3710,7 @@ bool LoopHold::SolveStopped41(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped43(Trick& move) const
+bool LoopHold::SolveSimple43(Trick& move) const
 {
   // ==== G43 ==========================================================
   //      A+      
@@ -3811,7 +3811,7 @@ bool LoopHold::SolveStopped43(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped44(Trick& move) const
+bool LoopHold::SolveSimple44(Trick& move) const
 {
   // ==== G44 ==========================================================
   //      AK+     
@@ -4013,7 +4013,7 @@ bool LoopHold::SolveStopped44(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped48(Trick& move) const
+bool LoopHold::SolveSimple48(Trick& move) const
 {
   // ==== G48 ==========================================================
   //      AKQ+    
@@ -4074,7 +4074,7 @@ bool LoopHold::SolveStopped48(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped49(Trick& move) const
+bool LoopHold::SolveSimple49(Trick& move) const
 {
   // ==== G49 ==========================================================
   //      AQ+     
@@ -4121,7 +4121,7 @@ bool LoopHold::SolveStopped49(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped57(Trick& move) const
+bool LoopHold::SolveSimple57(Trick& move) const
 {
   // ==== G57 ==========================================================
   //      A+      
@@ -4168,7 +4168,7 @@ bool LoopHold::SolveStopped57(Trick& move) const
 }
 
 
-bool LoopHold::SolveStopped60(Trick& move) const
+bool LoopHold::SolveSimple60(Trick& move) const
 {
   // ==== G60 ============= G62 ========================================
   //      AK+        |      A+     

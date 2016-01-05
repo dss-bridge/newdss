@@ -94,7 +94,7 @@ bool MakeSimpleSingleMoveWrapper(
   // We'll see later...
   else if (holding.SolveCrashTricks(def, r, flag))
     return true;
-  else if (holding.SolveStopped(def, r))
+  else if (holding.SolveSimple(def, r))
     return true;
   else if (holding.CashoutBoth(def, r))
     return true;
@@ -174,7 +174,7 @@ inline bool MakeSimpleSingleMove(
   if (singles[sl][c].moveNo)
     return true;
 
-  if (holding.SolveStopped(def, r))
+  if (holding.SolveSimple(def, r))
   {
     // Opponents have enough tops and length to hold declarer to
     // a number of tricks, often 1.  (For instance LHO has Kx.)
