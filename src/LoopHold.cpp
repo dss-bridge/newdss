@@ -3529,6 +3529,25 @@ bool LoopHold::SolveStopped36(Trick& move) const
     unsigned r = Holding::ListToRank(completeList[QT_ACE][3]);
     return move.Set(QT_BOTH, QT_ACE, r, 4);
   }
+  else if (length[QT_ACE] >= 4 && length[QT_PARD] >= 3 &&
+    length[QT_ACE] > length[QT_PARD] && 
+    (length[QT_RHO] == 2 || 
+      (length[QT_RHO] == 3 && length[QT_PARD] == 3)) &&
+    length[QT_LHO] == 1)
+  {
+    // AKxx / Q / Jxx / xx(x).
+    if (pickFlag) holdCtr[370]++;
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, length[QT_ACE]);
+  }
+  else if (length[QT_ACE] == 3 && length[QT_PARD] >= 4 &&
+    length[QT_RHO] <= 3 &&
+    length[QT_LHO] <= 2 &&
+    Max(length[QT_LHO], length[QT_RHO]) >= 2)
+  {
+    // AKx / Q(x) / Jxxx+ / x(xx).
+    if (pickFlag) holdCtr[371]++;
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, length[QT_PARD]);
+  }
   else if (length[QT_LHO] == 2)
   {
     if (length[QT_PARD] <= 2)
@@ -3628,26 +3647,26 @@ bool LoopHold::SolveStopped41(Trick& move) const
         if (pickFlag) holdCtr[412]++;
         return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
       }
-      else
-      {
-        return false;
-        if (pickFlag) holdCtr[413]++;
-        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-1, 2);
-      }
     }
     else if (length[QT_RHO] <= 2)
     {
       // Ax / K / QJx+ / xx.
       // Ax / K / QJ+ / xx+.
-      if (pickFlag) holdCtr[414]++;
+      if (pickFlag) holdCtr[413]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, length[QT_PARD]);
     }
     else if (length[QT_PARD] == 3 || 
       (length[QT_RHO] >= 4 && htop.T == QT_RHO))
     {
       // Ax / K / QJ+ / Txx+.
-      if (pickFlag) holdCtr[415]++;
+      if (pickFlag) holdCtr[414]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+    }
+    else if (length[QT_RHO] == 3)
+    {
+      // Ax / K / QJxx+ / xxx.
+      if (pickFlag) holdCtr[415]++;
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, length[QT_PARD]);
     }
   }
   else if (length[QT_PARD] == 2)
@@ -3670,6 +3689,23 @@ bool LoopHold::SolveStopped41(Trick& move) const
     if (pickFlag) holdCtr[417]++;
     return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
+  else if (length[QT_ACE] == 3 && length[QT_PARD] >= 4 &&
+    length[QT_RHO] <= 3)
+  {
+    if (length[QT_RHO] <= 1)
+    {
+      // Axx / K / QJxx+ / x.
+      if (pickFlag) holdCtr[418]++;
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, length[QT_PARD]);
+    }
+    else
+    {
+      // Axx / K / QJxx+ / xx(x).
+      if (pickFlag) holdCtr[419]++;
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, length[QT_PARD]);
+    }
+  }
+
   return false;
 }
 
@@ -3693,19 +3729,13 @@ bool LoopHold::SolveStopped43(Trick& move) const
         if (pickFlag) holdCtr[430]++;
         return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
       }
-      else
-      {
-        return false;
-        if (pickFlag) holdCtr[431]++;
-        return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-1, 2);
-      }
     }
     else if (length[QT_PARD] >= 4 && length[QT_LHO] >= 5 && 
       htop.T == QT_PARD && htop.N == QT_LHO &&
       completeList[QT_LHO][1] > completeList[QT_PARD][3])
     {
       // Ax / K / QJTx+ / 9xxxx.
-      if (pickFlag) holdCtr[432]++;
+      if (pickFlag) holdCtr[431]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-5, 4);
     }
     // else if (length[QT_LHO] <= 2 || length[QT_PARD] == 2)
@@ -3713,7 +3743,7 @@ bool LoopHold::SolveStopped43(Trick& move) const
     {
       // Ax / K / QJx+ / xx.
       // Ax / K / QJ+ / xx+.
-      if (pickFlag) holdCtr[433]++;
+      if (pickFlag) holdCtr[432]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, length[QT_PARD]);
     }
     else if (length[QT_PARD] == 3 || 
@@ -3721,7 +3751,7 @@ bool LoopHold::SolveStopped43(Trick& move) const
         completeList[QT_LHO][1] > completeList[QT_PARD][2]))
     {
       // Ax / K / QJ+ / Txx+.
-      if (pickFlag) holdCtr[434]++;
+      if (pickFlag) holdCtr[433]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
@@ -3730,7 +3760,7 @@ bool LoopHold::SolveStopped43(Trick& move) const
     if (htop.T == QT_LHO && length[QT_LHO] >= 3)
     {
       // Axx+ / K / QJ / Txx+.
-      if (pickFlag) holdCtr[435]++;
+      if (pickFlag) holdCtr[434]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, 2);
     }
   }
@@ -3742,7 +3772,7 @@ bool LoopHold::SolveStopped43(Trick& move) const
       completeList[QT_LHO][0] > completeList[QT_ACE][1])
     {
       // Axx / ? / QJx / K.
-      if (pickFlag) holdCtr[436]++;
+      if (pickFlag) holdCtr[435]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
     }
   }
@@ -3751,15 +3781,31 @@ bool LoopHold::SolveStopped43(Trick& move) const
     htop.T == QT_LHO && htop.N == QT_ACE && htop.E == QT_ACE)
   {
     // A98x / Txxx / QJxx / K.
-    if (pickFlag) holdCtr[437]++;
+    if (pickFlag) holdCtr[436]++;
     return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
   else if (length[QT_LHO] >= 4 && htop.T == QT_LHO &&
     LoopHold::StopFinesse(2, 1, 2, true, QT_PARD))
   {
     // Axx / Txxx / QJx(x) / K.
-    if (pickFlag) holdCtr[438]++;
+    if (pickFlag) holdCtr[437]++;
     return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
+  }
+  else if (length[QT_ACE] == 3 && length[QT_PARD] >= 4 &&
+    length[QT_LHO] <= 3)
+  {
+    if (length[QT_LHO] <= 1)
+    {
+      // Axx / K / QJxx+ / x.
+      if (pickFlag) holdCtr[438]++;
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-3, length[QT_PARD]);
+    }
+    else
+    {
+      // Axx / K / QJxx+ / xx(x).
+      if (pickFlag) holdCtr[439]++;
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, length[QT_PARD]);
+    }
   }
   return false;
 }
@@ -3804,7 +3850,26 @@ bool LoopHold::SolveStopped44(Trick& move) const
     }
   }
 
-  if (length[QT_RHO] == 1)
+  if (length[QT_ACE] >= 4 && length[QT_PARD] >= 3 &&
+    length[QT_ACE] > length[QT_PARD] && 
+    (length[QT_LHO] == 2 || 
+      (length[QT_LHO] == 3 && length[QT_PARD] == 3)) &&
+    length[QT_RHO] == 1)
+  {
+    // AKxx / xx(x) / Jxx / Q.
+    if (pickFlag) holdCtr[460]++;
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, length[QT_ACE]);
+  }
+  else if (length[QT_ACE] == 3 && length[QT_PARD] >= 4 &&
+    length[QT_LHO] <= 3 &&
+    length[QT_RHO] <= 2 &&
+    Max(length[QT_LHO], length[QT_RHO]) >= 2)
+  {
+    // AKx / xx(x) / Jxxx+ / Q(x).
+    if (pickFlag) holdCtr[461]++;
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, length[QT_PARD]);
+  }
+  else if (length[QT_RHO] == 1)
   {
     if (length[QT_LHO] >= 4 && length[QT_PARD] >= 3 && 
       htop.T == QT_LHO && 
