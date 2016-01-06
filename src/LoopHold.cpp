@@ -974,16 +974,17 @@ bool LoopHold::CashoutBothDiffStrongTops(
     return def.Set1(trick);
   }
   else if (cb.pLong == QT_ACE && 
-    cb.numTopsLongHigh == cb.lenOppHighest + 1 &&
+    cb.numTopsLongHigh >= cb.lenOppHighest + 1 &&
     cb.numTopsLongHigh >= cb.lenOppLowest &&
-    cb.lenShort == cb.numTopsLongHigh &&
+    cb.lenShort == cb.lenOppHighest + 1 &&
     cb.numTopsShortHigh == 0 && 
     cb.maxPard > cb.minAce)
   {
     // AKQ843 / 9 / 765 / JT and many others.
     if (pickFlag) holdCtr[1045]++;
     lowestRank = Holding::ListToRank(cb.maxPard);
-    r = Holding::ListToRank(completeList[QT_ACE][cb.lenShort-1]);
+    unsigned l = Max(cb.lenShort, cb.lenOppLowest);
+    r = Holding::ListToRank(completeList[QT_ACE][l-1]);
     trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
     Trick trick21;
     trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenShort);
