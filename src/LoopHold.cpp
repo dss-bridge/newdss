@@ -1120,18 +1120,18 @@ bool LoopHold::CashoutBothDiffSplit(
 {
   Trick trick;
 
-  if (length[QT_ACE] >= 4 && 
-    length[QT_PARD] == 3 &&
+  if (length[cb.pLong] >= 4 && 
+    length[cb.pShort] == 3 &&
     cb.numTopsLongHigh == 1 &&
     cb.numTopsShortHigh == 1 &&
     cb.lenOppMax == 3 &&
-    completeList[QT_ACE][1] > completeList[QT_PARD][2] &&
-    (completeList[QT_ACE][1] > completeList[QT_PARD][1] ||
+    completeList[cb.pLong][1] > completeList[cb.pShort][2] &&
+    (completeList[cb.pLong][1] > completeList[cb.pShort][1] ||
       cb.lenOppHighest == 1))
   {
     if (pickFlag) holdCtr[1060]++;
     lowestRank = Holding::ListToRank(Max(
-      completeList[QT_ACE][1], completeList[QT_PARD][1]));
+      completeList[cb.pLong][1], completeList[cb.pShort][1]));
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
