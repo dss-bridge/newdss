@@ -10,6 +10,7 @@ below!).
 -h 7 probably causes early change in singles.  So we should find
 those changes and include them as simple moves!
 
+There are more simple moves than I see, e.g. BA5A (asymmetric).
 
 
 defMerged shrinks

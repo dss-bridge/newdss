@@ -759,6 +759,9 @@ bool LoopHold::CashoutBothDiffLength(
   }
   else if (cb.numTopsShortHigh == 0)
   {
+    // Later just return directly.
+    if (LoopHold::CashoutBothDiffLongStrong(def, lowestRank, cb))
+      return true;
   }
   else
   {
@@ -847,29 +850,6 @@ if (shortSecond > completeList[cb.pLong][i])
       {
         if (cb.lenOppLowest == 3)
         {
-          if (cb.lenShort == 4)
-          {
-            // Too complex, e.g. A765 / T98 / KJ432 / Q blocks.
-            if (pickFlag) holdCtr[806]++;
-            return false;
-          }
-          else if (completeList[cb.pLong][cb.numTopsLongHigh] <
-                   completeList[cb.pShort][cb.numTopsShortHigh])
-          {
-            // Don't want the jack on the short side.
-            if (pickFlag) holdCtr[807]++;
-            return false;
-          }
-          else
-          {
-            // 4=3, 5=3, 6=3.
-            if (pickFlag) holdCtr[707]++;
-            lowestRank = Holding::ListToRank(
-              completeList[cb.pLong][cb.numTopsLongHigh]);
-
-            trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-            return def.Set1(trick);
-          }
         }
         else // (lenOppLowest == 4 or 5)
         {
@@ -890,39 +870,6 @@ if (shortSecond > completeList[cb.pLong][i])
             trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
             return def.Set1(trick);
           }
-        }
-      }
-      else // lenOppHighest == 2
-      {
-        if (cb.lenOppLowest == 3)
-        {
-          if (completeList[cb.pLong][cb.numTopsLongHigh] <
-                   completeList[cb.pShort][cb.numTopsShortHigh])
-          {
-            // Don't want the "jack" on the short side.
-            if (pickFlag) holdCtr[809]++;
-            return false;
-          }
-          else
-          {
-            if (pickFlag) holdCtr[709]++;
-            lowestRank = Holding::ListToRank(
-                   completeList[cb.pLong][cb.numTopsLongHigh]);
-            trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-            return def.Set1(trick);
-          }
-        }
-        else
-        {
-          // 4=2=3=4 with Qx, possibly QJ stiff.
-// AJ7 / Q8 / KT93 / 6542, 13/0x9293fb, what's even right?
-            if (pickFlag) holdCtr[810]++;
-return false;
-
-          lowestRank = Holding::ListToRank(
-                 completeList[cb.pLong][cb.numTopsLongHigh + 1]);
-          trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-          return def.Set1(trick);
         }
       }
     }
@@ -1173,6 +1120,129 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
   }
   else
     return false;
+}
+
+
+bool LoopHold::CashoutBothDiffLongStrong(
+  DefList& def,
+  unsigned& lowestRank,
+  const CashoutBothDetails& cb) const
+{
+  Trick trick;
+
+  if (cb.lenShort <= cb.lenOppHighest + 1)
+  {
+    if (pickFlag) holdCtr[1070]++;
+    return false;
+  }
+  else if (cb.lenShort == cb.lenOppMax + 1 &&
+    cb.numTopsShortLow == 0)
+  {
+    if (pickFlag) holdCtr[1071]++;
+    return false;
+  }
+  else if (completeList[QT_PARD][cb.lenShort-1] >
+    completeList[QT_ACE][cb.lenOppMax])
+  {
+    if (pickFlag) holdCtr[1072]++;
+    return false;
+  }
+  else if (cb.numTopsLongLow >= Max(cb.lenOppMax, cb.lenShort) &&
+    completeList[QT_ACE][Max(cb.lenOppMax, cb.lenShort) - 1] > cb.maxPard)
+  {
+    if (pickFlag) holdCtr[1073]++;
+    return false;
+  }
+  else if (cb.numTopsLow == Min(cb.lenLong, cb.lenOppMax) &&
+    cb.lenOppHighest + cb.numTopsShortLow == cb.lenShort)
+    // cb.lenOppMax > cb.lenShort &&
+    // cb.numTopsLongLow == cb.numTopsLongHigh)
+  {
+    // Blocked.
+    if (pickFlag) holdCtr[1074]++;
+    return false;
+  }
+  else if (cb.lenShort == cb.lenOppMax && 
+    cb.lenShort == cb.numTopsLow &&
+    cb.numTopsLongLow == cb.numTopsLongHigh)
+  {
+    // Blocked.
+    if (pickFlag) holdCtr[1075]++;
+    return false;
+  }
+  // else if (cb.numTopsShortHigh > cb.lenOppLowest &&
+  else if (cb.numTopsLongLow >= cb.lenOppLowest &&
+    completeList[QT_ACE][cb.lenOppLowest] > cb.maxPard)
+  {
+    if (pickFlag) holdCtr[1076]++;
+    return false;
+  }
+  else if (cb.minAce > cb.maxPard)
+  {
+    if (pickFlag) holdCtr[1077]++;
+    return false;
+  }
+  else
+  {
+    // Cash out the opponents.
+    unsigned l = Min(cb.lenOppMax, cb.lenLong);
+    unsigned na = 0, np = 0, m = 0, no = 0;
+    while (no < l)
+    {
+        if (completeList[QT_ACE][na] > completeList[QT_PARD][np])
+        m = completeList[QT_ACE][na++];
+      else
+        m = completeList[QT_PARD][np++];
+      no++;
+    }
+
+    unsigned nextA = completeList[QT_ACE][na];
+    unsigned nextP = completeList[QT_PARD][np];
+    unsigned prevA = completeList[QT_ACE][na-1];
+    unsigned prevP = (np > 0 ? completeList[QT_PARD][np-1] : SDS_VOID);
+
+    if (np == 0)
+    {
+      if (cb.numTopsShortLow == 0)
+        m = Min(cb.maxPard, completeList[QT_ACE][na]);
+      else
+        m = cb.maxPard;
+    }
+    else if (cb.lenOppMax < cb.lenShort)
+    {
+      if (completeList[QT_PARD][np-1] == m)
+      {
+        if (cb.lenShort == cb.lenOppMax + 1 &&
+            completeList[QT_PARD][np] > 
+              Max(cb.oppMaxLowest, completeList[QT_ACE][na]) &&
+              completeList[QT_ACE][cb.lenOppHighest] > cb.maxPard)
+          m = completeList[QT_PARD][np];
+        else
+          m = completeList[QT_ACE][na];
+      }
+      else if (completeList[QT_PARD][np] > cb.oppMaxLowest)
+        m = Max(completeList[QT_PARD][np], completeList[QT_ACE][na]);
+      else
+        m = completeList[QT_ACE][na];
+    }
+    else if (completeList[QT_PARD][np-1] == m &&
+      completeList[QT_ACE][na] > cb.oppMaxLowest &&
+      (cb.lenShort == cb.lenOppHighest + 1 ||
+       cb.lenShort <= cb.lenOppHighest + np))
+    {
+      m = completeList[QT_ACE][na];
+    }
+    else if (completeList[QT_ACE][na-1] == m &&
+      cb.lenOppHighest + np >= cb.lenShort)
+    {
+      m = completeList[QT_ACE][na];
+    }
+
+    if (pickFlag) holdCtr[1080]++;
+    lowestRank = Holding::ListToRank(m);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
 }
 
 
@@ -2636,6 +2706,12 @@ return false;
     if (pickFlag) holdCtr[117]++;
     return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
   }
+  else if (distHex == 0x5341 && htop.T == QT_LHO && htop.N == QT_PARD)
+  {
+    // AJxxx / Txx / Q9xx / K.
+    if (pickFlag) holdCtr[118]++;
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 5);
+  }
   return false;
 }
 
@@ -4006,6 +4082,12 @@ bool LoopHold::SolveSimple44(Trick& move) const
       if (pickFlag) holdCtr[459]++;
       unsigned r = (htop.N == QT_PARD ? SDS_VOID-6 : SDS_VOID-7);
       return move.Set(QT_BOTH, QT_BOTH, r, 4);
+    }
+    else if (distHex == 0x5341 && htop.T == QT_LHO && htop.N == QT_PARD)
+    {
+      // AKxxx / Txx / J9xx / Q.
+      if (pickFlag) holdCtr[455]++;
+      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-6, 5);
     }
   }
   else if (htop.T == QT_ACE)
