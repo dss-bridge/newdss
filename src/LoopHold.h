@@ -199,10 +199,7 @@ class LoopHold: public Holding
       CashoutBothDetails& cb) const;
 
     bool GetAsymmRanks(
-      const PosType plong,
-      const PosType pShort,
-      const unsigned cashLength,
-      const unsigned toBeat,
+      const CashoutBothDetails& cb,
       unsigned& lowestRank) const;
 
     bool StopFinesse(

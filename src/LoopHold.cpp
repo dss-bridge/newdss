@@ -903,12 +903,16 @@ bool LoopHold::CashoutBothDiffStrongTops(
   {
     // Declarer has tops over pOppHighest on both sides.
 
+    // if (LoopHold::CashoutBothDiffLongStrong(def, lowestRank, cb))
+      // return true;
+    // else
+      // return false;
+
     unsigned m = SDS_VOID - cb.lenOppMax;
     r = Holding::ListToRank(cb.maxPard);
     if (r >= m)
     {
-      if (LoopHold::GetAsymmRanks(cb.pLong, cb.pShort, 
-        cb.lenOppMax, cb.maxOpp, lowestRank))
+      if (LoopHold::GetAsymmRanks(cb, lowestRank))
       {
         if (pickFlag) holdCtr[1030]++;
         trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
@@ -1159,14 +1163,15 @@ bool LoopHold::CashoutBothDiffLongStrong(
     if (pickFlag) holdCtr[1071]++;
     return false;
   }
-  else if (completeList[QT_PARD][cb.lenShort-1] >
-    completeList[QT_ACE][cb.lenOppMax])
+  else if (completeList[cb.pShort][cb.lenShort-1] >
+    completeList[cb.pLong][cb.lenOppMax])
   {
     if (pickFlag) holdCtr[1072]++;
     return false;
   }
   else if (cb.numTopsLongLow >= Max(cb.lenOppMax, cb.lenShort) &&
-    completeList[QT_ACE][Max(cb.lenOppMax, cb.lenShort) - 1] > cb.maxPard)
+    completeList[cb.pLong][Max(cb.lenOppMax, cb.lenShort) - 1] > 
+      cb.maxPard)
   {
     if (pickFlag) holdCtr[1073]++;
     return false;
@@ -1190,7 +1195,7 @@ bool LoopHold::CashoutBothDiffLongStrong(
   }
   // else if (cb.numTopsShortHigh > cb.lenOppLowest &&
   else if (cb.numTopsLongLow >= cb.lenOppLowest &&
-    completeList[QT_ACE][cb.lenOppLowest] > cb.maxPard)
+    completeList[cb.pLong][cb.lenOppLowest] > cb.maxPard)
   {
     if (pickFlag) holdCtr[1076]++;
     return false;
@@ -1207,17 +1212,17 @@ bool LoopHold::CashoutBothDiffLongStrong(
     unsigned na = 0, np = 0, m = 0, no = 0;
     while (no < l)
     {
-        if (completeList[QT_ACE][na] > completeList[QT_PARD][np])
-        m = completeList[QT_ACE][na++];
+        if (completeList[cb.pLong][na] > completeList[cb.pShort][np])
+        m = completeList[cb.pLong][na++];
       else
-        m = completeList[QT_PARD][np++];
+        m = completeList[cb.pShort][np++];
       no++;
     }
 
-    unsigned nextA = completeList[QT_ACE][na];
-    unsigned nextP = completeList[QT_PARD][np];
-    unsigned prevA = completeList[QT_ACE][na-1];
-    unsigned prevP = (np > 0 ? completeList[QT_PARD][np-1] : SDS_VOID);
+    unsigned nextA = completeList[cb.pLong][na];
+    unsigned nextP = completeList[cb.pShort][np];
+    unsigned prevA = completeList[cb.pLong][na-1];
+    unsigned prevP = (np > 0 ? completeList[cb.pShort][np-1] : SDS_VOID);
 
     if (np == 0)
     {
@@ -1232,7 +1237,7 @@ bool LoopHold::CashoutBothDiffLongStrong(
       {
         if (cb.lenShort == cb.lenOppMax + 1 &&
             nextP > Max(cb.oppMaxLowest, nextA) &&
-              completeList[QT_ACE][cb.lenOppHighest] > cb.maxPard)
+              completeList[cb.pLong][cb.lenOppHighest] > cb.maxPard)
           m = nextP;
         else
           m = nextA;
@@ -1467,59 +1472,29 @@ void LoopHold::PrintCashoutDetails(
 
 
 bool LoopHold::GetAsymmRanks(
-  const PosType pLong,
-  const PosType pShort,
-  const unsigned cashLength,
-  const unsigned toBeat,
+  const CashoutBothDetails& cb,
   unsigned& lowestRank) const
 {
   // First cash on the short side, then if necessary the long side.
   // After that, if the first unused card on the long side is large
   // enough, then for sure the suit doesn't block.  Otherwise it might.
 
-  unsigned cashed = 0;
-  while (cashed < length[pShort] && cashed < cashLength &&
-      completeList[pShort][cashed] > toBeat)
-  {
-    cashed++;
-  }
-
-  unsigned shortStop = cashed;
-  unsigned longStop = 0;
-
-  if (cashed < cashLength)
-  {
-    while (longStop < length[pLong] && cashed < cashLength &&
-        completeList[pLong][longStop] > toBeat)
-    {
-      cashed++;
-      longStop++;
-    }
-  }
-
-  // Couldn't cash enough tops.
-  if (cashed < cashLength)
-    return false;
+  unsigned shortStop = Min(cb.numTopsShortHigh, cb.lenOppMax);
+  unsigned longStop = cb.lenOppMax - shortStop;
 
   // Blocked for sure.
-  if (completeList[pLong][longStop] < completeList[pShort][shortStop])
+  if (completeList[cb.pLong][longStop] < completeList[cb.pShort][shortStop])
     return false;
 
-  if (shortStop == 0)
-  {
-    // Might be QT_BOTH or pLong.  For now we give up.
-    return false;
-  }
-
-  if (length[pShort] <= cashLength)
+  if (length[cb.pShort] <= cb.lenOppMax)
   {
     unsigned m = Min(
-      completeList[pShort][shortStop-1],
-      completeList[pLong][longStop-1]);
+      completeList[cb.pShort][shortStop-1],
+      completeList[cb.pLong][longStop-1]);
     lowestRank = Holding::ListToRank(m);
   }
   else
-    lowestRank = Holding::ListToRank(completeList[pLong][longStop]);
+    lowestRank = Holding::ListToRank(completeList[cb.pLong][longStop]);
   
   return true;
 }
