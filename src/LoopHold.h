@@ -203,10 +203,6 @@ class LoopHold: public Holding
     void GetOppLengths(
       CashoutBothDetails& cb) const;
 
-    bool GetAsymmRanks(
-      const CashoutBothDetails& cb,
-      unsigned& lowestRank) const;
-
     bool StopFinesse(
       const unsigned numFinesses,
       const unsigned firstNonTopAce,
