@@ -756,6 +756,13 @@ bool LoopHold::CashoutBothDiffLength(
   {
     if (cb.xShortLow > 0)
       return LoopHold::CashoutBothDiffPdLongWeak(def, lowestRank, cb);
+    else if (cb.lenShort == 2 && cb.lenOppMax == 2)
+    {
+      if (pickFlag) holdCtr[1026]++;
+      lowestRank = Holding::ListToRank(cb.maxPard);
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
+    }
   }
   else if (cb.numTopsShortHigh == 0)
   {
@@ -902,6 +909,13 @@ bool LoopHold::CashoutBothDiffStrongTops(
         cb.lenOppMax, cb.maxOpp, lowestRank))
       {
         if (pickFlag) holdCtr[1030]++;
+        trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+        return def.Set1(trick);
+      }
+      else if (cb.lenShort == 2 && cb.lenOppMax == 2)
+      {
+        if (pickFlag) holdCtr[1054]++;
+        lowestRank = SDS_VOID-2;
         trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
         return def.Set1(trick);
       }
@@ -1083,7 +1097,7 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
     no++;
   }
 
-  if (l >= cb.lenShort)
+  if (no >= cb.lenShort)
   {
     // We've also cashed out the ace holder already.
     assert(np > 0);
@@ -1204,38 +1218,36 @@ bool LoopHold::CashoutBothDiffLongStrong(
     if (np == 0)
     {
       if (cb.numTopsShortLow == 0)
-        m = Min(cb.maxPard, completeList[QT_ACE][na]);
+        m = Min(cb.maxPard, nextA);
       else
         m = cb.maxPard;
     }
     else if (cb.lenOppMax < cb.lenShort)
     {
-      if (completeList[QT_PARD][np-1] == m)
+      if (prevP == m)
       {
         if (cb.lenShort == cb.lenOppMax + 1 &&
-            completeList[QT_PARD][np] > 
-              Max(cb.oppMaxLowest, completeList[QT_ACE][na]) &&
+            nextP > Max(cb.oppMaxLowest, nextA) &&
               completeList[QT_ACE][cb.lenOppHighest] > cb.maxPard)
-          m = completeList[QT_PARD][np];
+          m = nextP;
         else
-          m = completeList[QT_ACE][na];
+          m = nextA;
       }
-      else if (completeList[QT_PARD][np] > cb.oppMaxLowest)
-        m = Max(completeList[QT_PARD][np], completeList[QT_ACE][na]);
+      else if (nextP > cb.oppMaxLowest)
+        m = Max(nextP, nextA);
       else
-        m = completeList[QT_ACE][na];
+        m = nextA;
     }
-    else if (completeList[QT_PARD][np-1] == m &&
-      completeList[QT_ACE][na] > cb.oppMaxLowest &&
+    else if (prevP == m &&
+      nextA > cb.oppMaxLowest &&
       (cb.lenShort == cb.lenOppHighest + 1 ||
        cb.lenShort <= cb.lenOppHighest + np))
     {
-      m = completeList[QT_ACE][na];
+      m = nextA;
     }
-    else if (completeList[QT_ACE][na-1] == m &&
-      cb.lenOppHighest + np >= cb.lenShort)
+    else if (prevA == m && cb.lenOppHighest + np >= cb.lenShort)
     {
-      m = completeList[QT_ACE][na];
+      m = nextA;
     }
 
     if (pickFlag) holdCtr[1080]++;
