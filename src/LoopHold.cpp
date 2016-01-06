@@ -1000,6 +1000,25 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set12(trick, trick2, trick21);
   }
+  else if (cb.pLong == QT_ACE &&
+    cb.numTopsLongHigh == cb.lenOppHighest &&
+    completeList[QT_ACE][cb.lenOppHighest] > completeList[QT_PARD][0] &&
+    cb.numTopsLongLow >= cb.lenOppLowest &&
+    cb.lenShort == cb.lenOppHighest + 1 &&
+    cb.numTopsShortHigh == 0 && 
+    cb.maxPard > cb.minAce)
+  {
+    // AQJT8 / K / 97 / 65.
+    if (pickFlag) holdCtr[1046]++;
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    unsigned l = Max(cb.lenShort, cb.lenOppLowest);
+    r = Holding::ListToRank(completeList[QT_ACE][l-1]);
+    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    Trick trick21;
+    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenShort);
+    trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+    return def.Set12(trick, trick2, trick21);
+  }
   else if (length[QT_PARD] > length[QT_ACE])
   {
     // Partner is longer than ace holder.
