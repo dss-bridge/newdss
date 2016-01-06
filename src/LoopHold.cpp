@@ -1060,10 +1060,54 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
     return def.Set11(trick, trick2);
   }
+  else if (cb.pShort == QT_PARD &&
+    completeList[QT_PARD][cb.lenShort-1] >
+      completeList[QT_ACE][cb.lenOppMax])
+  {
+    if (pickFlag) holdCtr[1051]++;
+    return false;
+  }
+  else if (cb.pShort == QT_PARD && 
+    (cb.lenShort <= cb.lenOppMax+1 ||
+      completeList[QT_ACE][cb.lenOppMax] > cb.maxPard))
+  {
+    if (pickFlag) holdCtr[1052]++;
+    return false;
+  }
+  else if (cb.pShort == QT_PARD &&
+    cb.lenLong >= 5 && cb.lenShort >= 4 && 
+    length[QT_RHO] == 2 &&
+    cb.maxOpp == suitLength - 3 &&
+    cb.numTopsLongHigh == 2 &&
+    (completeList[QT_PARD][1] == suitLength - 5 ||
+      (length[QT_LHO] == 1 && completeList[QT_LHO][0] == suitLength - 5 &&
+      completeList[QT_PARD][1] == suitLength - 6)))
+  {
+    // Very special case:  AKxxx / xx / JTxx / Qx.
+    if (pickFlag) holdCtr[1053]++;
+    return false;
+  }
   else
   {
     if (pickFlag) holdCtr[1050]++;
-    return false;
+
+    // Cash out the opponents.
+    unsigned l = Min(cb.lenOppMax, cb.lenLong);
+    unsigned na = 0, np = 0, m = 0, no = 0;
+    while (no < l)
+    {
+      if (completeList[QT_ACE][na] > completeList[QT_PARD][np])
+        m = completeList[QT_ACE][na++];
+      else
+        m = completeList[QT_PARD][np++];
+      no++;
+    }
+    if (no < cb.lenLong)
+      m = Min(completeList[QT_ACE][na], completeList[QT_PARD][np]);
+
+    lowestRank = Holding::ListToRank(m);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
   }
 }
 
