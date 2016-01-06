@@ -908,27 +908,23 @@ bool LoopHold::CashoutBothDiffStrongTops(
     // else
       // return false;
 
-    unsigned m = SDS_VOID - cb.lenOppMax;
-    r = Holding::ListToRank(cb.maxPard);
-    if (r >= m)
+    if (LoopHold::GetAsymmRanks(cb, lowestRank))
     {
-      if (LoopHold::GetAsymmRanks(cb, lowestRank))
-      {
-        if (pickFlag) holdCtr[1030]++;
-        trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-        return def.Set1(trick);
-      }
-      else if (cb.lenShort == 2 && cb.lenOppMax <= cb.numTopsLongLow + 1)
-      {
-        if (pickFlag) holdCtr[1054]++;
-        assert(cb.lenOppMax >= 2);
-        lowestRank = Min(completeList[cb.pLong][cb.lenOppMax-2], 
-          SDS_VOID-2);
-        trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-        return def.Set1(trick);
-      }
+      if (pickFlag) holdCtr[1030]++;
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
     }
-    return false;
+    else if (cb.lenShort == 2 && cb.lenOppMax <= cb.numTopsLongLow + 1)
+    {
+      if (pickFlag) holdCtr[1054]++;
+      assert(cb.lenOppMax >= 2);
+      lowestRank = Min(completeList[cb.pLong][cb.lenOppMax-2], 
+        SDS_VOID-2);
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
+    }
+    else
+      return false;
   }
   else if (length[QT_PARD] <= cb.lenOppHighest ||
     (length[QT_PARD] <= cb.lenOppLowest && cb.maxPard < cb.minOpp))
