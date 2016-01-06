@@ -975,7 +975,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
   }
   else if (cb.pLong == QT_ACE && 
     cb.numTopsLongHigh == cb.lenOppHighest + 1 &&
-    cb.numTopsLongHigh >= cb.lenOppLowest + 1 &&
+    cb.numTopsLongHigh >= cb.lenOppLowest &&
     cb.lenShort == cb.numTopsLongHigh &&
     cb.numTopsShortHigh == 0 && 
     cb.maxPard > cb.minAce)
