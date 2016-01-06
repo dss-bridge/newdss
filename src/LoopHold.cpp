@@ -973,6 +973,23 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
+  else if (cb.pLong == QT_ACE && 
+    cb.numTopsLongHigh == cb.lenOppHighest + 1 &&
+    cb.numTopsLongHigh >= cb.lenOppLowest + 1 &&
+    cb.lenShort == cb.numTopsLongHigh &&
+    cb.numTopsShortHigh == 0 && 
+    cb.maxPard > cb.minAce)
+  {
+    // AKQ843 / 9 / 765 / JT and many others.
+    if (pickFlag) holdCtr[1045]++;
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenShort-1]);
+    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    Trick trick21;
+    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenShort);
+    trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+    return def.Set12(trick, trick2, trick21);
+  }
   else if (length[QT_PARD] > length[QT_ACE])
   {
     // Partner is longer than ace holder.
