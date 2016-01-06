@@ -938,6 +938,23 @@ bool LoopHold::CashoutBothDiffStrongTops(
     return def.Set12(trick, trick2, trick21);
   }
   else if (cb.pLong == QT_ACE &&
+    cb.numTopsLongHigh >= cb.lenOppMax + 1 &&
+    cb.numTopsShortHigh == 0 &&
+    cb.numTopsShortLow == 0 &&
+    cb.lenShort == cb.lenOppMax + 1 &&
+    cb.maxPard > cb.minAce)
+  {
+    // AKQT7 / J / 865 / 94.
+    if (pickFlag) holdCtr[1055]++;
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenShort-1]);
+    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    Trick trick21;
+    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenShort);
+    trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+    return def.Set12(trick, trick2, trick21);
+  }
+  else if (cb.pLong == QT_ACE &&
     cb.numTopsLongHigh == cb.lenOppHighest &&
     completeList[QT_ACE][cb.lenOppHighest] > completeList[QT_PARD][0] &&
     cb.numTopsLongLow >= cb.lenOppLowest &&
