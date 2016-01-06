@@ -74,7 +74,7 @@ int main(int argc, char * argv[])
 #endif
 #if 0
 LoopHold lh;
-lh.Set(13, 0xe9058a);
+lh.Set(12, 0xe9805a);
 // lh.Set(8, 0x82b);
 // lh.Set(8, 0x829);
 lh.Print();
