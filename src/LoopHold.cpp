@@ -757,6 +757,15 @@ bool LoopHold::CashoutBothDiffLength(
     if (cb.xShortLow > 0)
       return LoopHold::CashoutBothDiffPdLongWeak(def, lowestRank, cb);
   }
+  else if (cb.numTopsShortHigh == 0)
+  {
+  }
+  else
+  {
+    // Later just return directly.
+    if (LoopHold::CashoutBothDiffSplit(def, lowestRank, cb))
+      return true;
+  }
 
 
   if (cb.numTopsLongLow > 0 && 
@@ -1101,6 +1110,33 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
   }
   else
     return false;
+}
+
+
+bool LoopHold::CashoutBothDiffSplit(
+  DefList& def,
+  unsigned& lowestRank,
+  const CashoutBothDetails& cb) const
+{
+  Trick trick;
+
+  if (length[QT_ACE] >= 4 && 
+    length[QT_PARD] == 3 &&
+    cb.numTopsLongHigh == 1 &&
+    cb.numTopsShortHigh == 1 &&
+    cb.lenOppMax == 3 &&
+    completeList[QT_ACE][1] > completeList[QT_PARD][2] &&
+    (completeList[QT_ACE][1] > completeList[QT_PARD][1] ||
+      cb.lenOppHighest == 1))
+  {
+    if (pickFlag) holdCtr[1060]++;
+    lowestRank = Holding::ListToRank(Max(
+      completeList[QT_ACE][1], completeList[QT_PARD][1]));
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
+
+  return false;
 }
 
 

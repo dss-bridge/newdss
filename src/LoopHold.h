@@ -182,6 +182,11 @@ class LoopHold: public Holding
       unsigned& rank,
       const CashoutBothDetails& cb) const;
      
+    bool CashoutBothDiffSplit(
+      DefList& def,
+      unsigned& rank,
+      const CashoutBothDetails& cb) const;
+     
     bool SetCashoutBothDetails(
       CashoutBothDetails& cb) const;
 
@@ -196,7 +201,7 @@ class LoopHold: public Holding
       unsigned& lowestRank) const;
 
     bool StopFinesse(
-      const unsigned mumFinesses,
+      const unsigned numFinesses,
       const unsigned firstNonTopAce,
       const unsigned firstNonTopPard,
       const bool ignoreOtherOpp,
