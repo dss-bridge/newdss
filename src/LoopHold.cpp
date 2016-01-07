@@ -1146,28 +1146,26 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  else if (prevL == m && no >= cb.lenShort)
+  else if (no >= cb.lenShort)
   {
-    if (cb.minAce > cb.minOpp && cb.minAce > prevL)
-      m = nextL;
-    if (pickFlag) holdCtr[1080]++;
-    lowestRank = Holding::ListToRank(m);
-    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    return def.Set1(trick);
-  }
-
-
-  if (no >= cb.lenShort)
-  {
-    if (cb.xShortLow == 0)
-      return false;
-
-    // We've also cashed out the ace holder already.
-    assert(np > 0);
-    if (pickFlag) holdCtr[1023]++;
-    lowestRank = Holding::ListToRank(m);
-    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    return def.Set1(trick);
+    if (prevL == m)
+    {
+      if (cb.minAce > cb.minOpp && cb.minAce > prevL)
+        m = nextL;
+      if (pickFlag) holdCtr[1080]++;
+      lowestRank = Holding::ListToRank(m);
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
+    }
+    else
+    {
+      if (m == cb.minAce)
+        m = nextL;
+      if (pickFlag) holdCtr[1023]++;
+      lowestRank = Holding::ListToRank(m);
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
+    }
   }
   else
     return false;
