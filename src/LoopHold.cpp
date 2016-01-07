@@ -754,17 +754,8 @@ bool LoopHold::CashoutBothDiffLength(
 
   if (cb.numTopsLongHigh == 0)
   {
-    if (cb.xShortLow > 0)
-      return LoopHold::CashoutBothDiffPdLongWeak(def, lowestRank, cb);
-    else if (cb.lenShort == 2 && cb.lenOppMax <= cb.numTopsLongLow - 1)
-    {
-      if (pickFlag) holdCtr[1026]++;
-      assert(cb.lenOppMax >= 2);
-      lowestRank = Holding::ListToRank(
-        completeList[cb.pLong][cb.lenOppMax - 2]);
-      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-      return def.Set1(trick);
-    }
+    if (LoopHold::CashoutBothDiffPdLongWeak(def, lowestRank, cb))
+      return true;
   }
   else if (cb.numTopsShortHigh == 0)
   {
@@ -1072,6 +1063,19 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
   const CashoutBothDetails& cb) const
 {
   Trick trick;
+
+    if (cb.lenShort == 2 && cb.lenOppMax <= cb.numTopsLongLow - 1)
+    {
+      if (pickFlag) holdCtr[1026]++;
+      assert(cb.lenOppMax >= 2);
+      lowestRank = Holding::ListToRank(
+        completeList[cb.pLong][cb.lenOppMax - 2]);
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
+    }
+
+    if (cb.xShortLow == 0)
+      return false;
 
   // First use up cb.numTopsShortHigh.
   unsigned no = cb.numTopsShortHigh;

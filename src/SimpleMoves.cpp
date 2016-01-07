@@ -92,8 +92,8 @@ bool MakeSimpleSingleMoveWrapper(
   // SolveCrashTricks at the moment does not test whether it has
   // a solution.  I wonder whether it self-protects with asserts?
   // We'll see later...
-  else if (holding.SolveCrashTricks(def, r, flag))
-    return true;
+  // else if (holding.SolveCrashTricks(def, r, flag))
+    // return true;
   else if (holding.SolveSimple(def, r))
     return true;
   else if (holding.CashoutBoth(def, r))
