@@ -1064,26 +1064,21 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
 {
   Trick trick;
 
-    if (cb.lenShort == 2 && cb.lenOppMax <= cb.numTopsLongLow - 1)
-    {
-      if (pickFlag) holdCtr[1026]++;
-      assert(cb.lenOppMax >= 2);
-      lowestRank = Holding::ListToRank(
-        completeList[cb.pLong][cb.lenOppMax - 2]);
-      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-      return def.Set1(trick);
-    }
+  // cb.numTopsLongHigh == 0
+  // Therefore QT_PARD is longer and has all the high tops.
 
-    if (cb.xShortLow == 0)
-      return false;
+  if (cb.lenShort == 2 && cb.lenOppMax <= cb.numTopsLongLow - 1)
+  {
+    if (pickFlag) holdCtr[1026]++;
+    assert(cb.lenOppMax >= 2);
+    lowestRank = Holding::ListToRank(
+      completeList[cb.pLong][cb.lenOppMax - 2]);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
 
-  // First use up cb.numTopsShortHigh.
-  unsigned no = cb.numTopsShortHigh;
-  unsigned na = no;
-  unsigned np = 0;
-  unsigned m = completeList[QT_ACE][na-1];
-
-  // Then cash out the opponents.
+  // Cash out the opponents.
+  unsigned no = 0, na = 0, np = 0, m = 0;
   unsigned l = Min(cb.lenOppMax, cb.lenLong);
   while (no < l)
   {
@@ -1094,8 +1089,19 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
     no++;
   }
 
+  if (np == 0)
+  {
+    if (pickFlag) holdCtr[1999]++;
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
+
   if (no >= cb.lenShort)
   {
+    if (cb.xShortLow == 0)
+      return false;
+
     // We've also cashed out the ace holder already.
     assert(np > 0);
     if (pickFlag) holdCtr[1023]++;
@@ -1106,6 +1112,9 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
   else if (np > 0 && completeList[QT_ACE][na] > 
     Max(completeList[QT_PARD][np], cb.oppMaxLowest))
   {
+    if (cb.xShortLow == 0)
+      return false;
+
     // We should have cashed partner's intermediate card first.
     if (pickFlag) holdCtr[1024]++;
     lowestRank = Holding::ListToRank(completeList[QT_ACE][na]);
@@ -1121,6 +1130,9 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
        cb.numTopsHigh != 1 ||
        cb.numTopsLow != 3))
   {
+    if (cb.xShortLow == 0)
+      return false;
+
     // Need one more high card with partner.
     // It turns out A98x / Txx / QJxxx / K is a finesse position...
     assert(np < cb.lenLong);
