@@ -1084,6 +1084,12 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
     if (pickFlag) holdCtr[1100]++;
     return false;
   }
+  else if (cb.numTopsLow <= cb.lenOppMax &&
+      cb.minAce > cb.minOpp)
+  {
+    if (pickFlag) holdCtr[1101]++;
+    return false;
+  }
 
   // Cash out the opponents.
   unsigned no = 0, na = 0, np = 0, m = 0;
@@ -1114,8 +1120,7 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
       if (prevS == m)
       {
         if (cb.lenShort == cb.lenOppMax + 1 &&
-            nextS > Max(cb.oppMaxLowest, nextL)  ) //&&
-              // completeList[cb.pLong][cb.lenOppHighest] > cb.maxPard)
+            nextS > Max(cb.oppMaxLowest, nextL))
           m = nextS;
         else
           m = nextL;
@@ -1141,13 +1146,14 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  else if (prevL == m && cb.lenOppHighest + np >= cb.lenShort)
+  else if (prevL == m && no >= cb.lenShort)
   {
-    // m = nextL;
-    // if (pickFlag) holdCtr[1080]++;
-    // lowestRank = Holding::ListToRank(m);
-    // trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    // return def.Set1(trick);
+    if (cb.minAce > cb.minOpp && cb.minAce > prevL)
+      m = nextL;
+    if (pickFlag) holdCtr[1080]++;
+    lowestRank = Holding::ListToRank(m);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
   }
 
 
@@ -1160,38 +1166,6 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
     assert(np > 0);
     if (pickFlag) holdCtr[1023]++;
     lowestRank = Holding::ListToRank(m);
-    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    return def.Set1(trick);
-  }
-  else if (np > 0 && completeList[QT_ACE][na] > 
-    Max(completeList[QT_PARD][np], cb.oppMaxLowest))
-  {
-    if (cb.xShortLow == 0)
-      return false;
-
-    // We should have cashed partner's intermediate card first.
-    if (pickFlag) holdCtr[1024]++;
-    lowestRank = Holding::ListToRank(completeList[QT_ACE][na]);
-    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    return def.Set1(trick);
-  }
-  else if (completeList[QT_PARD][np] > cb.minAce &&
-      (cb.pOppHighest == QT_LHO ||
-       cb.lenShort != 4 ||
-       cb.lenLong != 5 ||
-       cb.lenOppHighest != 1 ||
-       cb.lenOppLowest != 3 ||
-       cb.numTopsHigh != 1 ||
-       cb.numTopsLow != 3))
-  {
-    if (cb.xShortLow == 0)
-      return false;
-
-    // Need one more high card with partner.
-    // It turns out A98x / Txx / QJxxx / K is a finesse position...
-    assert(np < cb.lenLong);
-    if (pickFlag) holdCtr[1025]++;
-    lowestRank = Holding::ListToRank(completeList[QT_PARD][np]);
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
