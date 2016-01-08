@@ -679,7 +679,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  else if (cb.maxPard < cb.minAce)
+  else if (cb.maxPard < cb.minAce || cb.lenShort <= cb.lenOppHighest)
   {
     // Declarer cannot leave the ace side.
     if (pickFlag) holdCtr[0xa21]++;
