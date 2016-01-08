@@ -770,82 +770,6 @@ bool LoopHold::CashoutBothDiffLength(
       return true;
   }
 
-
-  if (cb.numTopsLongLow > 0 && 
-      cb.numTopsShortLow > 0 &&
-      cb.lenOppLowest > 0 && 
-      cb.numTopsHigh >= cb.lenOppHighest)
-  {
-    // if (pickFlag) holdCtr[921]++;
-    // Holding::Print();
-  }
-
-
-  if (pickFlag) holdCtr[932]++;
-
-  if (cb.numTopsLongHigh == 0)
-    holdCtr[801]++;
-  if (cb.numTopsShortHigh == 0)
-    holdCtr[802]++;
-  if (cb.numTopsLongHigh == 0 && cb.numTopsShortHigh == 0)
-    holdCtr[803]++;
-
-  if (cb.numTopsLongHigh == 0 || cb.numTopsShortHigh == 0)
-  {
-    if (pickFlag) holdCtr[800]++;
-    return false;
-  }
-
-
-  if (cb.numTopsLongLow + cb.numTopsShortHigh < cb.lenOppLowest)
-  {
-    if (pickFlag) holdCtr[804]++;
-    return false;
-  }
-  else
-  {
-    if (cb.lenShort <= cb.numTopsHigh)
-    {
-      // This is the general case where we can also cash out the 
-      // longer opponent with the lower highest card.  Our short
-      // partner's intermediate cards are ignored, as they will fall.
-      // Example: AJ / Qx / KTx / 987, the jack won't matter for here.
-
-      int minorsNeeded = 
-        static_cast<int>(
-        Min(cb.lenOppLowest, cb.lenLong) - 
-          cb.numTopsLongHigh - cb.numTopsShortHigh);
-
-      // Skip over the long hand's tops.
-      unsigned i = 0;
-      while (i < cb.lenLong && completeList[cb.pLong][i] > cb.oppMaxHighest)
-        i++;
-
-      int c = 1; // We're at the first minor card.
-      while (i < cb.lenLong && c < minorsNeeded)
-      {
-        i++;
-        c++;
-      }
-
-      unsigned shortSecond = completeList[cb.pShort][cb.numTopsShortHigh];
-
-if (shortSecond > completeList[cb.pLong][i])
-{
-  // AK98 / J / QT7 / 6543.  The T also cashes over the 6.
-  // Skip for now.
-  if (pickFlag) holdCtr[805]++;
-  return false;
-}
-      if (pickFlag) holdCtr[706]++;
-Holding::Print();
-      assert(i < cb.lenLong);
-      lowestRank = Holding::ListToRank(completeList[cb.pLong][i]);
-      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-      return def.Set1(trick);
-    }
-  }
-
   return false;
 }
 
@@ -1421,6 +1345,19 @@ bool LoopHold::CashoutBothDiffSplit(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
+  else if (cb.lenLong == 4 && cb.lenShort == 3 &&
+    cb.lenOppHighest == 2 && cb.lenOppLowest == 4 &&
+    cb.numTopsLongHigh == 2 && cb.numTopsShortHigh == 1 &&
+    completeList[cb.pLong][2] > cb.oppMaxLowest &&
+    completeList[cb.pLong][2] > completeList[cb.pShort][1])
+  {
+    // AK9x / JT / Qxx / xxxx.
+    if (pickFlag) holdCtr[1062]++;
+    lowestRank = Holding::ListToRank(completeList[cb.pLong][2]);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
+
 
 
   unsigned l = Min(cb.lenOppMax, cb.lenLong);
