@@ -16,7 +16,7 @@
 using namespace std;
 
 
-#define NUM_COUNTERS 2000
+#define NUM_COUNTERS 0x1000
 
 extern vector<unsigned> holdCtr;
 
@@ -170,7 +170,7 @@ void PrintHoldCounter(
   {
     if (holdCtr[i] == 0)
       continue;
-    out << setw(4) << i << setw(10) << holdCtr[i] << "\n";
+    out << setw(4) << hex << i << dec << setw(10) << holdCtr[i] << "\n";
   }
 }
 
