@@ -720,8 +720,7 @@ bool LoopHold::CashoutBothDiffLength(
   if (length[QT_PARD] > length[QT_ACE] && cb.minAce > cb.maxPard)
   {
     // Blocked.
-    if (LoopHold::CashoutBothDiffBlocked(def, lowestRank, cb))
-      return true;
+    return LoopHold::CashoutBothDiffBlocked(def, lowestRank, cb);
   }
 
   if (cb.numTopsHigh >= Min(cb.lenOppMax, cb.lenLong))
@@ -732,20 +731,17 @@ bool LoopHold::CashoutBothDiffLength(
 
   if (cb.numTopsLongHigh == 0)
   {
-    if (LoopHold::CashoutBothDiffPdLongWeak(def, lowestRank, cb))
-      return true;
+    return LoopHold::CashoutBothDiffPdLongWeak(def, lowestRank, cb);
   }
   else if (cb.numTopsShortHigh == 0)
   {
     // Later just return directly.
-    if (LoopHold::CashoutBothDiffLongStrong(def, lowestRank, cb))
-      return true;
+    return LoopHold::CashoutBothDiffLongStrong(def, lowestRank, cb);
   }
   else
   {
     // Later just return directly.
-    if (LoopHold::CashoutBothDiffSplit(def, lowestRank, cb))
-      return true;
+    return LoopHold::CashoutBothDiffSplit(def, lowestRank, cb);
   }
 
   return false;
@@ -1439,8 +1435,6 @@ bool LoopHold::CashoutBothDiffSplit(
     }
   }
 
-
-// PrintCashoutDetails(cb);
   if (cb.numTopsShortLow == cb.lenShort &&
       cb.lenShort <= cb.lenOppMax &&
       m == prevL && completeList[cb.pShort][cb.lenShort-1] > prevL) 
