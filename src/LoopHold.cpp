@@ -560,8 +560,7 @@ bool LoopHold::CashoutBoth(
     return false;
   }
 
-  if (cb.numTopsHigh < cb.lenCashHigh || 
-      cb.numTopsLow < cb.lenCashLow)
+  if (cb.numTopsHigh < cb.lenCashHigh || cb.numTopsLow < cb.lenCashLow)
   {
     // Not enough tops for one or the other opponent.
     return false;
@@ -592,10 +591,10 @@ bool LoopHold::CashoutBothSameLength(
   Trick trick, trick2;
   unsigned r;
 
-assert(cb.numTopsLongHigh > 0);
+  assert(cb.numTopsLongHigh > 0);
+  assert(cb.numTopsLongLow > 0);
 
-  if (cb.numTopsLongHigh > 0 && 
-      cb.numTopsShortHigh > 0 &&
+  if (cb.numTopsShortHigh > 0 &&
       cb.numTopsHigh == cb.lenLong && 
       cb.lenLong <= cb.lenOppMax)
   {
@@ -613,12 +612,18 @@ assert(cb.numTopsLongHigh > 0);
     {
       // AKT / - / 987 / QJ.
       if (pickFlag) holdCtr[0xa01]++;
+if (cb.lenOppMax != cb.lenCashLow)
+{
+  Holding::Print();
+  PrintCashoutDetails(cb);
+  assert(false);
+}
       lowestRank = Holding::ListToRank(
         completeList[QT_ACE][cb.lenOppMax - 1]);
       trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
       return def.Set1(trick);
     }
-    else if (cb.numTopsLongHigh > 0 && cb.numTopsShortHigh > 0)
+    else if (cb.numTopsShortHigh > 0)
     {
       // Both ace holder and partner have tops over pOppHighest.
 
@@ -1500,7 +1505,10 @@ bool LoopHold::SetCashoutBothDetails(
   cb.lenOppMax = Max(cb.lenOppHighest, cb.lenOppLowest);
 
   cb.lenCashHigh = Min(cb.lenLong, cb.lenOppHighest);
-  cb.lenCashLow = Min(cb.lenLong, cb.lenOppLowest);
+  if (cb.lenOppLowest == 0)
+    cb.lenCashLow = Min(cb.lenLong, cb.lenOppHighest);
+  else
+    cb.lenCashLow = Min(cb.lenLong, cb.lenOppLowest);
 
   cb.minAce = completeList[QT_ACE][length[QT_ACE]-1];
   cb.maxPard = completeList[QT_PARD][0];
@@ -1629,6 +1637,7 @@ void LoopHold::GetOppLengths(
 void LoopHold::PrintCashoutDetails(
   const CashoutBothDetails& cb) const
 {
+  cout << left;
   cout << setw(18) << "lenLong" << cb.lenLong << "\n"; 
   cout << setw(18) << "lenShort" << cb.lenShort << "\n"; 
   cout << setw(18) << "pLong" << POS_NAMES[cb.pLong] << "\n"; 
