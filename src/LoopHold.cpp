@@ -1164,8 +1164,11 @@ bool LoopHold::CashoutBothDiffLongStrong(
 {
   Trick trick;
 
-  if (cb.lenLong > cb.lenShort && cb.lenShort >= 3 &&
-    cb.lenOppHighest == 1 && cb.lenOppLowest == 2 && cb.numTopsLow >= 3 &&
+  if (cb.lenLong > cb.lenShort && 
+    cb.lenOppHighest == 1 && 
+    ((cb.lenOppLowest == 2 && cb.lenShort >= 3) ||
+     (cb.lenOppLowest == 3 && cb.lenShort == 3)) &&
+    cb.numTopsLow >= 3 &&
     Min(cb.maxPard, completeList[QT_ACE][1]) >= suitLength - 4)
   {
     // AQxx+ / K / Jxx+ / xx.
