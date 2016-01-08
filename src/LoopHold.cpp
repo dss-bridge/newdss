@@ -726,6 +726,19 @@ bool LoopHold::CashoutBothDiffStrongTops(
   }
   else if (length[QT_PARD] > cb.lenOppHighest + 1 &&
       cb.lenOppLowest < cb.lenOppHighest &&
+      completeList[QT_ACE][cb.lenOppHighest] > cb.maxPard)
+  {
+    if (pickFlag) holdCtr[1044]++;
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppHighest]);
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
+    return def.Set11(trick, trick2);
+  }
+
+
+  else if (length[QT_PARD] > cb.lenOppHighest + 1 &&
+      cb.lenOppLowest < cb.lenOppHighest &&
       cb.pOppHighest == QT_LHO && 
       completeList[QT_ACE][cb.lenOppHighest] < cb.maxPard &&
       completeList[QT_ACE][cb.lenOppHighest] > 
@@ -737,17 +750,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  else if (length[QT_PARD] > cb.lenOppHighest + 1 &&
-      cb.lenOppLowest < cb.lenOppHighest &&
-      completeList[QT_ACE][cb.lenOppHighest] > cb.maxPard)
-  {
-    if (pickFlag) holdCtr[1044]++;
-    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppHighest]);
-    lowestRank = Holding::ListToRank(cb.maxPard);
-    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
-    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
-    return def.Set11(trick, trick2);
-  }
+
   else if (cb.pShort == QT_PARD &&
     completeList[QT_PARD][cb.lenShort-1] >
       completeList[QT_ACE][cb.lenOppMax])
@@ -774,6 +777,8 @@ bool LoopHold::CashoutBothDiffStrongTops(
     if (pickFlag) holdCtr[1053]++;
     return false;
   }
+
+
   else
   {
     if (pickFlag) holdCtr[1050]++;
