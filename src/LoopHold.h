@@ -128,6 +128,17 @@ class LoopHold: public Holding
       unsigned xShortLow; // After pOppLowest: lenShort - numTopsShortLow
     };
 
+    struct PlayDetails
+    {
+      unsigned nextLong;
+      unsigned nextShort;
+      unsigned prevLong;
+      unsigned prevShort;
+      unsigned prevPlay;
+      unsigned numLong;
+      unsigned numShort;
+    };
+
 
     void SolveCrashTricksHand(
       const HoldingDetails& hdet,
@@ -202,6 +213,11 @@ class LoopHold: public Holding
       unsigned& rank,
       const CashoutBothDetails& cb) const;
      
+    void SetPlayDetails(
+      const unsigned len,
+      const CashoutBothDetails& cb,
+      PlayDetails &pd) const;
+
     bool SetCashoutBothDetails(
       CashoutBothDetails& cb) const;
 
