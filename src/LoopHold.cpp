@@ -628,35 +628,18 @@ bool LoopHold::CashoutBothSameLength(
     PlayDetails pd;
     LoopHold::SetPlayDetails(cb.lenCashLow, cb, pd);
 
-    unsigned na = 0, np = 0;
-    for (unsigned no = 0; no < cb.lenCashLow; no++)
+    if (cb.maxPard >= pd.prevPlay)
     {
-      if (completeList[QT_ACE][na] > completeList[QT_PARD][np])
-        na++;
-      else
-        np++;
-    }
-
-    unsigned pa = pd.prevLong;
-    unsigned pl = pd.prevShort;
-
-    unsigned m = Holding::ListToRank(cb.maxPard);
-    r = Holding::ListToRank(Min(pa, pl));
-
-    if (m >= r)
-    {
-      if (pickFlag) holdCtr[0xa05]++;
-      lowestRank = r;
+      if (pickFlag) holdCtr[0xa03]++;
+      lowestRank = Holding::ListToRank(pd.prevPlay);
       trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
       return def.Set1(trick);
     }
     else
     {
-      if (pickFlag) holdCtr[0xa06]++;
-      lowestRank = m;
-      // if (cb.numTopsHigh < cb.lenOppLowest || np == 0)
-      if (cb.numTopsHigh < cb.lenOppLowest)
-        r = Holding::ListToRank(pa);
+      if (pickFlag) holdCtr[0xa04]++;
+      lowestRank = Holding::ListToRank(cb.maxPard);
+      r = Holding::ListToRank(pd.prevPlay);
       trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
       trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
       return def.Set11(trick, trick2);
