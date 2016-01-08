@@ -692,16 +692,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
   }
 
 
-  if (length[QT_PARD] <= cb.lenOppLowest && cb.maxPard < cb.minOpp)
-  {
-    if (pickFlag) holdCtr[1040]++;
-    lowestRank = Holding::ListToRank(
-      completeList[QT_ACE][cb.lenOppMax - 1]);
-    trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
-    return def.Set1(trick);
-  }
-  else if (cb.numTopsLongHigh >= cb.lenOppHighest + 1 &&
-    cb.numTopsLongHigh >= cb.lenOppLowest &&
+  else if (cb.numTopsLongHigh >= cb.lenShort &&
     cb.lenShort == cb.lenOppHighest + 1)
   {
     // AKQ843 / 9 / 765 / JT and many others.
@@ -715,7 +706,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set12(trick, trick2, trick21);
   }
-  else if (cb.numTopsLongHigh >= cb.lenOppMax + 1 &&
+  else if (cb.numTopsLongHigh >= cb.lenShort &&
     cb.numTopsShortLow == 0 && 
     cb.lenShort == cb.lenOppMax + 1)
   {
@@ -729,8 +720,8 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set12(trick, trick2, trick21);
   }
-  else if (cb.numTopsLongHigh == cb.lenOppHighest &&
-    completeList[QT_ACE][cb.lenOppHighest] > completeList[QT_PARD][0] &&
+  else if (// cb.numTopsLongHigh == cb.lenOppHighest &&
+    completeList[QT_ACE][cb.lenOppHighest] > cb.maxPard &&
     cb.numTopsLongLow >= cb.lenOppLowest &&
     cb.lenShort == cb.lenOppHighest + 1)
   {
