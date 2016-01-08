@@ -604,7 +604,7 @@ bool LoopHold::CashoutBothSameLength(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  if (cb.minAce > cb.maxPard)
+  else if (cb.minAce > cb.maxPard)
   {
     // AKT / - / 987 / QJ.
     if (pickFlag) holdCtr[0xa01]++;
@@ -613,45 +613,62 @@ bool LoopHold::CashoutBothSameLength(
     trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
+  else if (cb.numTopsShortLow == 0)
+  {
+    // AK8 / Q7 / JT9 / -.
+    if (pickFlag) holdCtr[0xa02]++;
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenCashLow - 1]);
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
+    return def.Set11(trick, trick2);
+  }
   else if (cb.numTopsHigh >= cb.lenOppLowest)
   {
     // pOppLowest opponent doesn't matter.
 
-    if (cb.numTopsShortHigh > 0)
+    // Both ace holder and partner have tops over pOppHighest.
+
+    unsigned na = 0, np = 0;
+    for (unsigned no = 0; no < cb.lenCashLow; no++)
     {
-      // Both ace holder and partner have tops over pOppHighest.
-
-      unsigned m = Holding::ListToRank(cb.maxPard);
-      r = SDS_VOID - cb.lenOppMax;
-
-      if (m >= r)
-      {
-        if (pickFlag) holdCtr[0xa02]++;
-        lowestRank = r;
-        trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-        return def.Set1(trick);
-      }
+      if (completeList[QT_ACE][na] > completeList[QT_PARD][np])
+        na++;
       else
-      {
-        if (pickFlag) holdCtr[0xa03]++;
-        lowestRank = m;
-        trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
-        trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
-        return def.Set11(trick, trick2);
-      }
+        np++;
+    }
+
+    unsigned pa = completeList[QT_ACE][na-1];
+    unsigned pl = (np == 0 ? pa : Min(pa, completeList[QT_PARD][np-1]));
+
+
+
+    unsigned m = Holding::ListToRank(cb.maxPard);
+    r = SDS_VOID - cb.lenOppMax;
+if (r != Holding::ListToRank(pl))
+{
+  Holding::Print();
+  PrintCashoutDetails(cb);
+  assert(false);
+}
+
+    if (m >= r)
+    {
+      if (pickFlag) holdCtr[0xa03]++;
+      lowestRank = r;
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
     }
     else
     {
-      // AK8 / Q7 / JT9 / -.
       if (pickFlag) holdCtr[0xa04]++;
-      r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppMax - 1]);
-      lowestRank = Holding::ListToRank(cb.maxPard);
+      lowestRank = m;
       trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
       trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
       return def.Set11(trick, trick2);
     }
   }
-  else if (cb.numTopsLongLow > 0 && cb.numTopsShortLow > 0)
+  else
   {
     // Both ace holder and partner have tops over pOppLowest.
     // Skip over lenCashLow top cards with declarer's side.
@@ -686,15 +703,6 @@ bool LoopHold::CashoutBothSameLength(
       trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
       return def.Set11(trick, trick2);
     }
-  }
-  else
-  {
-    if (pickFlag) holdCtr[0xa07]++;
-    r = Holding::ListToRank(completeList[QT_ACE][cb.lenCashLow - 1]);
-    lowestRank = Holding::ListToRank(cb.maxPard);
-    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
-    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
-    return def.Set11(trick, trick2);
   }
 }
 
