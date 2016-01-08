@@ -146,7 +146,7 @@ class LoopHold: public Holding
       const HoldingDetails& hdet,
       SideDetails& sdet,
       const bool oppSkippedFlag,
-      const PosType oppSkipped = QT_ACE); // Anything
+      const PosType oppSkipped = QT_ACE) const; // Anything
 
     void PrintHoldingDetails(
       const HoldingDetails& hdet) const;
@@ -156,7 +156,7 @@ class LoopHold: public Holding
 
     void ShiftMinUp(
       SideDetails& sdet,
-      const PosType oppSkipped);
+      const PosType oppSkipped) const;
 
     void ShiftMinDown(
       const SideDetails& sdet,
@@ -264,11 +264,11 @@ class LoopHold: public Holding
     bool SolveCrashTricks(
       DefList& def,
       unsigned& rank,
-      bool& flag);
+      bool& flag) const;
 
     bool CashoutBoth(
       DefList& def,
-      unsigned& rank);
+      unsigned& rank) const;
      
     bool SolveSimple(
       DefList& def,

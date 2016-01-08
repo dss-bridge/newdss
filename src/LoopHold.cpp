@@ -258,7 +258,7 @@ void LoopHold::CashoutAce(
 bool LoopHold::SolveCrashTricks(
   DefList& def,
   unsigned& rank,
-  bool& flag)
+  bool& flag) const
 {
   // There is always only a single defense.
   // If the function returns true, the solution is of the form
@@ -549,7 +549,7 @@ void LoopHold::MinCrashDetails(
 
 bool LoopHold::CashoutBoth(
   DefList& def,
-  unsigned& lowestRank)
+  unsigned& lowestRank) const
 {
   CashoutBothDetails cb;
   if (! LoopHold::SetCashoutBothDetails(cb))
@@ -560,12 +560,27 @@ bool LoopHold::CashoutBoth(
     return false;
   }
 
+  if (cb.numTopsHigh < cb.lenCashHigh || 
+      cb.numTopsLow < cb.lenCashLow)
+  {
+    // Not enough tops for one or the other opponent.
+    return false;
+  }
+
   pickFlag = true;
 
   if (cb.lenLong == cb.lenShort)
     return LoopHold::CashoutBothSameLength(def, lowestRank, cb);
+  else if (length[QT_PARD] > length[QT_ACE] && cb.minAce > cb.maxPard)
+    return LoopHold::CashoutBothDiffBlocked(def, lowestRank, cb);
+  else if (cb.numTopsHigh >= Min(cb.lenOppMax, cb.lenLong))
+    return LoopHold::CashoutBothDiffStrongTops(def, lowestRank, cb);
+  else if (cb.numTopsLongHigh == 0)
+    return LoopHold::CashoutBothDiffPdLongWeak(def, lowestRank, cb);
+  else if (cb.numTopsShortHigh == 0)
+    return LoopHold::CashoutBothDiffLongStrong(def, lowestRank, cb);
   else
-    return LoopHold::CashoutBothDiffLength(def, lowestRank, cb);
+    return LoopHold::CashoutBothDiffSplit(def, lowestRank, cb);
 }
 
 
@@ -574,8 +589,6 @@ bool LoopHold::CashoutBothSameLength(
   unsigned& lowestRank,
   const CashoutBothDetails& cb) const
 {
-  // This function is complete.
-
   Trick trick, trick2;
   unsigned r;
 
@@ -1710,7 +1723,7 @@ void LoopHold::SetSpecificDetails(
   const HoldingDetails& hdet,
   SideDetails& sdet,
   const bool oppSkippedFlag,
-  const PosType oppSkipped)
+  const PosType oppSkipped) const
 {
   if (oppSkippedFlag)
   {
@@ -1769,7 +1782,7 @@ void LoopHold::PrintHoldingDetails(
 
 void LoopHold::ShiftMinUp(
   SideDetails& sdet,
-  const PosType oppSkipped)
+  const PosType oppSkipped) const
 {
   // Compensate for ranks with skipped opponent.
   // This is a bit of a kludge.
