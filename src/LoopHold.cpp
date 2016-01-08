@@ -604,26 +604,20 @@ bool LoopHold::CashoutBothSameLength(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
+  if (cb.minAce > cb.maxPard)
+  {
+    // AKT / - / 987 / QJ.
+    if (pickFlag) holdCtr[0xa01]++;
+    lowestRank = Holding::ListToRank(
+      completeList[QT_ACE][cb.lenCashLow - 1]);
+    trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
   else if (cb.numTopsHigh >= cb.lenOppLowest)
   {
     // pOppLowest opponent doesn't matter.
 
-    if (cb.minAce > cb.maxPard)
-    {
-      // AKT / - / 987 / QJ.
-      if (pickFlag) holdCtr[0xa01]++;
-if (cb.lenOppMax != cb.lenCashLow)
-{
-  Holding::Print();
-  PrintCashoutDetails(cb);
-  assert(false);
-}
-      lowestRank = Holding::ListToRank(
-        completeList[QT_ACE][cb.lenOppMax - 1]);
-      trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
-      return def.Set1(trick);
-    }
-    else if (cb.numTopsShortHigh > 0)
+    if (cb.numTopsShortHigh > 0)
     {
       // Both ace holder and partner have tops over pOppHighest.
 
@@ -657,14 +651,6 @@ if (cb.lenOppMax != cb.lenCashLow)
       return def.Set11(trick, trick2);
     }
   }
-  else if (cb.minAce > cb.maxPard)
-  {
-    if (pickFlag) holdCtr[0xa05]++;
-    lowestRank = Holding::ListToRank(
-      completeList[QT_ACE][cb.lenCashLow - 1]);
-    trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
-    return def.Set1(trick);
-  }
   else if (cb.numTopsLongLow > 0 && cb.numTopsShortLow > 0)
   {
     // Both ace holder and partner have tops over pOppLowest.
@@ -686,14 +672,14 @@ if (cb.lenOppMax != cb.lenCashLow)
 
     if (m >= r)
     {
-      if (pickFlag) holdCtr[0xa06]++;
+      if (pickFlag) holdCtr[0xa05]++;
       lowestRank = r;
       trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
       return def.Set1(trick);
     }
     else
     {
-      if (pickFlag) holdCtr[0xa07]++;
+      if (pickFlag) holdCtr[0xa06]++;
       lowestRank = Holding::ListToRank(cb.maxPard);
       r = Holding::ListToRank(pa);
       trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
@@ -703,7 +689,7 @@ if (cb.lenOppMax != cb.lenCashLow)
   }
   else
   {
-    if (pickFlag) holdCtr[0xa08]++;
+    if (pickFlag) holdCtr[0xa07]++;
     r = Holding::ListToRank(completeList[QT_ACE][cb.lenCashLow - 1]);
     lowestRank = Holding::ListToRank(cb.maxPard);
     trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
