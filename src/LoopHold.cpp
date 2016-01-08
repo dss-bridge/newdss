@@ -679,9 +679,11 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  else if (cb.maxPard < cb.minAce || cb.lenShort <= cb.lenOppHighest)
+  else if (cb.maxPard < cb.minAce || cb.lenShort <= cb.lenOppHighest ||
+      (cb.lenShort <= cb.lenOppLowest && cb.maxPard < cb.minOpp))
   {
-    // Declarer cannot leave the ace side.
+    // Declarer cannot leave the ace side, or
+    // Partner is shorter than a relevant opponent.
     if (pickFlag) holdCtr[0xa21]++;
     unsigned l = cb.lenOppMax + (cb.lenShort > cb.lenOppMax ? 1 : 0);
     lowestRank = Holding::ListToRank(completeList[QT_ACE][l - 1]);
@@ -690,22 +692,17 @@ bool LoopHold::CashoutBothDiffStrongTops(
   }
 
 
-  if (length[QT_PARD] <= cb.lenOppHighest ||
-    (length[QT_PARD] <= cb.lenOppLowest && cb.maxPard < cb.minOpp))
+  if (length[QT_PARD] <= cb.lenOppLowest && cb.maxPard < cb.minOpp)
   {
-    // Partner is shorter than a relevant opponent.
     if (pickFlag) holdCtr[1040]++;
     lowestRank = Holding::ListToRank(
       completeList[QT_ACE][cb.lenOppMax - 1]);
     trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  else if (cb.pLong == QT_ACE && 
-    cb.numTopsLongHigh >= cb.lenOppHighest + 1 &&
+  else if (cb.numTopsLongHigh >= cb.lenOppHighest + 1 &&
     cb.numTopsLongHigh >= cb.lenOppLowest &&
-    cb.lenShort == cb.lenOppHighest + 1 &&
-    cb.numTopsShortHigh == 0 && 
-    cb.maxPard > cb.minAce)
+    cb.lenShort == cb.lenOppHighest + 1)
   {
     // AKQ843 / 9 / 765 / JT and many others.
     if (pickFlag) holdCtr[1045]++;
@@ -718,11 +715,9 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set12(trick, trick2, trick21);
   }
-  else if (cb.pLong == QT_ACE &&
-    cb.numTopsLongHigh >= cb.lenOppMax + 1 &&
-    cb.numTopsShortLow == 0 &&
-    cb.lenShort == cb.lenOppMax + 1 &&
-    cb.maxPard > cb.minAce)
+  else if (cb.numTopsLongHigh >= cb.lenOppMax + 1 &&
+    cb.numTopsShortLow == 0 && 
+    cb.lenShort == cb.lenOppMax + 1)
   {
     // AKQT7 / J / 865 / 94.
     if (pickFlag) holdCtr[1055]++;
@@ -734,26 +729,10 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set12(trick, trick2, trick21);
   }
-  else if (cb.pLong == QT_ACE &&
-    cb.numTopsLongHigh >= cb.lenOppMax + 1 &&
-    cb.numTopsShortLow == 0 &&
-    cb.lenShort >= cb.lenOppMax + 2 &&
-    cb.maxPard > cb.minAce)
-  {
-    // AKQTx / J / 7xxx / 98.
-    if (pickFlag) holdCtr[1056]++;
-    lowestRank = Holding::ListToRank(cb.maxPard);
-    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppMax]);
-    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
-    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
-    return def.Set11(trick, trick2);
-  }
-  else if (cb.pLong == QT_ACE &&
-    cb.numTopsLongHigh == cb.lenOppHighest &&
+  else if (cb.numTopsLongHigh == cb.lenOppHighest &&
     completeList[QT_ACE][cb.lenOppHighest] > completeList[QT_PARD][0] &&
     cb.numTopsLongLow >= cb.lenOppLowest &&
-    cb.lenShort == cb.lenOppHighest + 1 &&
-    cb.maxPard > cb.minAce)
+    cb.lenShort == cb.lenOppHighest + 1)
   {
     // AQJT8 / K / 97 / 65.
     if (pickFlag) holdCtr[1046]++;
@@ -765,6 +744,18 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenShort);
     trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set12(trick, trick2, trick21);
+  }
+
+  else if (cb.numTopsLongHigh >= cb.lenOppMax + 1 &&
+    cb.lenShort >= cb.lenOppMax + 2)
+  {
+    // AKQTx / J / 7xxx / 98.
+    if (pickFlag) holdCtr[1056]++;
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppMax]);
+    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
+    return def.Set11(trick, trick2);
   }
   else if (length[QT_PARD] > cb.lenOppHighest + 1 &&
       cb.lenOppLowest < cb.lenOppHighest &&
@@ -804,8 +795,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
     if (pickFlag) holdCtr[1052]++;
     return false;
   }
-  else if (cb.pShort == QT_PARD &&
-    cb.lenLong >= 5 && cb.lenShort >= 4 && 
+  else if (cb.lenLong >= 5 && cb.lenShort >= 4 && 
     length[QT_RHO] == 2 &&
     cb.maxOpp == suitLength - 3 &&
     cb.numTopsLongHigh == 2 &&
