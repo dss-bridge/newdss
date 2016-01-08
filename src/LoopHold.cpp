@@ -838,40 +838,11 @@ if (shortSecond > completeList[cb.pLong][i])
   return false;
 }
       if (pickFlag) holdCtr[706]++;
+Holding::Print();
       assert(i < cb.lenLong);
       lowestRank = Holding::ListToRank(completeList[cb.pLong][i]);
       trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
       return def.Set1(trick);
-    }
-    else
-    {
-      assert(cb.numTopsHigh == 2);
-      if (cb.lenOppHighest == 1)
-      {
-        if (cb.lenOppLowest == 3)
-        {
-        }
-        else // (lenOppLowest == 4 or 5)
-        {
-          if (completeList[cb.pLong][cb.numTopsLongHigh] <
-                   completeList[cb.pShort][cb.numTopsShortHigh])
-          {
-            // Don't want the jack on the short side.
-            if (pickFlag) holdCtr[808]++;
-            return false;
-          }
-          else
-          {
-            // Need JT.
-            if (pickFlag) holdCtr[708]++;
-            // Is -1 in the wrong place?!
-            lowestRank = Holding::ListToRank(
-                   completeList[cb.pLong][cb.numTopsLongHigh] - 1);
-            trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-            return def.Set1(trick);
-          }
-        }
-      }
     }
   }
 
@@ -944,6 +915,22 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenShort);
     trick21.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set12(trick, trick2, trick21);
+  }
+  else if (cb.pLong == QT_ACE &&
+    cb.numTopsLongHigh >= cb.lenOppMax + 1 &&
+    cb.numTopsShortLow == 0 &&
+    cb.lenShort >= cb.lenOppMax + 2 &&
+    cb.maxPard > cb.minAce)
+  {
+    // AKQTx / J / 7xxx / 98.
+    if (pickFlag) holdCtr[1056]++;
+    lowestRank = Holding::ListToRank(cb.maxPard);
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppMax]);
+    trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    // Trick trick21;
+    // trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenShort);
+    trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
+    return def.Set11(trick, trick2);
   }
   else if (cb.pLong == QT_ACE &&
     cb.numTopsLongHigh == cb.lenOppHighest &&
