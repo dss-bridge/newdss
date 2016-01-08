@@ -1065,17 +1065,7 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
   Trick trick;
 
   // cb.numTopsLongHigh == 0
-  // Therefore QT_PARD is longer and has all the high tops.
-
-  if (cb.lenShort == 2 && cb.lenOppMax <= cb.numTopsLongLow - 1)
-  {
-    if (pickFlag) holdCtr[1026]++;
-    assert(cb.lenOppMax >= 2);
-    lowestRank = Holding::ListToRank(
-      completeList[cb.pLong][cb.lenOppMax - 2]);
-    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    return def.Set1(trick);
-  }
+  // Therefore QT_PARD is longer and has none of the high tops.
 
   if (cb.numTopsLow == cb.lenOppMax &&
       cb.lenShort > cb.lenOppMax &&
@@ -1146,29 +1136,24 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
-  else if (no >= cb.lenShort)
+  else if (prevL == m)
   {
-    if (prevL == m)
-    {
-      if (cb.minAce > cb.minOpp && cb.minAce > prevL)
-        m = nextL;
-      if (pickFlag) holdCtr[1080]++;
-      lowestRank = Holding::ListToRank(m);
-      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-      return def.Set1(trick);
-    }
-    else
-    {
-      if (m == cb.minAce)
-        m = nextL;
-      if (pickFlag) holdCtr[1023]++;
-      lowestRank = Holding::ListToRank(m);
-      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-      return def.Set1(trick);
-    }
+    if (cb.minAce > cb.minOpp && cb.minAce > prevL)
+      m = nextL;
+    if (pickFlag) holdCtr[1080]++;
+    lowestRank = Holding::ListToRank(m);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
   }
   else
-    return false;
+  {
+    if (m == cb.minAce)
+      m = nextL;
+    if (pickFlag) holdCtr[1023]++;
+    lowestRank = Holding::ListToRank(m);
+    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick);
+  }
 }
 
 
@@ -1435,6 +1420,117 @@ bool LoopHold::CashoutBothDiffSplit(
     trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick);
   }
+
+  unsigned l = Min(cb.lenOppMax, cb.lenLong);
+  unsigned na = 0, np = 0, m = 0, no = 0;
+  while (no < l)
+  {
+      if (completeList[cb.pLong][na] > completeList[cb.pShort][np])
+      m = completeList[cb.pLong][na++];
+    else
+      m = completeList[cb.pShort][np++];
+    no++;
+  }
+
+  if (cb.numTopsLow <= cb.lenOppMax &&
+      cb.numTopsShortLow == cb.lenShort)
+  {
+    return false;
+  }
+
+  unsigned nextL = completeList[cb.pLong][na];
+  unsigned nextS = completeList[cb.pShort][np];
+  unsigned prevL = completeList[cb.pLong][na-1];
+  unsigned prevS = (np > 0 ? completeList[cb.pShort][np-1] : SDS_VOID);
+
+  if (cb.lenShort == 3 && cb.lenLong >= 4 && cb.numTopsHigh == 2 &&
+    cb.lenOppHighest == 2 && cb.lenOppLowest >= 3 &&
+    (completeList[cb.pShort][1] == suitLength-4 ||
+    (completeList[cb.pShort][1] == suitLength-5 ||
+     completeList[cb.pShort][2] == suitLength-6)))
+  {
+    return false;
+  }
+  else if (cb.lenShort == 3 && cb.lenLong == 4 &&
+    cb.lenOppHighest == 2 && cb.lenOppLowest == 4)
+  {
+    if (cb.numTopsLow == cb.lenOppMax &&
+        cb.numTopsShortHigh == 1 &&
+        cb.numTopsShortLow > 1)
+    {
+      return false;
+    }
+    else if (cb.numTopsLow >= cb.lenOppMax + 1 &&
+        cb.numTopsShortHigh == 1 &&
+        cb.numTopsShortLow == 3)
+    {
+      return false;
+    }
+    else if (cb.numTopsHigh == 3 && cb.numTopsShortHigh == 1 &&
+      cb.numTopsLongLow == 2 && cb.numTopsShortLow == 3)
+    {
+      return false;
+    }
+    else if (cb.numTopsHigh == 3 && cb.numTopsShortHigh == 1 &&
+      ((cb.pShort == QT_ACE && cb.pOppHighest == QT_RHO) ||
+       (cb.pShort == QT_PARD && cb.pOppHighest == QT_LHO)) &&
+      completeList[cb.pShort][1] == suitLength-5)
+    {
+      // ATx / xxxx / KQxx / Jx.
+      return false;
+    }
+  }
+  else if (cb.lenShort == 4 && cb.lenLong == 5 &&
+    cb.lenOppHighest == 1 && cb.lenOppLowest == 3)
+  {
+    if (cb.numTopsHigh == 2 && 
+        cb.numTopsLow == 3 &&
+        completeList[cb.pLong][cb.numTopsLongLow] < 
+          completeList[cb.pShort][3])
+    {
+      return false;
+    }
+  }
+
+
+// PrintCashoutDetails(cb);
+  if (cb.numTopsShortLow == cb.lenShort &&
+      cb.lenShort <= cb.lenOppMax &&
+      m == prevL && completeList[cb.pShort][cb.lenShort-1] > prevL) 
+  {
+    m = nextL;
+  }
+  else if (cb.numTopsShortLow == cb.lenShort &&
+      cb.lenShort <= cb.lenOppMax &&
+      m == prevS && np == cb.lenShort)
+  {
+    m = nextL;
+  }
+  else if (l < cb.lenShort)
+  {
+    if (nextS > cb.minOpp)
+      m = Max(nextL, nextS);
+    else
+      m = nextL;
+  }
+  else if (cb.numTopsHigh == cb.lenOppHighest &&
+    m == prevS && cb.numTopsShortLow + na >= cb.lenShort)
+  {
+    m = nextL;
+  }
+  else if (cb.lenShort == cb.lenOppHighest + 1 &&
+    cb.numTopsShortHigh < cb.lenOppHighest &&
+    m == prevS)
+  {
+    m = nextL;
+  }
+    
+
+  if (pickFlag) holdCtr[1061]++;
+  lowestRank = Holding::ListToRank(m);
+  trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+  return def.Set1(trick);
+
 
   return false;
 }
@@ -2492,6 +2588,18 @@ bool LoopHold::SolveSimple6(Trick& move) const
 
   if (length[pl] == 1)
   {
+    if ((distHex == 0x4351 || distHex == 0x5143) && htop.T == pr &&
+      (htop.N == pa || (htop.N == pp && ! hopp.E)))
+    {
+  
+      // AJ98x / Q / Kxxx / Txx.
+      // AJ9xx / Q / K8xx / Txx.
+      // AJxxx / Q / K9xx / Txx.
+      if (pickFlag) holdCtr[467]++;
+      unsigned r = (htop.N == pa ? SDS_VOID-6 : SDS_VOID-7);
+      return move.Set(QT_BOTH, QT_BOTH, r, 5);
+    }
+
     if (length[pr] <= 3)
       return false;
 
@@ -2927,6 +3035,15 @@ bool LoopHold::SolveSimple14(Trick& move) const
     // AJxx / 9 / KT8x / Qxxx.
     if (pickFlag) holdCtr[381]++;
     return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+  }
+
+  if ((distHex == 0x5341 || distHex == 0x4153) && 
+    htop.T == pl && htop.N == pp)
+  {
+    // AJxxx / Txx / K9xx / Q.
+    if (pickFlag) holdCtr[382]++;
+    unsigned r = (htop.N == pp ? SDS_VOID-6 : SDS_VOID-7);
+    return move.Set(QT_BOTH, QT_BOTH, r, 5);
   }
 
   if (length[pa] <= 2 || length[pr] >= 3 || length[pl] <= 3)
