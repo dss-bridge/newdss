@@ -3577,20 +3577,29 @@ bool LoopHold::SolveSimple28(Trick& move) const
     pp = QT_ACE;
     pr = QT_LHO;
   }
-  //
-  // Should rotate to have the stiff opposing honor with pr.
-  //
 
   PosType pend = (htop.K == QT_ACE ? QT_ACE : QT_BOTH);
 
-  if (pend == QT_BOTH && distHex == 0x4441 && 
-    ! hopp.T && ! hopp.N && ! hopp.E &&
-    (htop.T == QT_ACE && htop.N == QT_ACE && htop.E == QT_ACE))
+  if (pend == QT_BOTH && 
+    (distHex == 0x4441 || distHex == 0x4144) && 
+    htop.T == pa && htop.N == pa && htop.E == pa)
   {
-    // Axxx / Hxxx / Kxxx / H with T98, T9, T8, 98, T, 9 with ace.
+    // AT98 / Hxxx / Kxxx / H.
+    // Axxx / H / KT98 / H.
     if (pickFlag) holdCtr[302]++;
     return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
+  /*
+  else if (pend == QT_BOTH && distHex == 0x4144 &&
+    (htop.T == QT_PARD && htop.N == QT_PARD && htop.E == QT_PARD))
+  {
+    // ATxx / H / K98x / Jxxx.
+    // A9xx / H / KT8x / Jxxx.
+    if (pickFlag) holdCtr[304]++;
+    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
+  }
+  */
+
   else if (pend == QT_BOTH && ! hopp.T && htop.T == htop.N &&
     length[QT_ACE] >= 3)
   {
@@ -3674,15 +3683,6 @@ bool LoopHold::SolveSimple28(Trick& move) const
       if (pickFlag) holdCtr[303]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
     }
-  }
-  else if (pend == QT_BOTH && distHex == 0x4144 &&
-    ! hopp.T && ! hopp.N && ! hopp.E && 
-    (htop.T == QT_PARD && htop.N == QT_PARD && htop.E == QT_PARD))
-  {
-    // ATxx / H / K98x / Jxxx.
-    // A9xx / H / KT8x / Jxxx.
-    if (pickFlag) holdCtr[304]++;
-    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
 
   if (length[QT_LHO] >= 2 && length[QT_RHO] >= 2 &&
