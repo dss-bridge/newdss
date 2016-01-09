@@ -10,6 +10,7 @@ DefList
 SimpleMoves
 ComplexMoves
 Holding
+LoopHold
 
 Dist
 Twiddle
@@ -24,9 +25,6 @@ options
 summary
 
 compare.h const.h portab.h
-
-  4163  15830 132829 LoopHold.cpp
-   198    379   4401 LoopHold.h
 
     90    245   2255 Hash.cpp
     55     81    889 Hash.h

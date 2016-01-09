@@ -1078,77 +1078,28 @@ bool LoopHold::CashoutBothDiffSplit(
     return def.Set1(trick);
   }
 
-  unsigned l = Min(cb.lenOppMax, cb.lenLong);
-  unsigned na = 0, np = 0, m = 0, no = 0;
-  while (no < l)
-  {
-      if (completeList[cb.pLong][na] > completeList[cb.pShort][np])
-      m = completeList[cb.pLong][na++];
-    else
-      m = completeList[cb.pShort][np++];
-    no++;
-  }
-
-  if (cb.numTopsLow <= cb.lenOppMax &&
-      cb.numTopsShortLow == cb.lenShort)
-  {
-    if (pickFlag) holdCtr[0xa80]++;
-    return false;
-  }
-
-  unsigned nextL = completeList[cb.pLong][na];
-  unsigned nextS = completeList[cb.pShort][np];
-  unsigned prevL = completeList[cb.pLong][na-1];
-  unsigned prevS = (np > 0 ? completeList[cb.pShort][np-1] : suitLength);
-
-  PlayDetails pd;
-  LoopHold::SetPlayDetails(l, cb, pd);
-assert(m == pd.prevPlay);
-assert(na == pd.numLong);
-assert(np == pd.numShort);
-assert(nextL == pd.nextLong);
-assert(nextS == pd.nextShort);
-assert(prevL == pd.prevLong);
-assert(prevS == pd.prevShort);
-
   if (cb.lenShort == 3 && cb.lenLong >= 4 && cb.numTopsHigh == 2 &&
-    cb.lenOppHighest == 2 && cb.lenOppLowest >= 3 &&
-    (completeList[cb.pShort][1] == suitLength-4 ||
-    (completeList[cb.pShort][1] == suitLength-5 ||
-     completeList[cb.pShort][2] == suitLength-6)))
-  {
-    if (pickFlag) holdCtr[0xa81]++;
+      cb.lenOppHighest == 2 && cb.lenOppLowest >= 3 &&
+      (completeList[cb.pShort][1] == suitLength-4 ||
+      (completeList[cb.pShort][1] == suitLength-5 ||
+       completeList[cb.pShort][2] == suitLength-6)))
     return false;
-  }
   else if (cb.lenShort == 3 && cb.lenLong == 4 &&
     cb.lenOppHighest == 2 && cb.lenOppLowest == 4)
   {
     if (cb.numTopsLow == cb.lenOppMax &&
         cb.numTopsShortHigh == 1 &&
         cb.numTopsShortLow > 1)
-    {
-    if (pickFlag) holdCtr[0xa82]++;
       return false;
-    }
     else if (cb.numTopsLow >= cb.lenOppMax + 1 &&
         cb.numTopsShortHigh == 1 &&
         cb.numTopsShortLow == 3)
-    {
-    if (pickFlag) holdCtr[0xa83]++;
       return false;
-    }
-    else if (cb.numTopsHigh == 3 && cb.numTopsShortHigh == 1 &&
-      cb.numTopsLongLow == 2 && cb.numTopsShortLow == 3)
-    {
-    if (pickFlag) holdCtr[0xa84]++;
-      return false;
-    }
     else if (cb.numTopsHigh == 3 && cb.numTopsShortHigh == 1 &&
       ((cb.pShort == QT_ACE && cb.pOppHighest == QT_RHO) ||
        (cb.pShort == QT_PARD && cb.pOppHighest == QT_LHO)) &&
       completeList[cb.pShort][1] == suitLength-5)
     {
-    if (pickFlag) holdCtr[0xa85]++;
       // ATx / xxxx / KQxx / Jx.
       return false;
     }
@@ -1160,62 +1111,49 @@ assert(prevS == pd.prevShort);
         cb.numTopsLow == 3 &&
         completeList[cb.pLong][cb.numTopsLongLow] < 
           completeList[cb.pShort][3])
-    {
-    if (pickFlag) holdCtr[0xa86]++;
       return false;
-    }
   }
+
+  PlayDetails pd;
+  unsigned l = Min(cb.lenOppMax, cb.lenLong);
+  LoopHold::SetPlayDetails(l, cb, pd);
 
   if (cb.numTopsShortLow == cb.lenShort &&
       cb.lenShort <= cb.lenOppMax &&
-      m == prevL && completeList[cb.pShort][cb.lenShort-1] > prevL) 
+      pd.prevPlay == pd.prevLong && 
+      completeList[cb.pShort][cb.lenShort-1] > pd.prevLong) 
   {
-    if (pickFlag) holdCtr[0xa90]++;
-    m = nextL;
+    pd.prevPlay = pd.nextLong;
   }
   else if (cb.numTopsShortLow == cb.lenShort &&
       cb.lenShort <= cb.lenOppMax &&
-      m == prevS && np == cb.lenShort)
+      pd.prevPlay == pd.prevShort && 
+      pd.numShort == cb.lenShort)
   {
-    if (pickFlag) holdCtr[0xa91]++;
-    m = nextL;
+    pd.prevPlay = pd.nextLong;
   }
   else if (l < cb.lenShort)
   {
-    if (nextS > cb.minOpp)
-    {
-      m = Max(nextL, nextS);
-    if (pickFlag) 
-    {
-      if (m == nextL)
-        holdCtr[0xa92]++;
-      if (m == nextS)
-        holdCtr[0xa93]++;
-    }
-    }
+    if (pd.nextShort > cb.minOpp)
+      pd.prevPlay = Max(pd.nextLong, pd.nextShort);
     else
-    {
-    if (pickFlag) holdCtr[0xa94]++;
-      m = nextL;
-    }
+      pd.prevPlay = pd.nextLong;
   }
   else if (cb.numTopsHigh == cb.lenOppHighest &&
-    m == prevS && cb.numTopsShortLow + na >= cb.lenShort)
+      pd.prevPlay == pd.prevShort && 
+      cb.numTopsShortLow + pd.numLong >= cb.lenShort)
   {
-    if (pickFlag) holdCtr[0xa95]++;
-    m = nextL;
+    pd.prevPlay = pd.nextLong;
   }
   else if (cb.lenShort == cb.lenOppHighest + 1 &&
-    cb.numTopsShortHigh < cb.lenOppHighest &&
-    m == prevS)
+      cb.numTopsShortHigh < cb.lenOppHighest &&
+      pd.prevPlay == pd.prevShort)
   {
-    if (pickFlag) holdCtr[0xa96]++;
-    m = nextL;
+    pd.prevPlay = pd.nextLong;
   }
-    
 
   if (pickFlag) holdCtr[0xa62]++;
-  lowestRank = Holding::ListToRank(m);
+  lowestRank = Holding::ListToRank(pd.prevPlay);
   trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
   return def.Set1(trick);
 
