@@ -106,6 +106,7 @@ class LoopHold: public Holding
 
       unsigned minAce; // Lowest card of ace holder
       unsigned maxPard; // Highest card of partner
+      unsigned minPard; // Lowest card of partner
       unsigned maxOpp; // Higher of oppMaxHighest and oppMaxLowest
       unsigned minOpp; // Lower of oppMaxHighest and oppMaxLowest
 
