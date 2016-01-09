@@ -3580,7 +3580,22 @@ bool LoopHold::SolveSimple28(Trick& move) const
 
   PosType pend = (htop.K == QT_ACE ? QT_ACE : QT_BOTH);
 
-  if (pend == QT_BOTH && 
+  if (length[QT_LHO] >= 2 && length[QT_RHO] >= 2 &&
+    length[QT_LHO] + length[QT_RHO] >= 5)
+  {
+    // Axx / Hxx / Kxx / Hx.
+    // Axx / Hx / Kxx / Hxx.
+    if (pickFlag) holdCtr[283]++;
+    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
+  }
+  else if (hopp.T && (length[QT_LHO] >= 3 || length[QT_RHO] >= 3))
+  {
+    // Axx / H / Kxx / HHx.
+    // Axx / HHx / Kxx / H.
+    if (pickFlag) holdCtr[284]++;
+    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
+  }
+  else if (pend == QT_BOTH && 
     (distHex == 0x4441 || distHex == 0x4144) && 
     htop.T == pa && htop.N == pa && htop.E == pa)
   {
@@ -3589,16 +3604,6 @@ bool LoopHold::SolveSimple28(Trick& move) const
     if (pickFlag) holdCtr[302]++;
     return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
   }
-  /*
-  else if (pend == QT_BOTH && distHex == 0x4144 &&
-    (htop.T == QT_PARD && htop.N == QT_PARD && htop.E == QT_PARD))
-  {
-    // ATxx / H / K98x / Jxxx.
-    // A9xx / H / KT8x / Jxxx.
-    if (pickFlag) holdCtr[304]++;
-    return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
-  }
-  */
 
   else if (pend == QT_BOTH && ! hopp.T && htop.T == htop.N &&
     length[QT_ACE] >= 3)
@@ -3642,63 +3647,6 @@ bool LoopHold::SolveSimple28(Trick& move) const
       if (pickFlag) holdCtr[302]++;
       return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
     }
-    else if (distHex == 0x4144 &&
-      htop.T == QT_ACE && htop.N == QT_ACE && htop.E == QT_PARD &&
-      completeList[QT_PARD][2] > completeList[QT_ACE][3] &&
-      completeList[QT_PARD][2] > completeList[QT_RHO][1])
-    {
-      return false;
-      // AT9x / H / K87x / Hxxx.
-      if (pickFlag) holdCtr[303]++;
-      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-8, 4);
-    }
-    else if (distHex == 0x4441 &&
-      htop.T == QT_PARD && htop.N == QT_PARD && htop.E == QT_ACE &&
-      completeList[QT_ACE][2] > completeList[QT_PARD][3] &&
-      completeList[QT_ACE][2] > completeList[QT_LHO][1])
-    {
-      return false;
-      // A87x / Hxxx / KT9x / H.
-      if (pickFlag) holdCtr[305]++;
-      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-8, 4);
-    }
-  }
-  else if (pend == QT_BOTH && 
-    length[QT_ACE] == 4 && length[QT_PARD] == 4 && length[QT_LHO] >= 4 &&
-    ! hopp.T && ! hopp.N && ! hopp.E)
-  {
-    if (length[QT_RHO] == 1 && htop.T != htop.E && htop.E == QT_ACE)
-    {
-      return false;
-      // AT8x / H+ / K9xx / H.
-      // A98x / H+ / KTxx / H.
-      if (pickFlag) holdCtr[302]++;
-      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
-    }
-    else if (length[QT_LHO] == 1 && htop.T != htop.E && htop.E == QT_PARD)
-    {
-      return false;
-      // A9xx / H / KT8x / H+.
-      // ATxx / H / K98x / H+.
-      if (pickFlag) holdCtr[303]++;
-      return move.Set(QT_BOTH, QT_BOTH, SDS_VOID-7, 4);
-    }
-  }
-
-  if (length[QT_LHO] >= 2 && length[QT_RHO] >= 2 &&
-    length[QT_LHO] + length[QT_RHO] >= 5)
-  {
-    // Axx / Hxx / Kxx / Hx.
-    // Axx / Hx / Kxx / Hxx.
-    if (pickFlag) holdCtr[283]++;
-    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
-  }
-  else if (hopp.T && (length[QT_LHO] >= 3 || length[QT_RHO] >= 3))
-  {
-    // Axx / H / Kxx / HHx.
-    // Axx / HHx / Kxx / H.
-    if (pickFlag) holdCtr[284]++;
-    return move.Set(QT_BOTH, pend, SDS_VOID-2, 2);
   }
   else if (htop.K == QT_ACE && length[QT_LHO] >= 3)
   {
