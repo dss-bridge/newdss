@@ -1084,6 +1084,11 @@ bool LoopHold::CashoutBothDiffSplit(
       (completeList[cb.pShort][1] == suitLength-5 ||
        completeList[cb.pShort][2] == suitLength-6)))
     return false;
+  else if (cb.numTopsShortLow == cb.lenShort &&
+    cb.numTopsLow == Min(cb.lenLong, cb.lenOppLowest))
+  {
+    return false;
+  }
   else if (cb.lenShort == 3 && cb.lenLong == 4 &&
     cb.lenOppHighest == 2 && cb.lenOppLowest == 4)
   {
