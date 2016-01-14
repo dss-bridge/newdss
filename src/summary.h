@@ -34,6 +34,7 @@ struct SummaryType
   unsigned countShort;
   unsigned countEqual;
   unsigned countDiff;
+  unsigned countRest;
 };
 
 void InitSummary();

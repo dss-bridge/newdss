@@ -151,6 +151,15 @@ unsigned SideMoveList::GetSymmTricks(
 }
 
 
+void SideMoveList::GetAD(
+  const unsigned no,
+  unsigned& dno,
+  unsigned& ano)
+{
+  list[no].header.GetAD0(dno, ano);
+}
+
+
 DefList& SideMoveList::GetMove(
   const unsigned no)
 {

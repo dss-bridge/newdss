@@ -37,6 +37,7 @@ void InitFiles()
   files.simpleShort.open("output/simpleShort.txt");
   files.simpleEqual.open("output/simpleEqual.txt");
   files.simpleDiff.open("output/simpleDiff.txt");
+  files.simpleRest.open("output/simpleRest.txt");
   files.track.open("output/track.txt");
   files.summary.open("output/track.txt");
   files.debug.open("output/debug.txt");
@@ -57,6 +58,8 @@ void CloseFiles()
   files.simpleShort.flush();
   files.simpleEqual.flush();
   files.simpleDiff.flush();
+  files.simpleDiff.flush();
+  files.simpleDiff.flush();
   files.track.flush();
   files.summary.flush();
   files.debug.flush();
@@ -72,6 +75,7 @@ void CloseFiles()
   files.simpleShort.close();
   files.simpleEqual.close();
   files.simpleDiff.close();
+  files.simpleRest.close();
   files.track.close();
   files.summary.close();
   files.debug.close();

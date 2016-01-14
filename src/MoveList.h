@@ -74,6 +74,11 @@ class MoveList
     unsigned GetSymmTricks(
       const unsigned no) const;
 
+    void GetAD(
+      const unsigned no,
+      unsigned& dno,
+      unsigned& ano);
+
     DefList GetCombinedMove(
       const unsigned no);
 

@@ -26,6 +26,7 @@ struct FilesType
   std::ofstream simpleShort;
   std::ofstream simpleEqual;
   std::ofstream simpleDiff;
+  std::ofstream simpleRest;
   std::ofstream track;
   std::ofstream summary;
   std::ofstream debug;

@@ -218,6 +218,21 @@ unsigned MoveList::GetSymmTricks(
 }
 
 
+void MoveList::GetAD(
+  const unsigned no,
+  unsigned& dno,
+  unsigned& ano)
+{
+  if (noToAggr[no].noComb)
+    sideComb.GetAD(noToAggr[no].noComb, dno, ano);
+  else
+  {
+    dno = 0;
+    ano = 0;
+  }
+}
+
+
 DefList MoveList::GetCombinedMove(
   const unsigned no)
 {

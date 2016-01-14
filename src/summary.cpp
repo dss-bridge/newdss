@@ -47,6 +47,7 @@ void InitSummary()
   summary.countShort = 0;
   summary.countEqual = 0;
   summary.countDiff = 0;
+  summary.countRest = 0;
 }
 
 
@@ -67,6 +68,9 @@ void PrintSummary(
   if (summary.countDiff)
     cout << setfill(' ') << setw(18) << left << 
       "Moves diff" << summary.countDiff << "\n";
+  if (summary.countRest)
+    cout << setfill(' ') << setw(18) << left << 
+      "Moves rest" << summary.countRest << "\n";
 }
 
 

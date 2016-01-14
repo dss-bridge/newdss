@@ -24,6 +24,9 @@ class LoopHold: public Holding
     typedef bool (LoopHold::*SolvePtr)(Trick& move) const;
     SolvePtr SolveSimpleFunction[64];
 
+    typedef bool (LoopHold::*CSolvePtr)(DefList& def, unsigned &rank) const;
+    CSolvePtr SolveComplexFunction[64];
+
     struct htopType
     {
       int K, Q, J, T, N, E;
@@ -254,6 +257,33 @@ class LoopHold: public Holding
     bool SolveSimple57(Trick& move) const;
     bool SolveSimple60(Trick& move) const;
 
+    bool SolveComplex0(DefList& def, unsigned& rank) const;
+    bool SolveComplex1(DefList& def, unsigned& rank) const;
+    bool SolveComplex2(DefList& def, unsigned& rank) const;
+    bool SolveComplex3(DefList& def, unsigned& rank) const;
+    bool SolveComplex5(DefList& def, unsigned& rank) const;
+    bool SolveComplex6(DefList& def, unsigned& rank) const;
+    bool SolveComplex7(DefList& def, unsigned& rank) const;
+    bool SolveComplex9(DefList& def, unsigned& rank) const;
+    bool SolveComplex11(DefList& def, unsigned& rank) const;
+    bool SolveComplex12(DefList& def, unsigned& rank) const;
+    bool SolveComplex14(DefList& def, unsigned& rank) const;
+    bool SolveComplex15(DefList& def, unsigned& rank) const;
+    bool SolveComplex18(DefList& def, unsigned& rank) const;
+    bool SolveComplex19(DefList& def, unsigned& rank) const;
+    bool SolveComplex20(DefList& def, unsigned& rank) const;
+    bool SolveComplex26(DefList& def, unsigned& rank) const;
+    bool SolveComplex27(DefList& def, unsigned& rank) const;
+    bool SolveComplex28(DefList& def, unsigned& rank) const;
+    bool SolveComplex36(DefList& def, unsigned& rank) const;
+    bool SolveComplex41(DefList& def, unsigned& rank) const;
+    bool SolveComplex43(DefList& def, unsigned& rank) const;
+    bool SolveComplex44(DefList& def, unsigned& rank) const;
+    bool SolveComplex48(DefList& def, unsigned& rank) const;
+    bool SolveComplex49(DefList& def, unsigned& rank) const;
+    bool SolveComplex57(DefList& def, unsigned& rank) const;
+    bool SolveComplex60(DefList& def, unsigned& rank) const;
+
 
   public:
 
@@ -283,6 +313,10 @@ class LoopHold: public Holding
       unsigned& rank) const;
      
     bool SolveSimple(
+      DefList& def,
+      unsigned& rank);
+     
+    bool SolveComplex(
       DefList& def,
       unsigned& rank);
 };

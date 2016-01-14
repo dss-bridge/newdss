@@ -22,6 +22,7 @@ Header::Header()
   aCum = 0;
   sCum = 0;
   tCum = 0;
+  aMax = 0;
 }
 
 
@@ -38,6 +39,7 @@ void Header::Set(
   aCum = 1;
   sCum = 1;
   tCum = tno;
+  aMax = 1;
 
   start = trick.GetStart();
   if (start == QT_ACE)
@@ -127,6 +129,7 @@ void Header::MergeMax(const Header& newHeader)
   aCum++;
   sCum += newHeader.sCum;
   tCum += newHeader.tCum;
+  aMax++;
 
   if (newHeader.start == QT_ACE)
     startNew |= 1;
@@ -195,6 +198,7 @@ void Header::MergeMin(const Header& newHeader)
   aCum += newHeader.aCum;
   sCum += newHeader.sCum;
   tCum += newHeader.tCum;
+  aMax = Max(aMax, newHeader.aMax);
 
   if (newHeader.start == QT_ACE)
     startNew |= 1;
@@ -268,6 +272,16 @@ void Header::GetAD(
   d = dCum;
   asum = aCum;
 }
+
+
+void Header::GetAD0(
+  unsigned& d,
+  unsigned& a) const
+{
+  d = dCum;
+  a = aMax;
+}
+
 
 unsigned Header::GetSymmTricks(
   const unsigned r) const

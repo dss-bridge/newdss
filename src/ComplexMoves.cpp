@@ -130,6 +130,14 @@ void MakeComplexMoves()
 
         if (options.findFlag)
         {
+          unsigned d, a;
+          moveList.GetAD(singles[sl][c].moveNo, d, a);
+          if (d == 1 && a == 1)
+          {
+            DumpMoves(files.simpleRest, holding, 
+              def1, def2, summary.countRest);
+          }
+
           // To help in table development, certain tricks are printed.
           unsigned t = moveList.GetSymmTricks(singles[sl][c].moveNo);
           if (t == 0)
@@ -524,6 +532,8 @@ bool BestMoveAfterPard(
     bool newFlag;
     singles[slNew][cNew].moveNo = moveList.AddMove(
       deftmp1, deftmp2, tmpHolding, newFlag);
+// tmpHolding.Print();
+// moveList.Print(singles[slNew][cNew].moveNo);
 
     if (options.debugFlow)
     {

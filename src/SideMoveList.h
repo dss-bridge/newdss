@@ -90,6 +90,11 @@ class SideMoveList
     unsigned GetSymmTricks(
       const unsigned no) const;
 
+    void GetAD(
+      const unsigned no,
+      unsigned& dno,
+      unsigned& ano);
+
     DefList& GetMove(
       const unsigned no);
 

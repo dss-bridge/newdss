@@ -181,6 +181,9 @@ inline bool MakeSimpleSingleMove(
     unsigned mno = moveList.AddMove(def, holding, newFlag);
     SetAllPermutations(sl, c, mno, holding, r, HIST_SINGLE, newFlag);
   }
+  else if (holding.SolveComplex(def, r))
+  {
+  }
   else if (holding.CashoutBoth(def, r))
   {
     // Suits such as AQx / Kx.

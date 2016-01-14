@@ -30,6 +30,7 @@ class Header
     unsigned aCum;
     unsigned sCum;
     unsigned tCum;
+    unsigned aMax;
 
     unsigned startNew;
     unsigned endNew;
@@ -63,6 +64,9 @@ class Header
     void MergeMin(
       const Header& newHeader);
 
+    void GetAD0(
+      unsigned& d,
+      unsigned& a) const;
     void GetAD(
       unsigned& d,
       unsigned& asum) const;
