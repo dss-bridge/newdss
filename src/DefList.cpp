@@ -101,6 +101,18 @@ bool DefList::Set12(
 }
 
 
+bool DefList::Set13(
+  const Trick& trick1,
+  const Trick& trick20,
+  const Trick& trick21,
+  const Trick& trick22)
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set13(trick1, trick20, trick21, trick22);
+}
+
+
 Header& DefList::GetHeader()
 {
   holdCtr[950]++;

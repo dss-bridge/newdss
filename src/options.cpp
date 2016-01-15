@@ -70,7 +70,7 @@ void Usage(
     "\n" <<
     "-t, --tablesonly   Stop after the constant tables (default: no).\n" <<
     "\n" <<
-    "-h, --histtest     Histogram (default: 0 = none, 7 = all).\n" <<
+    "-h, --histtest     Histogram (default: 0 = none, 8 = all).\n" <<
     "\n" <<
     "-f, --find         Find and output table candidates.\n" <<
     "\n" <<
@@ -236,9 +236,9 @@ void ReadArgs(
 
       case 'h':
         m = static_cast<int>(strtol(optarg, &temp, 0));
-        if (m > 7)
+        if (m > 8)
         {
-          cout << "Histogram must be 0..7\n\n";
+          cout << "Histogram must be 0..8\n\n";
           nextToken -= 2;
           errFlag = true;
         }

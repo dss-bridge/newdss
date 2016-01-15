@@ -1,3 +1,14 @@
+Rank errors
+-----------
+s 10 c 0xe857
+AK9 / 876 / JT / Qx: Rank J isn't right.
+
+
+
+
+Test the SolveComplex initial function.
+Make a new histogram number for it.
+
 Maybe make an input option to control creation of track.txt file.
 option goes in MakeComplexSingleMove.
 

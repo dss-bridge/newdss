@@ -67,6 +67,11 @@ class TrickList
       const Trick& trick1,
       const Trick& trick2);
 
+    bool Set21(
+      const Trick& trick10,
+      const Trick& trick11,
+      const Trick& trick2);
+
     void SetStart(
       const PosType start);
 

@@ -114,6 +114,16 @@ exit(0);
     cout << "Direct solve:\n";
     def1.Print();
     def2.Print();
+
+    if (def.MergeSidesSoft(def1, def2))
+      def.Print(cout, "Soft merge:");
+    else
+    {
+      def.MergeSidesHard(def1, def2);
+      def.Print(cout, "Hard merge:");
+    }
+
+
     PrintHoldCounter(cout);
     FreeSingles();
     CloseFiles();

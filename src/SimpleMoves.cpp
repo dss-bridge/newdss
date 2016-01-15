@@ -96,6 +96,8 @@ bool MakeSimpleSingleMoveWrapper(
     // return true;
   else if (holding.SolveSimple(def, r))
     return true;
+  else if (holding.SolveComplex(def, r))
+    return true;
   else if (holding.CashoutBoth(def, r))
     return true;
   else
@@ -183,6 +185,8 @@ inline bool MakeSimpleSingleMove(
   }
   else if (holding.SolveComplex(def, r))
   {
+    unsigned mno = moveList.AddMove(def, holding, newFlag);
+    SetAllPermutations(sl, c, mno, holding, r, HIST_REST, newFlag);
   }
   else if (holding.CashoutBoth(def, r))
   {

@@ -20,9 +20,10 @@ enum HistIndexType
   HIST_PARD_VOID = 3,
   HIST_CRASH = 4,
   HIST_SINGLE = 5,
-  HIST_CASHES = 6,
-  HIST_COMPLEX = 7,
-  HIST_SIZE = 8
+  HIST_REST = 6,
+  HIST_CASHES = 7,
+  HIST_COMPLEX = 8,
+  HIST_SIZE = 9
 };
 
 

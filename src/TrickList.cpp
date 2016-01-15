@@ -61,6 +61,19 @@ bool TrickList::Set2(
 }
 
 
+bool TrickList::Set21(
+  const Trick& trick10,
+  const Trick& trick11,
+  const Trick& trick2)
+{
+  assert(trick11.Extends(trick10));
+  list[1].Set2(trick10, trick11);
+  list[0].Set1(trick2);
+  len = 2;
+  return true;
+}
+
+
 void TrickList::SetStart(
   const PosType start)
 {

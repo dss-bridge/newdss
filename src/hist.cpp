@@ -29,6 +29,7 @@ const char HIST_NAMES[HIST_SIZE][10] =
   "Pd void",
   "Crash",
   "One",
+  "Rest",
   "Cashes",
   "General"
 };
@@ -124,12 +125,12 @@ void PrintSingleHist(
 
   out << setw(2) << "No";
   for (unsigned hno = 0; hno < HIST_SIZE; hno++)
-    out << setw(12) << HIST_NAMES[hno];
+    out << setw(10) << HIST_NAMES[hno];
   out << "\n";
 
   unsigned sum[HIST_SIZE] = {0};
 
-  for (unsigned sl = 0; sl < 14; sl++)
+  for (unsigned sl = 0; sl < 12; sl++)
   {
     if (type == 0)
       out << setw(2) << sl;
@@ -138,7 +139,7 @@ void PrintSingleHist(
 
     for (unsigned hno = 0; hno < HIST_SIZE; hno++)
     {
-      out << setw(12) << hist[hno][sl];
+      out << setw(10) << hist[hno][sl];
       sum[hno] += hist[hno][sl];
     }
     out << "\n";
@@ -146,7 +147,7 @@ void PrintSingleHist(
 
   out << "\n  ";
   for (unsigned hno = 0; hno < HIST_SIZE; hno++)
-    out << setw(12) << sum[hno];
+    out << setw(10) << sum[hno];
   out << "\n\n";
 }
 
