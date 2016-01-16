@@ -58,6 +58,11 @@ class DefList
       const Trick& trick1,
       const Trick& trick2);
 
+    bool Set3(
+      const Trick& trick1,
+      const Trick& trick2,
+      const Trick& trick3);
+
     bool Set11(
       const Trick& trick1,
       const Trick& trick2);
@@ -72,6 +77,9 @@ class DefList
       const Trick& trick20,
       const Trick& trick21,
       const Trick& trick22);
+
+    bool Set31(
+      const Trick trick[]);
 
     Header& GetHeader();
 

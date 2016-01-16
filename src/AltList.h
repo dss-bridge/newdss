@@ -109,6 +109,11 @@ class AltList
       const Trick& trick10,
       const Trick& trick11);
 
+    bool Set3(
+      const Trick& trick10,
+      const Trick& trick11,
+      const Trick& trick12);
+
     bool Set11(
       const Trick& trick1,
       const Trick& trick2);
@@ -123,6 +128,9 @@ class AltList
       const Trick& trick20,
       const Trick& trick21,
       const Trick& trick22);
+
+    bool Set31(
+      const Trick trick[]);
 
     void GetHeader(
       Header& header) const;

@@ -80,6 +80,17 @@ bool DefList::Set2(
 }
 
 
+bool DefList::Set3(
+  const Trick& trick10,
+  const Trick& trick11,
+  const Trick& trick12)
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set3(trick10, trick11, trick12);
+}
+
+
 bool DefList::Set11(
   const Trick& trick1,
   const Trick& trick2)
@@ -110,6 +121,15 @@ bool DefList::Set13(
   headerDirty = true;
   len = 1;
   return list[0].Set13(trick1, trick20, trick21, trick22);
+}
+
+
+bool DefList::Set31(
+  const Trick trick[])
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set31(trick);
 }
 
 

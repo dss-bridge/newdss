@@ -61,6 +61,30 @@ bool TrickList::Set2(
 }
 
 
+bool TrickList::Set3(
+  const Trick& trick1,
+  const Trick& trick2,
+  const Trick& trick3)
+{
+  if (trick2.Extends(trick1))
+  {
+    list[1].Set2(trick1, trick2);
+    list[0].Set1(trick3);
+    len = 2;
+  }
+  else if (trick3.Extends(trick2))
+  {
+    list[1].Set1(trick1);
+    list[0].Set2(trick2, trick3);
+    len = 2;
+  }
+  else
+    assert(false);
+
+  return true;
+}
+
+
 bool TrickList::Set21(
   const Trick& trick10,
   const Trick& trick11,
