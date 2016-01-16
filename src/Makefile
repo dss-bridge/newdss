@@ -117,7 +117,7 @@ AltMatrix1D.o: AltMatrix1D.h compare.h const.h
 AltMatrix2D.o: AltMatrix2D.h compare.h const.h
 Holding.o: Holding.h Trick.h compare.h const.h
 LoopHold.o: Trick.h compare.h const.h LoopHold.h Holding.h DefList.h
-LoopHold.o: AltList.h TrickList.h Segment.h Header.h
+LoopHold.o: AltList.h TrickList.h Segment.h Header.h portab.h
 SimpleMoves.o: Trick.h compare.h const.h Header.h DefList.h AltList.h
 SimpleMoves.o: TrickList.h Segment.h MoveList.h SideMoveList.h Holding.h
 SimpleMoves.o: Hash.h summary.h sort.h SimpleMoves.h ComplexMoves.h Twiddle.h
