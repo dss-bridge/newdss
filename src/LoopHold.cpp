@@ -1140,7 +1140,17 @@ if (pickFlag) holdCtr[0xa99]++;
   else if (cb.numTopsLongLow >= cb.lenOppLowest &&
       completeList[cb.pLong][cb.lenOppLowest] > cb.maxPard)
   {
-    if (pickFlag) holdCtr[0xa4a]++;
+    if (cb.lenOppLowest >= cb.lenShort &&
+        cb.oppMaxLowest > cb.maxPard)
+    {
+      if (pickFlag) holdCtr[0xa4a]++;
+      l = cb.lenOppLowest;
+      lowestRank = Holding::ListToRank(completeList[QT_ACE][l-1]);
+      trick[0].Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
+      return def.Set1(trick[0]);
+    }
+    Holding::Print();
+    if (pickFlag) holdCtr[0xa90]++;
     return false;
   }
   else if (cb.minPard > completeList[cb.pLong][cb.lenOppMax])
