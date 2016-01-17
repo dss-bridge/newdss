@@ -550,6 +550,13 @@ void Holding::AdjustWinRank()
   if (leadCurrIndex < numLeads && leadList[leadCurrIndex] == 
       static_cast<int>(soughtRank))
     winRank = soughtRank;
+  else if (leadCurrIndex > 1 && 
+      leadList[leadCurrIndex-2] == static_cast<int>(soughtRank))
+  {
+    // Effectively same rank, e.g. JT where we already played T.
+    winRank = soughtRank;
+    return;
+  }
   else
   {
     // Could have some kind of table instead.
