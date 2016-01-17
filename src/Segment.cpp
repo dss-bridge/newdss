@@ -864,9 +864,9 @@ bool Segment::Fix12Special(
   {
     unsigned char m = t200.trick.cashing + t201.trick.cashing +
       t21.trick.cashing;
-    unsigned char s = Min(t200.trick.cashing, t201.trick.cashing);
-    if (t21.trick.cashing < s)
-      s = t21.trick.cashing;
+    unsigned char s = Min(t200.trick.ranks, t201.trick.ranks);
+    if (t21.trick.ranks < s)
+      s = t21.trick.ranks;
 
     if (m <= t1.trick.cashing && s <= t1.trick.ranks)
     {
