@@ -512,7 +512,15 @@ void Holding::AdjustWinRank()
 {
   // We only adjust winRank when the lead wins and when the defense
   // has a card higher than the winner (so a finesse).
-  if (static_cast<int>(winRank) != leadRank || static_cast<int>(winRank) > maxDef)
+  if (static_cast<int>(winRank) != leadRank || 
+      static_cast<int>(winRank) > maxDef)
+    return;
+
+  // Skip if the leader has the next HIGHER card as well.
+  // leadList is currently not in top-down order in this case,
+  // which is not so pretty.
+  if (leadCurrIndex < numLeads &&
+      static_cast<int>(winRank) + 1 == leadList[leadCurrIndex])
     return;
 
   // We look for the next rank down, skipping over played cards.
@@ -540,10 +548,8 @@ void Holding::AdjustWinRank()
 
   // If declarer holds that card, 
   if (leadCurrIndex < numLeads && leadList[leadCurrIndex] == 
-    static_cast<int>(soughtRank))
-  {
+      static_cast<int>(soughtRank))
     winRank = soughtRank;
-  }
   else
   {
     // Could have some kind of table instead.

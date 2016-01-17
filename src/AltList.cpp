@@ -379,7 +379,7 @@ void AltList::Backtrack1D(
       if (fix1 == SDS_FIX_WEAKER)
       {
         // Unusual, but can happen.
-        fixVector[dimFixed] = SDS_FIX_WEAKER;
+        fixVector[dimFixed] = fix1;
 	AltList::Backtrack1D(comp, dimFixed, dimVar, fixVector);
       }
 
@@ -389,7 +389,7 @@ void AltList::Backtrack1D(
       {
         assert(fixVector[a] != SDS_FIX_STRONGER);
 
-        fixVector[a] = SDS_FIX_WEAKER;
+        fixVector[a] = fix2;
 	AltList::Backtrack1D(comp, a, dimFixed, fixVector);
       }
     }
@@ -398,7 +398,7 @@ void AltList::Backtrack1D(
   {
     for (unsigned b = 0; b < dimVar; b++)
     {
-      unsigned a = dimVar-1-b;
+      unsigned a = dimVar-1 - b;
       if (a == dimFixed || comp.IsPurged(a))
         continue;
 
@@ -406,7 +406,7 @@ void AltList::Backtrack1D(
       comp.SetValue(dimFixed, a, c);
 
       assert(fix1 != SDS_FIX_WEAKER);
-      assert(fix2 != SDS_FIX_WEAKER);
+      // assert(fix2 != SDS_FIX_WEAKER);
 
       if (fix1 == SDS_FIX_PURGED)
       {
@@ -414,11 +414,11 @@ void AltList::Backtrack1D(
         break;
       }
 
-      if (fix2 == SDS_FIX_STRONGER)
+      if (fix2 == SDS_FIX_STRONGER || fix2 == SDS_FIX_WEAKER)
       {
         assert(fixVector[a] == SDS_FIX_UNCHANGED);
 
-        fixVector[a] = SDS_FIX_STRONGER;
+        fixVector[a] = fix2;
 	AltList::Backtrack1D(comp, a, dimFixed, fixVector);
       }
     }
@@ -453,7 +453,7 @@ void AltList::FillMatrix1D(
         vector<FixType> fixVector(len, SDS_FIX_UNCHANGED);
 	fixVector[a2] = fix2;
 
-	AltList::Backtrack1D(comp, a2, a1, fixVector);
+	AltList::Backtrack1D(comp, a2, a1+1, fixVector);
       }
 
       if (fix1 == SDS_FIX_PURGED && ! comp.IsPurged(a1))
@@ -463,7 +463,7 @@ void AltList::FillMatrix1D(
         vector<FixType> fixVector(len, SDS_FIX_UNCHANGED);
 	fixVector[a1] = fix1;
 
-	AltList::Backtrack1D(comp, a1, a2, fixVector);
+	AltList::Backtrack1D(comp, a1, a2+1, fixVector);
       }
 
       if (comp.IsPurged(a1))

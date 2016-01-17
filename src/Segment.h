@@ -94,13 +94,15 @@ class Segment
     unsigned GetLength() const;
 
     void GetSummaryTrick(
-      Trick& summaryTrick) const;
+      Trick& summaryTrick,
+      const bool lastFlag = true) const;
 
     CmpDetailType Compare(
       const Segment& seg2) const;
 
     bool EqualsExceptStart(
-      const Segment& seg2) const;
+      const Segment& seg2,
+      const bool lastFlag) const;
 
     bool operator == (
       const Segment& seg2) const;

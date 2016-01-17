@@ -305,7 +305,7 @@ bool TrickList::EqualsExceptStart(
 
   if (len != lNew.len)
     return false;
-  else if (! list[len-1].EqualsExceptStart(lNew.list[lNew.len-1]))
+  else if (! list[len-1].EqualsExceptStart(lNew.list[lNew.len-1], len == 1))
     return false;
   else
   {

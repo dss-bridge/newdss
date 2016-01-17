@@ -120,7 +120,8 @@ unsigned Segment::GetLength() const
 
 
 void Segment::GetSummaryTrick(
-  Trick& summaryTrick) const
+  Trick& summaryTrick,
+  const bool lastFlag) const
 {
   if (len == 1)
   {
@@ -138,7 +139,9 @@ void Segment::GetSummaryTrick(
   PosType e = list[0].trick.end;
   if (e == QT_BOTH)
     summaryTrick.trick.end = QT_BOTH;
-  else if (list[0].trick.start == QT_BOTH && list[1].trick.end != e)
+  else if (list[0].trick.start == QT_BOTH && 
+      list[1].trick.end != e &&
+      lastFlag)
     summaryTrick.trick.end = QT_BOTH;
   else
     summaryTrick.trick.end = e;
@@ -157,12 +160,13 @@ CmpDetailType Segment::Compare(
 
 
 bool Segment::EqualsExceptStart(
-  const Segment& seg2) const
+  const Segment& seg2,
+  const bool lastFlag) const
 {
   Trick t1;
-  Segment::GetSummaryTrick(t1);
+  Segment::GetSummaryTrick(t1, lastFlag);
   Trick t2;
-  seg2.GetSummaryTrick(t2);
+  seg2.GetSummaryTrick(t2, lastFlag);
   return t1.EqualsExceptStart(t2);
 }
 
