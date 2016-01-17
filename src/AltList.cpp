@@ -105,14 +105,11 @@ bool AltList::Set12(
 
 
 bool AltList::Set13(
-  const Trick& trick1,
-  const Trick& trick20,
-  const Trick& trick21,
-  const Trick& trick22)
+  const Trick trick[])
 {
   len = 2;
-  (void) list[0].Set1(trick1);
-  return list[1].Set21(trick20, trick21, trick22);
+  (void) list[0].Set1(trick[0]);
+  return list[1].Set21(trick[1], trick[2], trick[3]);
 }
 
 
@@ -122,6 +119,26 @@ bool AltList::Set31(
   len = 2;
   (void) list[0].Set21(trick[0], trick[1], trick[2]);
   return list[1].Set1(trick[3]);
+}
+
+
+bool AltList::Set112(
+  const Trick trick[])
+{
+  len = 3;
+  (void) list[0].Set1(trick[0]);
+  (void) list[1].Set1(trick[1]);
+  return list[2].Set2(trick[2], trick[3]);
+}
+
+
+bool AltList::Set113(
+  const Trick trick[])
+{
+  len = 3;
+  (void) list[0].Set1(trick[0]);
+  (void) list[1].Set1(trick[1]);
+  return list[2].Set21(trick[2], trick[3], trick[4]);
 }
 
 

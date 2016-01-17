@@ -115,13 +115,19 @@ exit(0);
     def1.Print();
     def2.Print();
 
-    if (def.MergeSidesSoft(def1, def2))
-      def.Print(cout, "Soft merge:");
+    DefList defMerge;
+    if (defMerge.MergeSidesSoft(def1, def2))
+      defMerge.Print(cout, "Soft merge:");
     else
     {
-      def.MergeSidesHard(def1, def2);
-      def.Print(cout, "Hard merge:");
+      defMerge.MergeSidesHard(def1, def2);
+      defMerge.Print(cout, "Hard merge:");
     }
+
+    if (def == defMerge)
+      cout << "Identical\n";
+    else
+      cout << "Different\n";
 
 
     PrintHoldCounter(cout);

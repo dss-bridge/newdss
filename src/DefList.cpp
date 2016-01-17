@@ -113,14 +113,11 @@ bool DefList::Set12(
 
 
 bool DefList::Set13(
-  const Trick& trick1,
-  const Trick& trick20,
-  const Trick& trick21,
-  const Trick& trick22)
+  const Trick trick[])
 {
   headerDirty = true;
   len = 1;
-  return list[0].Set13(trick1, trick20, trick21, trick22);
+  return list[0].Set13(trick);
 }
 
 
@@ -130,6 +127,24 @@ bool DefList::Set31(
   headerDirty = true;
   len = 1;
   return list[0].Set31(trick);
+}
+
+
+bool DefList::Set112(
+  const Trick trick[])
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set112(trick);
+}
+
+
+bool DefList::Set113(
+  const Trick trick[])
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set113(trick);
 }
 
 
