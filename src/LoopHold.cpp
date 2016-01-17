@@ -1124,7 +1124,30 @@ if (pickFlag) holdCtr[0xa99]++;
       completeList[cb.pLong][cb.lenOppLowest] > cb.maxPard)
     return false;
   else if (cb.minPard > completeList[cb.pLong][cb.lenOppMax])
-    return false;
+  {
+    if (cb.lenShort == cb.lenOppHighest + 1 &&
+        cb.numTopsShortLow > 0)
+    {
+      if (cb.numTopsLongLow >= cb.lenOppLowest)
+      {
+        return false;
+        if (pickFlag) holdCtr[0xa4b]++;
+        Trick trick2, trick3;
+        l = Min(cb.numTopsLongLow, cb.lenOppLowest);
+        t = cb.lenLong - cb.lenShort;
+        lowestRank = Holding::ListToRank(completeList[QT_ACE][l-1]);
+        trick.Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
+        trick2.Set(QT_ACE, QT_PARD, Holding::ListToRank(cb.maxPard),
+          cb.lenShort);
+        trick3.Set(QT_ACE, QT_ACE, SDS_VOID, t);
+        return def.Set12(trick, trick2, trick3);
+      }
+      else
+        return false;
+    }
+    else
+      return false;
+  }
   else if (cb.lenShort <= cb.lenOppHighest + 1)
     return false;
   else if (cb.lenShort == cb.lenOppMax + 1 &&
