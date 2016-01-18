@@ -826,7 +826,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
       completeList[QT_PARD][cb.lenShort - cb.lenOppHighest - 1]);
     trick2.Set(QT_BOTH, QT_PARD, r2, cb.lenShort - cb.lenOppHighest);
 
-    if (pickFlag) holdCtr[0xa26]++;
+    if (pickFlag) holdCtr[0xa25]++;
     lowestRank = r2;
     trick3.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set3(trick, trick2, trick3);
@@ -837,7 +837,7 @@ bool LoopHold::CashoutBothDiffStrongTops(
   {
     Trick trick3;
 
-    if (pickFlag) holdCtr[0xa2a]++;
+    if (pickFlag) holdCtr[0xa26]++;
     r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppLowest]);
     lowestRank = Holding::ListToRank(cb.maxPard);
 
@@ -846,13 +846,60 @@ bool LoopHold::CashoutBothDiffStrongTops(
     trick3.Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set12(trick, trick2, trick3);
   }
-
-  else if (completeList[QT_ACE][cb.lenOppMax] < cb.minPard ||
-      completeList[QT_ACE][cb.lenOppMax] > cb.maxPard ||
-      cb.lenShort <= cb.lenOppMax+1)
+  else if (cb.lenShort > cb.lenOppHighest + 1 && 
+      cb.maxPard > cb.oppMaxLowest)
   {
-Holding::Print();
-    if (pickFlag) holdCtr[0xa27]++;
+    unsigned l = cb.lenOppMax;
+    if (cb.lenShort > cb.lenOppMax)
+      l++;
+    r = Holding::ListToRank(completeList[QT_ACE][l-1]);
+    lowestRank = Holding::ListToRank(
+      Min(cb.maxPard, completeList[QT_ACE][cb.lenOppHighest]));
+
+    if (r > lowestRank)
+    {
+      if (pickFlag) holdCtr[0xa27]++;
+      trick.Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+      trick2.Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
+      return def.Set11(trick, trick2);
+    }
+    else
+    {
+      if (pickFlag) holdCtr[0xa28]++;
+      trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+      return def.Set1(trick);
+    }
+  }
+  /*
+  else if (cb.lenShort == cb.lenOppMax + 1 &&
+      cb.lenOppHighest >= cb.lenOppLowest &&
+      cb.maxPard < cb.oppMaxHighest)
+  {
+    Trick tricks[4];
+
+    if (pickFlag) holdCtr[0xa2a]++;
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppMax]);
+    unsigned r2 = 
+      Holding::ListToRank(completeList[QT_ACE][cb.lenOppMax-1]);
+    lowestRank = Holding::ListToRank(cb.maxPard);
+
+    tricks[0].Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    tricks[1].Set(QT_BOTH, QT_ACE, r2, cb.lenOppMax);
+    tricks[2].Set(QT_BOTH, QT_PARD, lowestRank, 1);
+    tricks[3].Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+    return def.Set13(tricks);
+  }
+  */
+  else if (cb.lenShort == cb.lenOppMax+1)
+  {
+// Holding::Print();
+    if (pickFlag) holdCtr[0xa2d]++;
+    return false;
+  }
+  else if (completeList[QT_ACE][cb.lenOppMax] > cb.maxPard)
+  {
+// Holding::Print();
+    if (pickFlag) holdCtr[0xa2b]++;
     return false;
   }
 
@@ -5116,22 +5163,33 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
       }
     }
   }
-  else if ((distHex == 0x4332 || distHex == 0x5332) &&
-      htop.T == QT_PARD &&
-      completeList[QT_ACE][2] > completeList[QT_LHO][0] &&
-      completeList[QT_ACE][2] > completeList[QT_PARD][2])
+  // else if ((distHex == 0x4332 || distHex == 0x5332) &&
+  else if (length[QT_ACE] >= 4 && length[QT_PARD] == 3 &&
+      length[QT_RHO] == 2 && length[QT_LHO] <= 3 &&
+      completeList[QT_ACE][2] > completeList[QT_PARD][2] &&
+      ((length[QT_LHO] == 1 &&
+        completeList[QT_PARD][1] > completeList[QT_RHO][1]) ||
+       (length[QT_LHO] <= 3 && htop.T == QT_PARD &&
+        completeList[QT_ACE][2] > completeList[QT_LHO][0])))
   {
     // AK8x(x) / xxx / JTx / Qx.
+    // AK8x(x) / T / J9x / Qx.
     if (pickFlag) holdCtr[0x1447]++;
     rank = Holding::ListToRank(completeList[QT_ACE][2]);
+    unsigned r2 = Holding::ListToRank(completeList[QT_PARD][1]);
+    if (r2 < rank)
+      return false;
+
     trick[0].Set(QT_ACE, QT_ACE, rank, length[QT_ACE]);
-    trick[1].Set(QT_PARD, QT_BOTH, SDS_VOID-5, length[QT_ACE]);
+    trick[1].Set(QT_PARD, QT_BOTH, r2, length[QT_ACE]);
     trick[2].Set(QT_ACE, QT_ACE, SDS_VOID-2, 2);
     trick[3].Set(QT_BOTH, QT_PARD, SDS_VOID-4, 1);
     trick[4].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
     return def.Set113(trick);
   }
-  else if ((distHex == 0x4332 || distHex == 0x5332) &&
+  // else if ((distHex == 0x4332 || distHex == 0x5332) &&
+  else if (length[QT_ACE] >= 4 && length[QT_PARD] == 3 &&
+      length[QT_RHO] == 2 && length[QT_LHO] <= 3 &&
       htop.T == QT_ACE && htop.N == QT_PARD)
   {
     // AKTx / xxx / J9x / Qx.
