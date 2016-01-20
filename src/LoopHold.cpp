@@ -1248,9 +1248,9 @@ if (pickFlag) holdCtr[0xa99]++;
       return def.Set11(trick[0], trick[1]);
 
     }
-    else if (cb.maxPard < cb.minOpp)
+    else if (cb.maxPard < cb.minOpp || cb.lenShort == cb.lenOppHighest + 1)
     {
-      if (pickFlag) holdCtr[0xa90]++;
+      if (pickFlag) holdCtr[0xa4c]++;
       if (cb.lenShort <= cb.lenOppLowest)
         l = cb.lenOppLowest;
       else
@@ -1264,8 +1264,12 @@ if (pickFlag) holdCtr[0xa99]++;
     }
     else
     {
-      if (pickFlag) holdCtr[0xa91]++;
-      return false;
+      if (pickFlag) holdCtr[0xa4d]++;
+      r = Holding::ListToRank(completeList[QT_ACE][cb.lenShort - 1]);
+      lowestRank = Holding::ListToRank(cb.maxPard);
+      trick[0].Set(QT_BOTH, QT_ACE, r, length[QT_ACE]);
+      trick[1].Set(QT_ACE, QT_PARD, lowestRank, length[QT_ACE]);
+      return def.Set11(trick[0], trick[1]);
     }
   }
   else if (cb.minPard > completeList[cb.pLong][cb.lenOppMax])
@@ -1290,7 +1294,7 @@ if (pickFlag) holdCtr[0xa99]++;
         // in the recursion.
         if (completeList[QT_ACE][cb.lenShort-1] > cb.maxPard)
         {
-          if (pickFlag) holdCtr[0xa4c]++;
+          if (pickFlag) holdCtr[0xa4e]++;
           trick[0].Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
           trick[1].Set(QT_ACE, QT_PARD, maxp, cb.lenShort);
           trick[2].Set(QT_ACE, QT_ACE, r, t);
@@ -1298,7 +1302,7 @@ if (pickFlag) holdCtr[0xa99]++;
         }
         else
         {
-          if (pickFlag) holdCtr[0xa4d]++;
+          if (pickFlag) holdCtr[0xa4f]++;
           trick[0].Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
           trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID - (cb.lenShort-1),
             cb.lenShort-1);
@@ -1309,38 +1313,39 @@ if (pickFlag) holdCtr[0xa99]++;
       }
       else
       {
-        if (pickFlag) holdCtr[0xa4e]++;
+        // Holding::Print();
+        if (pickFlag) holdCtr[0xa50]++;
         return false;
       }
     }
     else
     {
-      if (pickFlag) holdCtr[0xa4f]++;
+      if (pickFlag) holdCtr[0xa51]++;
       return false;
     }
   }
   else if (cb.lenShort <= cb.lenOppHighest + 1)
   {
-    if (pickFlag) holdCtr[0xa80]++;
+    if (pickFlag) holdCtr[0xa52]++;
     return false;
   }
   else if (cb.lenShort == cb.lenOppMax + 1 &&
     cb.numTopsShortLow == 0)
   {
-    if (pickFlag) holdCtr[0xa81]++;
+    if (pickFlag) holdCtr[0xa53]++;
     return false;
   }
   else if (cb.numTopsLongLow >= Max(cb.lenOppMax, cb.lenShort) &&
       completeList[cb.pLong][Max(cb.lenOppMax, cb.lenShort) - 1] > 
       cb.maxPard)
   {
-    if (pickFlag) holdCtr[0xa81]++;
+    if (pickFlag) holdCtr[0xa54]++;
     return false;
   }
   else if (cb.numTopsLow == Min(cb.lenLong, cb.lenOppMax) &&
       cb.lenOppHighest + cb.numTopsShortLow == cb.lenShort)
   {
-    if (pickFlag) holdCtr[0xa82]++;
+    if (pickFlag) holdCtr[0xa55]++;
     return false;
   }
 
@@ -1385,7 +1390,7 @@ if (pickFlag) holdCtr[0xa99]++;
       pd.prevPlay = pd.nextLong;
   }
 
-  if (pickFlag) holdCtr[0xa83]++;
+  if (pickFlag) holdCtr[0xa56]++;
   lowestRank = Holding::ListToRank(pd.prevPlay);
   trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
   return def.Set1(trick[0]);
