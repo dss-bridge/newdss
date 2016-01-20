@@ -1069,7 +1069,7 @@ bool LoopHold::CashoutBothDiffLongStrong(
 if (pickFlag) holdCtr[0xa99]++;
   
   Trick trick[4];
-  unsigned l, t;
+  unsigned r, l, t;
 
   if (cb.lenLong > cb.lenShort && 
     cb.lenOppHighest == 1 && 
@@ -1239,18 +1239,34 @@ if (pickFlag) holdCtr[0xa99]++;
     else if (cb.lenShort > cb.lenOppLowest + 1 &&
         cb.numTopsLongLow >= cb.lenOppLowest)
     {
-      if (pickFlag) holdCtr[0xa91]++;
+      if (pickFlag) holdCtr[0xa4b]++;
       l = cb.lenOppLowest;
-      unsigned r = Holding::ListToRank(completeList[QT_ACE][l]);
+      r = Holding::ListToRank(completeList[QT_ACE][l]);
       lowestRank = Holding::ListToRank(cb.maxPard);
       trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenLong);
       trick[1].Set(QT_ACE, QT_PARD, lowestRank, cb.lenLong);
       return def.Set11(trick[0], trick[1]);
 
     }
-    // Holding::Print();
-    if (pickFlag) holdCtr[0xa90]++;
-    return false;
+    else if (cb.maxPard < cb.minOpp)
+    {
+      if (pickFlag) holdCtr[0xa90]++;
+      if (cb.lenShort <= cb.lenOppLowest)
+        l = cb.lenOppLowest;
+      else
+        l = cb.lenOppLowest + 1;
+      r = Holding::ListToRank(completeList[QT_ACE][l-1]);
+      lowestRank = Holding::ListToRank(cb.maxPard);
+      trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+      trick[1].Set(QT_ACE, QT_PARD, lowestRank, cb.lenShort);
+      trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+      return def.Set12(trick[0], trick[1], trick[2]);
+    }
+    else
+    {
+      if (pickFlag) holdCtr[0xa91]++;
+      return false;
+    }
   }
   else if (cb.minPard > completeList[cb.pLong][cb.lenOppMax])
   {
@@ -1263,7 +1279,6 @@ if (pickFlag) holdCtr[0xa99]++;
         t = cb.lenLong - cb.lenShort;
         lowestRank = Holding::ListToRank(completeList[QT_ACE][l-1]);
         unsigned maxp = Holding::ListToRank(cb.maxPard);
-        unsigned r;
         if (cb.lenShort >= cb.lenOppLowest)
           r = SDS_VOID;
         else
@@ -1275,7 +1290,7 @@ if (pickFlag) holdCtr[0xa99]++;
         // in the recursion.
         if (completeList[QT_ACE][cb.lenShort-1] > cb.maxPard)
         {
-          if (pickFlag) holdCtr[0xa4b]++;
+          if (pickFlag) holdCtr[0xa4c]++;
           trick[0].Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
           trick[1].Set(QT_ACE, QT_PARD, maxp, cb.lenShort);
           trick[2].Set(QT_ACE, QT_ACE, r, t);
@@ -1283,7 +1298,7 @@ if (pickFlag) holdCtr[0xa99]++;
         }
         else
         {
-          if (pickFlag) holdCtr[0xa4c]++;
+          if (pickFlag) holdCtr[0xa4d]++;
           trick[0].Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
           trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID - (cb.lenShort-1),
             cb.lenShort-1);
@@ -1294,38 +1309,38 @@ if (pickFlag) holdCtr[0xa99]++;
       }
       else
       {
-        if (pickFlag) holdCtr[0xa4d]++;
+        if (pickFlag) holdCtr[0xa4e]++;
         return false;
       }
     }
     else
     {
-      if (pickFlag) holdCtr[0xa4e]++;
+      if (pickFlag) holdCtr[0xa4f]++;
       return false;
     }
   }
   else if (cb.lenShort <= cb.lenOppHighest + 1)
   {
-    if (pickFlag) holdCtr[0xa4f]++;
+    if (pickFlag) holdCtr[0xa80]++;
     return false;
   }
   else if (cb.lenShort == cb.lenOppMax + 1 &&
     cb.numTopsShortLow == 0)
   {
-    if (pickFlag) holdCtr[0xa50]++;
+    if (pickFlag) holdCtr[0xa81]++;
     return false;
   }
   else if (cb.numTopsLongLow >= Max(cb.lenOppMax, cb.lenShort) &&
       completeList[cb.pLong][Max(cb.lenOppMax, cb.lenShort) - 1] > 
       cb.maxPard)
   {
-    if (pickFlag) holdCtr[0xa51]++;
+    if (pickFlag) holdCtr[0xa81]++;
     return false;
   }
   else if (cb.numTopsLow == Min(cb.lenLong, cb.lenOppMax) &&
       cb.lenOppHighest + cb.numTopsShortLow == cb.lenShort)
   {
-    if (pickFlag) holdCtr[0xa52]++;
+    if (pickFlag) holdCtr[0xa82]++;
     return false;
   }
 
@@ -1370,7 +1385,7 @@ if (pickFlag) holdCtr[0xa99]++;
       pd.prevPlay = pd.nextLong;
   }
 
-  if (pickFlag) holdCtr[0xa42]++;
+  if (pickFlag) holdCtr[0xa83]++;
   lowestRank = Holding::ListToRank(pd.prevPlay);
   trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
   return def.Set1(trick[0]);
