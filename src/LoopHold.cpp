@@ -1311,10 +1311,41 @@ if (pickFlag) holdCtr[0xa99]++;
           return def.Set13(trick);
         }
       }
+      else if (cb.numTopsLow == cb.lenOppLowest)
+      {
+        // How to recognize the cases for this?
+        // Main issue is when we get the whole suit and when not.
+        // The ranks seem broadly OK.
+
+        /*
+        if (pickFlag) holdCtr[0xa50]++;
+        unsigned r2, r3;
+        r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppHighest-1]);
+        r2 = Holding::ListToRank(cb.maxPard);
+        r3 = Holding::ListToRank(
+          completeList[QT_ACE][cb.numTopsLongLow-1]);
+        if (r3 > r2)
+          r3 = SDS_VOID;
+        lowestRank = Min(r2, r3);
+        l = cb.numTopsLow - cb.lenShort;
+        if (cb.numTopsLongLow == cb.lenLong ||
+            cb.numTopsShortLow == cb.lenShort)
+          l--;
+
+        trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenShort - 1);
+        trick[1].Set(QT_BOTH, QT_PARD, r2, 1);
+        trick[2].Set(QT_ACE, QT_ACE, r3, l);
+        return def.Set3(trick[0], trick[1], trick[2]);
+      }
       else
       {
-        // Holding::Print();
-        if (pickFlag) holdCtr[0xa50]++;
+      */
+        if (pickFlag) holdCtr[0xa59]++;
+        return false;
+      }
+      else
+      {
+        if (pickFlag) holdCtr[0xa58]++;
         return false;
       }
     }
