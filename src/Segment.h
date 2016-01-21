@@ -100,6 +100,11 @@ class Segment
     CmpDetailType Compare(
       const Segment& seg2) const;
 
+    CmpDetailType Compare(
+      const Segment& seg2,
+      const unsigned runRankOld,
+      const unsigned runRankNew) const;
+
     bool EqualsExceptStart(
       const Segment& seg2,
       const bool lastFlag) const;

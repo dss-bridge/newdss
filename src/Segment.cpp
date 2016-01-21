@@ -159,6 +159,21 @@ CmpDetailType Segment::Compare(
 }
 
 
+CmpDetailType Segment::Compare(
+  const Segment& seg2,
+  const unsigned runRankOld,
+  const unsigned runRankNew) const
+{
+  Trick t1;
+  Segment::GetSummaryTrick(t1);
+  t1.trick.ranks = Min(t1.trick.ranks, runRankOld);
+  Trick t2;
+  seg2.GetSummaryTrick(t2);
+  t2.trick.ranks = Min(t2.trick.ranks, runRankNew);
+  return t1.Compare(t2);
+}
+
+
 bool Segment::EqualsExceptStart(
   const Segment& seg2,
   const bool lastFlag) const

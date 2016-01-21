@@ -170,7 +170,8 @@ CmpDetailType TrickList::CompareInit(
     cdata.lenOld--;
     cdata.lenNew--;
 
-    cc = list[cdata.lenOld].Compare(lNew.list[cdata.lenNew]);
+    cc = list[cdata.lenOld].Compare(lNew.list[cdata.lenNew],
+      cdata.ranksOld, cdata.ranksNew);
     if (cc == SDS_HEADER_PLAY_DIFFERENT)
       return SDS_HEADER_PLAY_DIFFERENT;
 
