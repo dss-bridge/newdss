@@ -1334,40 +1334,88 @@ if (pickFlag) holdCtr[0xa99]++;
         trick[2].Set(QT_ACE, QT_ACE, r3, l);
         return def.Set3(trick[0], trick[1], trick[2]);
       }
+      else if (cb.numTopsLongLow == cb.lenLong &&
+          completeList[QT_ACE][cb.lenShort-1] > cb.maxPard)
+      {
+        // There is no good reason for this.
+        if (pickFlag) holdCtr[0xa51]++;
+        r = Holding::ListToRank(completeList[QT_ACE][cb.lenLong-1]);
+        unsigned r2, r3;
+        r2 = Holding::ListToRank(cb.maxPard);
+        if (cb.numTopsLongLow == cb.lenLong &&
+            cb.lenLong <= cb.lenOppLowest) 
+          r3 = Holding::ListToRank(completeList[QT_ACE][cb.lenLong-2]);
+        else
+          r3 = SDS_VOID;
+        if (r3 > r2)
+          r3 = SDS_VOID;
+          
+        lowestRank = Min(r, r2);
+        trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+        trick[1].Set(QT_ACE, QT_PARD, r2, cb.lenShort);
+        trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
+        return def.Set12(trick[0], trick[1], trick[2]);
+      }
+      else if (cb.numTopsLongLow == cb.lenShort-1)
+      {
+        if (pickFlag) holdCtr[0xa52]++;
+        return false;
+      }
       else
       {
-        if (pickFlag) holdCtr[0xa58]++;
-        return false;
+        if (pickFlag) holdCtr[0xa53]++;
+        r = Holding::ListToRank(completeList[QT_ACE][cb.numTopsLongLow-1]);
+        unsigned r2, r3, r4;
+        r2 = Holding::ListToRank(completeList[QT_ACE][cb.lenShort-2]);
+        r3 = Holding::ListToRank(cb.maxPard);
+        if (cb.numTopsLongLow == cb.lenLong)
+          r4 = Holding::ListToRank(completeList[QT_ACE][length[QT_ACE]-2]);
+        else
+          r4 = r;
+        if (r4 > r3)
+          r4 = SDS_VOID;
+        lowestRank = Min(r2, r3);
+        if (cb.numTopsLow == cb.lenOppLowest &&
+            cb.numTopsLow <= cb.lenLong + 1 &&
+            cb.numTopsShortLow == cb.lenShort)
+          l = cb.numTopsLow - cb.lenShort - 1;
+        else
+          l = cb.lenLong - cb.lenShort;
+        trick[0].Set(QT_BOTH, QT_ACE, r, cb.numTopsLongLow);
+        trick[1].Set(QT_BOTH, QT_ACE, r2, cb.lenShort-1);
+        trick[2].Set(QT_BOTH, QT_PARD, r3, 1);
+        trick[3].Set(QT_ACE, QT_ACE, r4, l);
+        return def.Set13(trick);
       }
     }
     else
     {
-      if (pickFlag) holdCtr[0xa51]++;
+      if (pickFlag) holdCtr[0xa54]++;
       return false;
     }
   }
   else if (cb.lenShort <= cb.lenOppHighest + 1)
   {
-    if (pickFlag) holdCtr[0xa52]++;
+    if (pickFlag) holdCtr[0xa55]++;
     return false;
   }
   else if (cb.lenShort == cb.lenOppMax + 1 &&
     cb.numTopsShortLow == 0)
   {
-    if (pickFlag) holdCtr[0xa53]++;
+    if (pickFlag) holdCtr[0xa56]++;
     return false;
   }
   else if (cb.numTopsLongLow >= Max(cb.lenOppMax, cb.lenShort) &&
       completeList[cb.pLong][Max(cb.lenOppMax, cb.lenShort) - 1] > 
       cb.maxPard)
   {
-    if (pickFlag) holdCtr[0xa54]++;
+    if (pickFlag) holdCtr[0xa57]++;
     return false;
   }
   else if (cb.numTopsLow == Min(cb.lenLong, cb.lenOppMax) &&
       cb.lenOppHighest + cb.numTopsShortLow == cb.lenShort)
   {
-    if (pickFlag) holdCtr[0xa55]++;
+    if (pickFlag) holdCtr[0xa58]++;
     return false;
   }
 
