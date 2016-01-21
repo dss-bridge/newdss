@@ -1359,7 +1359,14 @@ if (pickFlag) holdCtr[0xa99]++;
       else if (cb.numTopsLongLow == cb.lenShort-1)
       {
         if (pickFlag) holdCtr[0xa52]++;
-        return false;
+        unsigned r2, r3;
+        r = Holding::ListToRank(
+          completeList[QT_ACE][cb.numTopsLongHigh-1]);
+        lowestRank = Holding::ListToRank(cb.maxPard);
+        trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenShort-1);
+        trick[1].Set(QT_BOTH, QT_PARD, lowestRank, 1);
+        trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+        return def.Set3(trick[0], trick[1], trick[2]);
       }
       else
       {
@@ -5393,6 +5400,17 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
         trick[4].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
         return def.Set113(trick);
       }
+      else
+      {
+        // AK7x / 8xx / JTx / Q9.
+        if (pickFlag) holdCtr[0x144a]++;
+        rank = SDS_VOID - 5;
+        trick[0].Set(QT_ACE, QT_ACE, SDS_VOID-2, 2);
+        trick[1].Set(QT_BOTH, QT_PARD, SDS_VOID-4, 1);
+        trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
+        trick[3].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]);
+        return def.Set31(trick);
+      }
     }
   }
   else if (length[QT_ACE] > length[QT_PARD] && length[QT_PARD] >= 4 &&
@@ -5405,7 +5423,7 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
           completeList[QT_ACE][2])
       {
         // AKxxx(+) / (xx) / JT98 / Qx.
-        if (pickFlag) holdCtr[0x144a]++;
+        if (pickFlag) holdCtr[0x144b]++;
         rank = Holding::ListToRank(
         completeList[QT_PARD][length[QT_PARD]-3]);
         unsigned rank2 = Holding::ListToRank(completeList[QT_PARD][1]);
@@ -5419,7 +5437,7 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
       else
       {
         // AK8xx / - / JT9x / Qx.
-        if (pickFlag) holdCtr[0x144b]++;
+        if (pickFlag) holdCtr[0x144c]++;
         rank = Holding::ListToRank(completeList[QT_ACE][2]);
         unsigned r2 = Holding::ListToRank(completeList[QT_PARD][1]);
         trick[0].Set(QT_ACE, QT_BOTH, rank, length[QT_ACE]);
