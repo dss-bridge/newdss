@@ -1395,8 +1395,26 @@ if (pickFlag) holdCtr[0xa99]++;
         return def.Set13(trick);
       }
     }
+    else if (length[QT_PARD] <= cb.lenOppLowest)
+    {
+      if (cb.lenOppHighest <= cb.numTopsLongHigh &&
+          cb.lenOppLowest <= cb.numTopsLongLow &&
+          (cb.lenShort <= cb.lenOppHighest ||
+           cb.maxPard < cb.minOpp))
+      {
+        if (pickFlag) holdCtr[0xa59]++;
+        l = Min(cb.lenLong, cb.lenOppLowest);
+        lowestRank = Holding::ListToRank(completeList[QT_ACE][l-1]);
+        trick[0].Set(QT_BOTH, QT_ACE, lowestRank, length[QT_ACE]);
+        return def.Set1(trick[0]);
+      }
+      else
+        if (pickFlag) holdCtr[0xa80]++;
+        return false;
+    }
     else
     {
+      // Holding::Print();
       if (pickFlag) holdCtr[0xa54]++;
       return false;
     }
