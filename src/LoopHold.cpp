@@ -5326,8 +5326,24 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
   // ==== G36 ==========================================================
 
   if (pickFlag) holdCtr[0x1360]++;
-  UNUSED(def);
-  UNUSED(rank);
+
+  Trick trick[4];
+  if (length[QT_ACE] >= 4 && length[QT_PARD] == 3 &&
+      length[QT_LHO] == 1 && length[QT_RHO] >= 4)
+  {
+    if (htop.T == QT_PARD && htop.N == QT_RHO && htop.E == QT_ACE)
+    {
+      // AK8x / Q / JTx / 9xxx.
+      if (pickFlag) holdCtr[0x1361]++;
+      rank = SDS_VOID - 7;
+      unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
+      trick[0].Set(QT_BOTH, QT_ACE, rank, l);
+      trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+      trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 2);
+      trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
+      return def.Set13(trick);
+    }
+  }
   return false;
 }
 
@@ -5405,6 +5421,21 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
         trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l);
         return def.Set12(trick[0], trick[1], trick[2]);
       }
+      else if (length[QT_ACE] >= 4 && length[QT_LHO] >= 4 &&
+          completeList[QT_LHO][0] > completeList[QT_ACE][3])
+      {
+        // AK9x /  8xxx / JT / Qx.
+        // PROBLEM: Should be PP29, not PP2T.
+        // Can be combined wtih 0x1442 below.
+        if (pickFlag) holdCtr[0x1451]++;
+        rank = Holding::ListToRank(completeList[QT_ACE][2]);
+        unsigned l = (length[QT_LHO] == 4 ? length[QT_ACE] : 4);
+        trick[0].Set(QT_BOTH, QT_ACE, rank, 3);
+        trick[1].Set(QT_PARD, QT_PARD, SDS_VOID-4, 2);
+        trick[2].Set(QT_ACE, QT_ACE, rank, l-2);
+        return def.Set12(trick[0], trick[1], trick[2]);
+
+      }
     }
     else if ((htop.T == QT_ACE && htop.N == QT_PARD) ||
         (htop.T == QT_PARD && htop.N == QT_ACE))
@@ -5418,9 +5449,9 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
         if (pickFlag) holdCtr[0x1442]++;
         rank = Holding::ListToRank(completeList[QT_ACE][2]);
         unsigned l = (length[QT_LHO] == 4 ? length[QT_ACE] : 4);
-        trick[0].Set(QT_BOTH, QT_ACE, SDS_VOID-5, 3);
+        trick[0].Set(QT_BOTH, QT_ACE, rank, 3);
         trick[1].Set(QT_PARD, QT_PARD, SDS_VOID-4, 2);
-        trick[2].Set(QT_ACE, QT_ACE, SDS_VOID-5, l-2);
+        trick[2].Set(QT_ACE, QT_ACE, rank, l-2);
         return def.Set12(trick[0], trick[1], trick[2]);
       }
     }
