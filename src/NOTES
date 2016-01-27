@@ -1,6 +1,20 @@
-Status 27.01.2016
-Debugging 0xa57, look in b.txt
-Some are finesses, some are actual BBn's
+Bugs
+----
+Ranks
+12, 3a553
+AKQ3 / 8765 / T9 / J3.
+Comes out BA3Q or PP2T+AA2-, should be PP29.
+Also 0x1486 should then be fixed.
+
+12, ca547
+AKJ5 / 8764 / T9 / Q3.
+Comes out BA3J or PP2T + AA2-, should be PP29.
+Also 0x1122 should then be fixed.
+
+Ditto 12, e8457, AK97 / 8654 / JT / Q3 (0x1122).
+
+Also 0x1442.
+
 
 Rank errors
 -----------
