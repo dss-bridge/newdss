@@ -1490,15 +1490,44 @@ if (pickFlag) holdCtr[0xa99]++;
         }
       }
     }
+    else if (cb.numTopsShortLow == 0 && cb.lenShort == cb.lenOppLowest + 1)
+    {
+      if (pickFlag) holdCtr[0xa5a]++;
+      r = Holding::ListToRank(completeList[QT_ACE][cb.numTopsLow-1]);
+      lowestRank = Holding::ListToRank(cb.maxPard);
+      trick[0].Set(QT_BOTH, QT_ACE, r, cb.numTopsLow);
+      trick[1].Set(QT_BOTH, QT_PARD, lowestRank, 1);
+      trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+      return def.Set3(trick[0], trick[1], trick[2]);
+    }
+    else if (cb.numTopsLow == cb.lenOppLowest &&
+        cb.minPard > completeList[QT_ACE][cb.numTopsLongLow])
+    {
+      if (pickFlag) holdCtr[0xa80]++;
+
+      r = Holding::ListToRank(completeList[QT_ACE][cb.numTopsLongLow-1]);
+      unsigned r2 = Holding::ListToRank(
+        completeList[QT_PARD][cb.lenShort - cb.numTopsLongLow - 1]);
+
+      // The way it comes out.
+      l = (cb.numTopsShortLow == 0 ||
+          completeList[QT_ACE][cb.numTopsLongLow-1] <
+          completeList[QT_PARD][cb.numTopsShortLow-1] ?
+          cb.lenOppLowest : cb.numTopsLongLow);
+
+      trick[0].Set(QT_BOTH, QT_ACE, r, l);
+      trick[1].Set(QT_BOTH, QT_PARD, r2, cb.lenShort - l);
+      trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+      return def.Set3(trick[0], trick[1], trick[2]);
+    }
     else
     {
-      // Holding::Print();
-      if (pickFlag) holdCtr[0xa5a]++;
-      return false;
+      // Let fall through to BBrn below.
     }
   }
   else if (cb.lenShort <= cb.lenOppHighest + 1)
   {
+      // Holding::Print();
     if (pickFlag) holdCtr[0xa5b]++;
     return false;
   }
@@ -5038,6 +5067,7 @@ bool LoopHold::SolveComplex5(DefList& def, unsigned& rank) const
   if (pickFlag) holdCtr[0x1050]++;
   UNUSED(def);
   UNUSED(rank);
+  assert(false);
   return false;
 }
 
