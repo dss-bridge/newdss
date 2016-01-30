@@ -1378,12 +1378,7 @@ bool LoopHold::CashoutBothDiffLongStrong(
       else if (cb.lenOppLowest <= cb.numTopsLongLow &&
           cb.lenShort >= cb.lenOppHighest+2)
       {
-        if (pickFlag) holdCtr[0xa55]++;
-        r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppLowest-2]);
-        unsigned r2 = Holding::ListToRank(cb.maxPard);
-        lowestRank = Min(r, r2);
-        trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-        return def.Set1(trick[0]);
+        // Let fall through to BBrn below.
       }
       else if (cb.numTopsLow == cb.lenOppLowest &&
         cb.numTopsShortLow + cb.numTopsLongHigh == cb.lenShort &&
@@ -1391,6 +1386,7 @@ bool LoopHold::CashoutBothDiffLongStrong(
       {
         if (cb.numTopsLow > cb.lenLong)
         {
+          /*
           if (pickFlag) holdCtr[0xa57]++;
           r = Holding::ListToRank(cb.maxPard);
           unsigned r2 = Holding::ListToRank(
@@ -1398,6 +1394,7 @@ bool LoopHold::CashoutBothDiffLongStrong(
           lowestRank = Min(r, r2);
           trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
           return def.Set1(trick[0]);
+          */
         }
         else
         {
