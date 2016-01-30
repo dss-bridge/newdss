@@ -1365,12 +1365,13 @@ bool LoopHold::CashoutBothDiffLongStrong(
     }
     else if (cb.lenShort <= cb.lenOppLowest)
     {
-      if (cb.lenOppLowest <= cb.numTopsLongLow &&
-          cb.lenShort >= cb.lenOppHighest+2)
-      {
+      // if (cb.lenOppLowest <= cb.numTopsLongLow &&
+          // cb.lenShort >= cb.lenOppHighest+2)
+      // {
         // Let fall through to BBrn below.
-      }
-      else if (cb.lenShort < cb.lenOppHighest + 2 ||
+      // }
+      // else 
+      if (cb.lenShort < cb.lenOppHighest + 2 ||
           cb.numTopsLongLow + 1 < cb.lenCashLow)
       {
         if (pickFlag) holdCtr[0xa59]++;
