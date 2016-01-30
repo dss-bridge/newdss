@@ -1671,11 +1671,27 @@ bool LoopHold::CashoutBothDiffLongStrong(
   else if (cb.numTopsLow == Min(cb.lenLong, cb.lenOppMax) &&
       cb.lenOppHighest + cb.numTopsShortLow == cb.lenShort)
   {
-    // Holding::Print();
     if (pickFlag) holdCtr[0xa65]++;
-    return false;
-  }
 
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppHighest-1]);
+    unsigned r2 = Holding::ListToRank(
+      completeList[QT_PARD][cb.numTopsShortLow-1]);
+
+    PlayDetails pd;
+    l = Min(cb.lenOppMax, cb.lenLong);
+    LoopHold::SetPlayDetails(l, cb, pd);
+    unsigned r3 = (pd.prevPlay < r2 ?
+      Holding::ListToRank(pd.prevPlay) : SDS_VOID);
+
+    if (r3 >= r2)
+      r3 = SDS_VOID;
+    lowestRank = Min(r2, r3);
+
+    trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenOppHighest);
+    trick[1].Set(QT_BOTH, QT_PARD, r2, cb.lenShort - cb.lenOppHighest);
+    trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
+    return def.Set3(trick[0], trick[1], trick[2]);
+  }
 
   PlayDetails pd;
   l = Min(cb.lenOppMax, cb.lenLong);
@@ -5516,19 +5532,22 @@ bool LoopHold::SolveComplex41(DefList& def, unsigned& rank) const
 
   Trick trick[4];
   if (length[QT_ACE] >= 4 && length[QT_PARD] == 3 &&
-      length[QT_LHO] == 1 && length[QT_RHO] >= 4)
+      length[QT_LHO] == 1)
   {
-    if (htop.T == QT_ACE && htop.N == QT_RHO && htop.E == QT_ACE)
+    if (length[QT_RHO] >= 4)
     {
-      // AT8x / K / QJx / 9xxx.
-      if (pickFlag) holdCtr[0x1411]++;
-      rank = SDS_VOID - 7;
-      unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
-      trick[0].Set(QT_BOTH, QT_ACE, rank, l);
-      trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
-      trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-4, 2);
-      trick[3].Set(QT_ACE, QT_ACE, SDS_VOID-5, l-3);
-      return def.Set13(trick);
+      if (htop.T == QT_ACE && htop.N == QT_RHO && htop.E == QT_ACE)
+      {
+        // AT8x / K / QJx / 9xxx.
+        if (pickFlag) holdCtr[0x1411]++;
+        rank = SDS_VOID - 7;
+        unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
+        trick[0].Set(QT_BOTH, QT_ACE, rank, l);
+        trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+        trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-4, 2);
+        trick[3].Set(QT_ACE, QT_ACE, SDS_VOID-5, l-3);
+        return def.Set13(trick);
+      }
     }
   }
   return false;
