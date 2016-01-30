@@ -1471,19 +1471,20 @@ if (pickFlag) holdCtr[0xa99]++;
         }
         else
         {
-          return false;
           if (pickFlag) holdCtr[0xa59]++;
           r = Holding::ListToRank(
-            completeList[QT_ACE][cb.numTopsLongHigh-1]);
-          unsigned r2 = Holding::ListToRank(
-            completeList[QT_PARD][cb.numTopsShortLow-1]);
-          unsigned r3 = Holding::ListToRank(
-            completeList[QT_ACE][cb.numTopsLongLow-1]);
+            completeList[QT_ACE][cb.lenOppHighest-1]);
+          unsigned l2 = Min(cb.numTopsShortLow,
+            cb.lenShort - cb.lenOppHighest);
+          unsigned r2 = Holding::ListToRank(completeList[QT_PARD][l2-1]);
+          l = Min(cb.lenOppLowest, cb.numTopsLongLow);
+          unsigned r3 = Holding::ListToRank(completeList[QT_ACE][l-1]);
           if (r3 >= Min(r, r2))
             r3 = SDS_VOID;
           lowestRank = Min(r2, r3);
-          trick[0].Set(QT_BOTH, QT_ACE, r, cb.numTopsLongHigh);
-          trick[1].Set(QT_BOTH, QT_PARD, r2, cb.numTopsShortLow);
+          trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenOppHighest);
+          trick[1].Set(QT_BOTH, QT_PARD, r2, 
+            cb.lenShort - cb.lenOppHighest);
           trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
           return def.Set3(trick[0], trick[1], trick[2]);
         }
