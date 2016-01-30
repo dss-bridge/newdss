@@ -1279,6 +1279,28 @@ bool LoopHold::CashoutBothDiffLongStrong(
           return def.Set13(trick);
         }
       }
+      else if (cb.numTopsLongLow == cb.lenLong &&
+          completeList[QT_ACE][cb.lenShort-1] > cb.maxPard)
+      {
+        // There is no good reason for this.
+        if (pickFlag) holdCtr[0xa51]++;
+        r = Holding::ListToRank(completeList[QT_ACE][cb.lenLong-1]);
+        unsigned r2, r3;
+        r2 = Holding::ListToRank(cb.maxPard);
+        if (cb.numTopsLongLow == cb.lenLong &&
+            cb.lenLong <= cb.lenOppLowest) 
+          r3 = Holding::ListToRank(completeList[QT_ACE][cb.lenLong-2]);
+        else
+          r3 = SDS_VOID;
+        if (r3 > r2)
+          r3 = SDS_VOID;
+          
+        lowestRank = Min(r, r2);
+        trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+        trick[1].Set(QT_ACE, QT_PARD, r2, cb.lenShort);
+        trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
+        return def.Set12(trick[0], trick[1], trick[2]);
+      }
       else if (cb.numTopsLongLow == cb.lenShort)
       {
         if (pickFlag) holdCtr[0xa50]++;
@@ -1301,28 +1323,6 @@ bool LoopHold::CashoutBothDiffLongStrong(
         trick[1].Set(QT_BOTH, QT_PARD, r2, 1);
         trick[2].Set(QT_ACE, QT_ACE, r3, l);
         return def.Set3(trick[0], trick[1], trick[2]);
-      }
-      else if (cb.numTopsLongLow == cb.lenLong &&
-          completeList[QT_ACE][cb.lenShort-1] > cb.maxPard)
-      {
-        // There is no good reason for this.
-        if (pickFlag) holdCtr[0xa51]++;
-        r = Holding::ListToRank(completeList[QT_ACE][cb.lenLong-1]);
-        unsigned r2, r3;
-        r2 = Holding::ListToRank(cb.maxPard);
-        if (cb.numTopsLongLow == cb.lenLong &&
-            cb.lenLong <= cb.lenOppLowest) 
-          r3 = Holding::ListToRank(completeList[QT_ACE][cb.lenLong-2]);
-        else
-          r3 = SDS_VOID;
-        if (r3 > r2)
-          r3 = SDS_VOID;
-          
-        lowestRank = Min(r, r2);
-        trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenLong);
-        trick[1].Set(QT_ACE, QT_PARD, r2, cb.lenShort);
-        trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
-        return def.Set12(trick[0], trick[1], trick[2]);
       }
       else if (cb.numTopsLongLow == cb.lenShort-1)
       {
