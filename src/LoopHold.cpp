@@ -1105,20 +1105,9 @@ bool LoopHold::CashoutBothDiffLongStrong(
     return def.Set11(trick[0], trick[1]);
   }
 
-  if (cb.lenLong > cb.lenShort && 
-    cb.lenOppHighest == 1 && 
-    ((cb.lenOppLowest == 2 && cb.lenShort >= 3) ||
-     (cb.lenOppLowest == 3 && cb.lenShort == 3)) &&
-    cb.numTopsLow >= 3 &&
-    Min(cb.maxPard, completeList[QT_ACE][1]) >= suitLength - 4)
-  {
-    // AQxx+ / K / Jxx+ / xx.
-    if (pickFlag) holdCtr[0xa43]++;
-    lowestRank = SDS_VOID - 4;
-    trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    return def.Set1(trick[0]);
-  }
-  else if (cb.lenShort > cb.lenOppHighest &&
+  // -----------------------------------------------------
+
+  if (cb.lenShort > cb.lenOppHighest &&
       cb.numTopsLongHigh == cb.lenOppHighest &&
       (cb.minPard > completeList[cb.pLong][cb.lenOppHighest] ||
       (cb.maxPard > completeList[cb.pLong][cb.lenOppHighest] &&
