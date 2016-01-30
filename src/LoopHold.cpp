@@ -1363,83 +1363,59 @@ bool LoopHold::CashoutBothDiffLongStrong(
         return def.Set13(trick);
       }
     }
-    else if (length[QT_PARD] <= cb.lenOppLowest)
+    else if (cb.lenShort <= cb.lenOppLowest)
     {
       if (cb.lenOppLowest <= cb.numTopsLongLow &&
-          cb.numTopsShortLow == 0)
-      {
-        if (pickFlag) holdCtr[0xa54]++;
-        l = Min(cb.lenLong, cb.lenOppLowest);
-        lowestRank = Holding::ListToRank(completeList[QT_ACE][l-1]);
-        trick[0].Set(QT_BOTH, QT_ACE, lowestRank, length[QT_ACE]);
-        return def.Set1(trick[0]);
-      }
-
-      else if (cb.lenOppLowest <= cb.numTopsLongLow &&
           cb.lenShort >= cb.lenOppHighest+2)
       {
         // Let fall through to BBrn below.
       }
+      else if (cb.lenShort < cb.lenOppHighest + 2 ||
+          cb.numTopsLongLow + 1 < cb.lenCashLow)
+      {
+        if (pickFlag) holdCtr[0xa59]++;
+        r = HR(QT_ACE, cb.lenOppHighest-1);
+
+        unsigned l2 = Min(cb.numTopsShortLow,
+          cb.lenShort - cb.lenOppHighest);
+        unsigned r2 = HR(QT_PARD, l2-1);
+        l = Min(cb.lenOppLowest, cb.numTopsLongLow);
+        unsigned r3 = HR(QT_ACE, l-1);
+
+        if (r3 >= Min(r, r2))
+          r3 = SDS_VOID;
+        lowestRank = Min(r2, r3);
+        trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenOppHighest);
+        trick[1].Set(QT_BOTH, QT_PARD, r2, cb.lenShort - cb.lenOppHighest);
+        trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
+        return def.Set3(trick[0], trick[1], trick[2]);
+      }
       else if (cb.numTopsLow == cb.lenOppLowest &&
         cb.numTopsShortLow + cb.numTopsLongHigh == cb.lenShort &&
-        cb.numTopsLongHigh == cb.lenOppHighest)
+        cb.numTopsLongHigh == cb.lenOppHighest &&
+        cb.lenOppLowest <= cb.lenLong)
       {
-        if (cb.numTopsLow > cb.lenLong)
-        {
-          /*
-          if (pickFlag) holdCtr[0xa57]++;
-          r = Holding::ListToRank(cb.maxPard);
-          unsigned r2 = Holding::ListToRank(
-            completeList[QT_ACE][cb.numTopsLongLow-1]);
-          lowestRank = Min(r, r2);
-          trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-          return def.Set1(trick[0]);
-          */
-        }
-        else
-        {
-          if (pickFlag) holdCtr[0xa58]++;
-          r = Holding::ListToRank(
-            completeList[QT_ACE][cb.numTopsLongHigh-1]);
-          unsigned r2 = Holding::ListToRank(
-            completeList[QT_PARD][cb.numTopsShortLow-1]);
-          unsigned r3 = Holding::ListToRank(
-            completeList[QT_ACE][cb.numTopsLongLow-1]);
-          if (r3 >= Min(r, r2))
-            r3 = SDS_VOID;
-          lowestRank = Min(r2, r3);
-          trick[0].Set(QT_BOTH, QT_ACE, r, cb.numTopsLongHigh);
-          trick[1].Set(QT_BOTH, QT_PARD, r2, cb.numTopsShortLow);
-          trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
-          return def.Set3(trick[0], trick[1], trick[2]);
-        }
+assert(cb.numTopsShortLow == 2);
+        if (pickFlag) holdCtr[0xa58]++;
+        r = HR(QT_ACE, cb.lenOppHighest-1);
+
+        unsigned l2 = Min(cb.numTopsShortLow,
+          cb.lenShort - cb.lenOppHighest);
+        unsigned r2 = HR(QT_PARD, l2-1);
+        l = Min(cb.lenOppLowest, cb.numTopsLongLow);
+        unsigned r3 = HR(QT_ACE, l-1);
+
+        if (r3 >= Min(r, r2))
+          r3 = SDS_VOID;
+        lowestRank = Min(r2, r3);
+        trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenOppHighest);
+        trick[1].Set(QT_BOTH, QT_PARD, r2, cb.lenShort - cb.lenOppHighest);
+        trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
+        return def.Set3(trick[0], trick[1], trick[2]);
       }
       else
       {
-        if (length[QT_PARD] >= cb.lenOppHighest + 2 &&
-            cb.numTopsLongLow + 1 >= cb.lenCashLow)
-        {
-          // Let fall through to BBrn below.
-        }
-        else
-        {
-          if (pickFlag) holdCtr[0xa59]++;
-          r = Holding::ListToRank(
-            completeList[QT_ACE][cb.lenOppHighest-1]);
-          unsigned l2 = Min(cb.numTopsShortLow,
-            cb.lenShort - cb.lenOppHighest);
-          unsigned r2 = Holding::ListToRank(completeList[QT_PARD][l2-1]);
-          l = Min(cb.lenOppLowest, cb.numTopsLongLow);
-          unsigned r3 = Holding::ListToRank(completeList[QT_ACE][l-1]);
-          if (r3 >= Min(r, r2))
-            r3 = SDS_VOID;
-          lowestRank = Min(r2, r3);
-          trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenOppHighest);
-          trick[1].Set(QT_BOTH, QT_PARD, r2, 
-            cb.lenShort - cb.lenOppHighest);
-          trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
-          return def.Set3(trick[0], trick[1], trick[2]);
-        }
+        // Let fall through to BBrn below.
       }
     }
     else if (cb.numTopsShortLow == 0 && cb.lenShort == cb.lenOppLowest + 1)
@@ -1521,17 +1497,6 @@ bool LoopHold::CashoutBothDiffLongStrong(
         trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
         return def.Set12(trick[0], trick[1], trick[2]);
       }
-    }
-    else if (cb.numTopsLongLow >= cb.lenCashLow)
-    {
-      if (pickFlag) holdCtr[0xa5f]++;
-      lowestRank = Holding::ListToRank(
-        completeList[QT_ACE][cb.lenCashLow-1]);
-      r = Holding::ListToRank(cb.maxPard);
-      trick[0].Set(QT_BOTH, QT_ACE, lowestRank, cb.lenLong);
-      trick[1].Set(QT_ACE, QT_PARD, r, cb.lenShort);
-      trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
-      return def.Set12(trick[0], trick[1], trick[2]);
     }
     else
     {
