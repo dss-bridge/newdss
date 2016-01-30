@@ -1631,14 +1631,24 @@ bool LoopHold::CashoutBothDiffLongStrong(
   else if (cb.lenShort == cb.lenOppMax + 1 &&
     cb.numTopsShortLow == 0)
   {
-    // Holding::Print();
     if (pickFlag) holdCtr[0xa62]++;
-    return false;
+
+    r = Holding::ListToRank(completeList[QT_ACE][cb.lenOppMax]);
+    unsigned r2 = Holding::ListToRank(
+      completeList[QT_ACE][cb.numTopsLongLow-1]);
+    unsigned r3 = Holding::ListToRank(cb.maxPard);
+    lowestRank = Min(r, r3);
+    trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenLong);
+    trick[1].Set(QT_BOTH, QT_ACE, r2, cb.lenShort-1);
+    trick[2].Set(QT_BOTH, QT_PARD, r3, 1);
+    trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, cb.lenLong - cb.lenShort);
+    return def.Set13(trick);
   }
   else if (cb.numTopsLongLow >= Max(cb.lenOppMax, cb.lenShort) &&
       completeList[cb.pLong][Max(cb.lenOppMax, cb.lenShort) - 1] > 
       cb.maxPard)
   {
+    // Holding::Print();
     if (pickFlag) holdCtr[0xa63]++;
     return false;
   }
