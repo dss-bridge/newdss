@@ -1227,7 +1227,7 @@ bool LoopHold::CashoutBothDiffLongStrong(
       completeList[cb.pLong][cb.lenOppLowest] > cb.maxPard)
   {
     if (cb.lenOppLowest >= cb.lenShort &&
-        cb.oppMaxLowest > cb.maxPard)
+        cb.numTopsShortLow == 0)
     {
       if (pickFlag) holdCtr[0xa4a]++;
       l = cb.lenOppLowest;
@@ -1648,7 +1648,7 @@ bool LoopHold::CashoutBothDiffLongStrong(
       completeList[cb.pLong][Max(cb.lenOppMax, cb.lenShort) - 1] > 
       cb.maxPard)
   {
-    if (cb.maxPard > cb.oppMaxLowest)
+    if (cb.numTopsShortLow > 0)
     {
       if (pickFlag) holdCtr[0xa63]++;
       
