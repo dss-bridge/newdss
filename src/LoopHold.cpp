@@ -1365,39 +1365,13 @@ bool LoopHold::CashoutBothDiffLongStrong(
     }
     else if (cb.lenShort <= cb.lenOppLowest)
     {
-      // if (cb.lenOppLowest <= cb.numTopsLongLow &&
-          // cb.lenShort >= cb.lenOppHighest+2)
-      // {
-        // Let fall through to BBrn below.
-      // }
-      // else 
       if (cb.lenShort < cb.lenOppHighest + 2 ||
-          cb.numTopsLongLow + 1 < cb.lenCashLow)
+          cb.numTopsLongLow + 1 < cb.lenCashLow ||
+          (cb.numTopsHigh == cb.lenOppHighest &&
+           cb.numTopsLow == cb.lenCashLow &&
+           cb.numTopsHigh + cb.numTopsShortLow == cb.lenShort))
       {
         if (pickFlag) holdCtr[0xa59]++;
-        r = HR(QT_ACE, cb.lenOppHighest-1);
-
-        unsigned l2 = Min(cb.numTopsShortLow,
-          cb.lenShort - cb.lenOppHighest);
-        unsigned r2 = HR(QT_PARD, l2-1);
-        l = Min(cb.lenOppLowest, cb.numTopsLongLow);
-        unsigned r3 = HR(QT_ACE, l-1);
-
-        if (r3 >= Min(r, r2))
-          r3 = SDS_VOID;
-        lowestRank = Min(r2, r3);
-        trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenOppHighest);
-        trick[1].Set(QT_BOTH, QT_PARD, r2, cb.lenShort - cb.lenOppHighest);
-        trick[2].Set(QT_ACE, QT_ACE, r3, cb.lenLong - cb.lenShort);
-        return def.Set3(trick[0], trick[1], trick[2]);
-      }
-      else if (cb.numTopsLow == cb.lenOppLowest &&
-        cb.numTopsShortLow + cb.numTopsLongHigh == cb.lenShort &&
-        cb.numTopsLongHigh == cb.lenOppHighest &&
-        cb.lenOppLowest <= cb.lenLong)
-      {
-assert(cb.numTopsShortLow == 2);
-        if (pickFlag) holdCtr[0xa58]++;
         r = HR(QT_ACE, cb.lenOppHighest-1);
 
         unsigned l2 = Min(cb.numTopsShortLow,
