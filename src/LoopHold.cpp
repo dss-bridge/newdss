@@ -1185,7 +1185,8 @@ bool LoopHold::CashoutBothDiffLongStrong(
 
   // -----------------------------------------------------
 
-  unsigned t1 = 0, t2 = 0, t3 = 0, ra1, ra2, ra3;
+  unsigned t1 = 0, t2 = 0, t3 = 0, 
+    ra1 = SDS_VOID + 1, ra2 = SDS_VOID + 1, ra3 = SDS_VOID + 1;
   if ((cb.numTopsLongLow < cb.lenOppLowest && 
       cb.numTopsLongLow <= cb.lenShort) ||
       Holding::TopsOverRank(QT_ACE, cb.minPard) < cb.lenShort)
@@ -1201,9 +1202,27 @@ bool LoopHold::CashoutBothDiffLongStrong(
     else
       t1 = cb.lenOppHighest;
 
-
     t2 = cb.lenShort - t1;
-    t3 = cb.lenLong - cb.lenShort;
+
+    if (cb.numTopsLow >= cb.lenCashLow + 
+        Max(cb.xLongLow, t2) - cb.xLongLow +
+        Max(cb.xShortLow, t1) - cb.xShortLow)
+      t3 = cb.lenLong - cb.lenShort;
+    else
+      t3 = cb.numTopsLongLow - t1;
+
+    ra1 = HR(QT_ACE, t1-1);
+
+    ra2 = HR(QT_PARD, t2-2);
+
+    if (cb.lenShort >= cb.lenOppMax)
+      ra3 = SDS_VOID;
+    else
+    {
+      ra3 = HR(QT_ACE, t1+t3-1);
+      if (ra3 > ra2)
+        ra3 = SDS_VOID;
+    }
   }
 
   if (cb.lenShort > cb.lenOppHighest &&
