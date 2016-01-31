@@ -1334,58 +1334,41 @@ else
   holdCtr[0xab1]++;
       return def.Set13(trick);
     }
-
   }
   else if (cb.lenShort <= cb.lenOppHighest + 1)
   {
-    if (cb.numTopsLongLow >= cb.lenCashLow)
+    if (cb.maxPard < completeList[QT_ACE][cb.lenOppHighest] &&
+        cb.numTopsLongLow >= cb.lenCashLow)
     {
-      if (cb.maxPard > completeList[QT_ACE][cb.lenOppHighest])
-      {
-        if (pickFlag) holdCtr[0xa4b]++;
-        lowestRank = Min(Min(ra0, ra1), Min(ra2, ra3));
-        trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
-        trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
-        trick[2].Set(QT_BOTH, QT_PARD, ra2, t2);
-        trick[3].Set(QT_ACE, QT_ACE, ra3, t3);
-if (twoGuess)
-  holdCtr[0xaa3]++;
-else
-  holdCtr[0xab3]++;
-        return def.Set13(trick);
-      }
-      else
-      {
-        if (pickFlag) holdCtr[0xa4c]++;
-        lowestRank = Min(ra0, Min(ra2, ra3));
-        trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
-        trick[1].Set(QT_ACE, QT_PARD, ra2, t1+t2);
-        trick[2].Set(QT_ACE, QT_ACE, ra3, t3);
+      if (pickFlag) holdCtr[0xa49]++;
+      lowestRank = Min(ra0, Min(ra2, ra3));
+      trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
+      trick[1].Set(QT_ACE, QT_PARD, ra2, t1+t2);
+      trick[2].Set(QT_ACE, QT_ACE, ra3, t3);
 if (twoGuess)
   holdCtr[0xac3]++;
 else
   holdCtr[0xad3]++;
-        return def.Set12(trick[0], trick[1], trick[2]);
-      }
+      return def.Set12(trick[0], trick[1], trick[2]);
     }
     else
     {
-      if (pickFlag) holdCtr[0xa4d]++;
+      if (pickFlag) holdCtr[0xa4a]++;
       lowestRank = Min(Min(ra0, ra1), Min(ra2, ra3));
       trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
       trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
       trick[2].Set(QT_BOTH, QT_PARD, ra2, t2);
       trick[3].Set(QT_ACE, QT_ACE, ra3, t3);
 if (twoGuess)
-  holdCtr[0xaa4]++;
+  holdCtr[0xaa3]++;
 else
-  holdCtr[0xab4]++;
+  holdCtr[0xab3]++;
       return def.Set13(trick);
     }
   }
   else
   {
-    if (pickFlag) holdCtr[0xa4e]++;
+    if (pickFlag) holdCtr[0xa4b]++;
     lowestRank = Min(Min(ra0, ra1), Min(ra2, ra3));
     trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
     trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
