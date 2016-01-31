@@ -1191,12 +1191,17 @@ bool LoopHold::CashoutBothDiffLongStrong(
       cb.numTopsLongLow <= cb.lenShort) ||
       Holding::TopsOverRank(QT_ACE, cb.minPard) < cb.lenShort)
   {
-    if (cb.numTopsShortLow == 0 ||
-       (cb.numTopsLow == cb.lenOppLowest &&
+    unsigned s = 0;
+    if (cb.numTopsShortLow == 0)
+      t1 = cb.lenOppLowest;
+    else if (cb.numTopsLow == cb.lenOppLowest &&
         cb.lenOppLowest < cb.lenShort &&
         HR(QT_ACE, cb.numTopsLongLow-1) < 
-          HR(QT_PARD, cb.numTopsShortLow-1)))
+          HR(QT_PARD, cb.numTopsShortLow-1))
+    {
+      s = cb.numTopsShortLow;
       t1 = cb.lenOppLowest;
+    }
     else if (cb.xShortLow >= cb.numTopsLongLow)
       t1 = cb.numTopsLongLow;
     else
@@ -1211,18 +1216,25 @@ bool LoopHold::CashoutBothDiffLongStrong(
     else
       t3 = cb.numTopsLongLow - t1;
 
-    ra1 = HR(QT_ACE, t1-1);
+    ra1 = HR(QT_ACE, t1-s-1);
 
-    ra2 = HR(QT_PARD, t2-2);
+    ra2 = HR(QT_PARD, t2+s-1);
 
     if (cb.lenShort >= cb.lenOppMax)
       ra3 = SDS_VOID;
+    else if (t3 == cb.lenLong - cb.lenShort)
+      ra3 = HR(QT_ACE, t1-1 + cb.lenCashLow - cb.lenShort);
     else
-    {
       ra3 = HR(QT_ACE, t1+t3-1);
-      if (ra3 > ra2)
-        ra3 = SDS_VOID;
-    }
+
+    if (ra3 > ra2)
+      ra3 = SDS_VOID;
+
+    lowestRank = Min(ra2, ra3);
+    trick[0].Set(QT_BOTH, QT_ACE, ra1, t1);
+    trick[1].Set(QT_BOTH, QT_PARD, ra2, t2);
+    trick[2].Set(QT_ACE, QT_ACE, ra3, t3);
+    return def.Set3(trick[0], trick[1], trick[2]);
   }
 
   if (cb.lenShort > cb.lenOppHighest &&
@@ -1257,6 +1269,28 @@ bool LoopHold::CashoutBothDiffLongStrong(
       t = cb.lenLong - cb.lenShort;
       lowestRank = HR(QT_ACE, l);
       trick[3].Set(QT_ACE, QT_ACE, lowestRank, t);
+/*
+if (t1 != trick[1].GetCashing() ||
+    t2 != trick[2].GetCashing() ||
+    t3 != trick[3].GetCashing())
+{
+  Holding::Print();
+  cout << "P0 t1-3 " << t1 << "-" << t2 << "-" << t3 << " vs " <<
+    trick[1].GetCashing() << "-" <<
+    trick[2].GetCashing() << "-" <<
+    trick[3].GetCashing() << "\n";
+}
+if (ra1 != trick[1].GetRanks() ||
+    ra2 != trick[2].GetRanks() ||
+    ra3 != trick[3].GetRanks())
+{
+  Holding::Print();
+  cout << "P0 r1-3 " << ra1 << "-" << ra2 << "-" << ra3 << " vs " <<
+    trick[1].GetRanks() << "-" <<
+    trick[2].GetRanks() << "-" <<
+    trick[3].GetRanks() << "\n";
+}
+*/
       return def.Set13(trick);
     }
 
@@ -1295,16 +1329,6 @@ bool LoopHold::CashoutBothDiffLongStrong(
     trick[0].Set(QT_BOTH, QT_ACE, r, cb.lenOppHighest);
     trick[1].Set(QT_BOTH, QT_PARD, r1, cb.lenShort - cb.lenOppHighest);
     trick[2].Set(QT_ACE, QT_ACE, r2, t);
-if (t1 != trick[0].GetCashing() ||
-    t2 != trick[1].GetCashing() ||
-    t3 != trick[2].GetCashing())
-{
-  Holding::Print();
-  cout << "P0 t1-3 " << t1 << "-" << t2 << "-" << t3 << " vs " <<
-    trick[0].GetCashing() << "-" <<
-    trick[1].GetCashing() << "-" <<
-    trick[2].GetCashing() << "\n";
-}
     return def.Set3(trick[0], trick[1], trick[2]);
 //  **********************************************
   }
@@ -1415,6 +1439,16 @@ if (t1 != trick[0].GetCashing() ||
     trick[1].GetCashing() << "-" <<
     trick[2].GetCashing() << "\n";
 }
+if (ra1 != trick[0].GetRanks() ||
+    ra2 != trick[1].GetRanks() ||
+    ra3 != trick[2].GetRanks())
+{
+  Holding::Print();
+  cout << "P1 r1-3 " << ra1 << "-" << ra2 << "-" << ra3 << " vs " <<
+    trick[0].GetRanks() << "-" <<
+    trick[1].GetRanks() << "-" <<
+    trick[2].GetRanks() << "\n";
+}
         return def.Set3(trick[0], trick[1], trick[2]);
 //  **********************************************
       }
@@ -1436,6 +1470,16 @@ if (t1 != trick[0].GetCashing() ||
     trick[0].GetCashing() << "-" <<
     trick[1].GetCashing() << "-" <<
     trick[2].GetCashing() << "\n";
+}
+if (ra1 != trick[0].GetRanks() ||
+    ra2 != trick[1].GetRanks() ||
+    ra3 != trick[2].GetRanks())
+{
+  Holding::Print();
+  cout << "P2 r1-3 " << ra1 << "-" << ra2 << "-" << ra3 << " vs " <<
+    trick[0].GetRanks() << "-" <<
+    trick[1].GetRanks() << "-" <<
+    trick[2].GetRanks() << "\n";
 }
         return def.Set3(trick[0], trick[1], trick[2]);
 //  **********************************************
@@ -1515,6 +1559,16 @@ if (t1 != trick[0].GetCashing() ||
     trick[0].GetCashing() << "-" <<
     trick[1].GetCashing() << "-" <<
     trick[2].GetCashing() << "\n";
+}
+if (ra1 != trick[0].GetRanks() ||
+    ra2 != trick[1].GetRanks() ||
+    ra3 != trick[2].GetRanks())
+{
+  Holding::Print();
+  cout << "P3 r1-3 " << ra1 << "-" << ra2 << "-" << ra3 << " vs " <<
+    trick[0].GetRanks() << "-" <<
+    trick[1].GetRanks() << "-" <<
+    trick[2].GetRanks() << "\n";
 }
       return def.Set3(trick[0], trick[1], trick[2]);
 //  **********************************************
@@ -1606,6 +1660,16 @@ if (t1 != trick[0].GetCashing() ||
     trick[1].GetCashing() << "-" <<
     trick[2].GetCashing() << "\n";
 }
+if (ra1 != trick[0].GetRanks() ||
+    ra2 != trick[1].GetRanks() ||
+    ra3 != trick[2].GetRanks())
+{
+  Holding::Print();
+  cout << "P4 r1-3 " << ra1 << "-" << ra2 << "-" << ra3 << " vs " <<
+    trick[0].GetRanks() << "-" <<
+    trick[1].GetRanks() << "-" <<
+    trick[2].GetRanks() << "\n";
+}
         return def.Set3(trick[0], trick[1], trick[2]);
 //  **********************************************
       }
@@ -1653,6 +1717,16 @@ if (t1 != trick[0].GetCashing() ||
     trick[0].GetCashing() << "-" <<
     trick[1].GetCashing() << "-" <<
     trick[2].GetCashing() << "\n";
+}
+if (ra1 != trick[0].GetRanks() ||
+    ra2 != trick[1].GetRanks() ||
+    ra3 != trick[2].GetRanks())
+{
+  Holding::Print();
+  cout << "P5 r1-3 " << ra1 << "-" << ra2 << "-" << ra3 << " vs " <<
+    trick[0].GetRanks() << "-" <<
+    trick[1].GetRanks() << "-" <<
+    trick[2].GetRanks() << "\n";
 }
     return def.Set3(trick[0], trick[1], trick[2]);
 //  **********************************************
