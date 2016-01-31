@@ -1255,6 +1255,9 @@ bool LoopHold::CashoutBothDiffLongStrong(
   // The split between 1+2 and 1+3 moves has no good reason.
   // It just comes out of the recursion that way.
 
+  bool twoGuess = false;
+  if (cb.maxPard < completeList[QT_ACE][t1-1])
+    twoGuess = true;
 
   if (cb.lenShort > cb.lenOppHighest &&
       cb.numTopsLongHigh == cb.lenOppHighest &&
@@ -1271,6 +1274,14 @@ bool LoopHold::CashoutBothDiffLongStrong(
     trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
     trick[2].Set(QT_BOTH, QT_PARD, ra2, t2);
     trick[3].Set(QT_ACE, QT_ACE, ra3, t3);
+if (twoGuess)
+{
+  holdCtr[0xaa0]++;
+  cout << "a00:\n";
+  Holding::Print();
+}
+else
+  holdCtr[0xab0]++;
     return def.Set13(trick);
   }
 
@@ -1282,52 +1293,48 @@ bool LoopHold::CashoutBothDiffLongStrong(
     trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
     trick[1].Set(QT_ACE, QT_PARD, ra2, t1+t2);
     trick[2].Set(QT_ACE, QT_ACE, ra3, t3);
+if (twoGuess)
+  holdCtr[0xac0]++;
+else
+{
+  holdCtr[0xad0]++;
+  cout << "ad0:\n";
+  Holding::Print();
+}
     return def.Set12(trick[0], trick[1], trick[2]);
   }
   else if (cb.minPard > completeList[cb.pLong][cb.lenOppMax])
   {
-    if (cb.numTopsLongLow >= cb.lenOppLowest)
+    if (cb.maxPard < completeList[QT_ACE][cb.lenShort-1] &&
+       (cb.numTopsLongLow >= cb.lenOppLowest ||
+        cb.numTopsLongLow == cb.lenLong))
     {
-      if (completeList[QT_ACE][cb.lenShort-1] > cb.maxPard)
-      {
-        if (pickFlag) holdCtr[0xa47]++;
-        lowestRank = Min(ra0, Min(ra2, ra3));
-        trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
-        trick[1].Set(QT_ACE, QT_PARD, ra2, t1+t2);
-        trick[2].Set(QT_ACE, QT_ACE, ra3, t3);
-        return def.Set12(trick[0], trick[1], trick[2]);
-      }
-      else
-      {
-        if (pickFlag) holdCtr[0xa48]++;
-        lowestRank = Min(Min(ra0, ra1), Min(ra2, ra3));
-        trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
-        trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
-        trick[2].Set(QT_BOTH, QT_PARD, ra2, t2);
-        trick[3].Set(QT_ACE, QT_ACE, ra3, t3);
-        return def.Set13(trick);
-      }
-    }
-    else if (cb.numTopsLongLow == cb.lenLong &&
-        completeList[QT_ACE][cb.lenShort-1] > cb.maxPard)
-    {
-      if (pickFlag) holdCtr[0xa49]++;
+      if (pickFlag) holdCtr[0xa47]++;
       lowestRank = Min(ra0, Min(ra2, ra3));
       trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
       trick[1].Set(QT_ACE, QT_PARD, ra2, t1+t2);
       trick[2].Set(QT_ACE, QT_ACE, ra3, t3);
+if (twoGuess)
+  holdCtr[0xac1]++;
+else
+  holdCtr[0xad1]++;
       return def.Set12(trick[0], trick[1], trick[2]);
     }
     else
     {
-      if (pickFlag) holdCtr[0xa4a]++;
+      if (pickFlag) holdCtr[0xa48]++;
       lowestRank = Min(Min(ra0, ra1), Min(ra2, ra3));
       trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
       trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
       trick[2].Set(QT_BOTH, QT_PARD, ra2, t2);
       trick[3].Set(QT_ACE, QT_ACE, ra3, t3);
+if (twoGuess)
+  holdCtr[0xaa1]++;
+else
+  holdCtr[0xab1]++;
       return def.Set13(trick);
     }
+
   }
   else if (cb.lenShort <= cb.lenOppHighest + 1)
   {
@@ -1341,6 +1348,10 @@ bool LoopHold::CashoutBothDiffLongStrong(
         trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
         trick[2].Set(QT_BOTH, QT_PARD, ra2, t2);
         trick[3].Set(QT_ACE, QT_ACE, ra3, t3);
+if (twoGuess)
+  holdCtr[0xaa3]++;
+else
+  holdCtr[0xab3]++;
         return def.Set13(trick);
       }
       else
@@ -1350,6 +1361,10 @@ bool LoopHold::CashoutBothDiffLongStrong(
         trick[0].Set(QT_BOTH, QT_ACE, ra0, t0);
         trick[1].Set(QT_ACE, QT_PARD, ra2, t1+t2);
         trick[2].Set(QT_ACE, QT_ACE, ra3, t3);
+if (twoGuess)
+  holdCtr[0xac3]++;
+else
+  holdCtr[0xad3]++;
         return def.Set12(trick[0], trick[1], trick[2]);
       }
     }
@@ -1361,6 +1376,10 @@ bool LoopHold::CashoutBothDiffLongStrong(
       trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
       trick[2].Set(QT_BOTH, QT_PARD, ra2, t2);
       trick[3].Set(QT_ACE, QT_ACE, ra3, t3);
+if (twoGuess)
+  holdCtr[0xaa4]++;
+else
+  holdCtr[0xab4]++;
       return def.Set13(trick);
     }
   }
@@ -1372,6 +1391,10 @@ bool LoopHold::CashoutBothDiffLongStrong(
     trick[1].Set(QT_BOTH, QT_ACE, ra1, t1);
     trick[2].Set(QT_BOTH, QT_PARD, ra2, t2);
     trick[3].Set(QT_ACE, QT_ACE, ra3, t3);
+if (twoGuess)
+  holdCtr[0xaa5]++;
+else
+  holdCtr[0xab5]++;
     return def.Set13(trick);
   }
 }
