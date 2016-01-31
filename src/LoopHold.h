@@ -163,6 +163,10 @@ class LoopHold: public Holding
       const bool oppSkippedFlag,
       const PosType oppSkipped = QT_ACE) const; // Anything
 
+    unsigned CorrectPrevPlay(
+      const CashoutBothDetails& cb,
+      const PlayDetails& pd) const;
+
     void PrintHoldingDetails(
       const HoldingDetails& hdet) const;
 
