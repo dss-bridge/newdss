@@ -1284,8 +1284,8 @@ bool LoopHold::CashoutBothDiffStrong(
 {
   Trick trick[3];
   PlayDetails pd;
-  unsigned l = Min(cb.lenOppMax, cb.lenLong);
-  LoopHold::SetPlayDetails(l, cb, pd);
+  unsigned l;
+  LoopHold::SetPlayDetails(cb.lenCashLow, cb, pd);
 
   if (pd.nextLong > pd.nextShort)
   {
@@ -1343,7 +1343,7 @@ bool LoopHold::CashoutBothDiffStrong(
   else if (cb.numTopsHigh > cb.lenOppMax)
     pd.prevPlay = Max(pd.nextLong, pd.nextShort);
 
-  if (pickFlag) holdCtr[0xa55]++;
+  if (pickFlag) holdCtr[0xa53]++;
   lowestRank = Holding::ListToRank(pd.prevPlay);
   trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
   return def.Set1(trick[0]);
