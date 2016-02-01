@@ -1282,7 +1282,7 @@ bool LoopHold::CashoutBothDiffStrong(
   unsigned& lowestRank,
   const CashoutBothDetails& cb) const
 {
-  Trick trick;
+  Trick trick[3];
   PlayDetails pd;
   unsigned l = Min(cb.lenOppMax, cb.lenLong);
   LoopHold::SetPlayDetails(l, cb, pd);
@@ -1294,15 +1294,15 @@ bool LoopHold::CashoutBothDiffStrong(
   
     if (pickFlag) holdCtr[0xa50]++;
     lowestRank = Holding::ListToRank(pd.prevPlay);
-    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    return def.Set1(trick);
+    trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick[0]);
   }
   else if (cb.lenShort == 2 && cb.lenOppMax == 2 && cb.numTopsHigh == 2)
   {
     if (pickFlag) holdCtr[0xa51]++;
     lowestRank = SDS_VOID - 2;
-    trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-    return def.Set1(trick);
+    trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+    return def.Set1(trick[0]);
   }
 
   PosType pl, pr;
@@ -1321,8 +1321,30 @@ bool LoopHold::CashoutBothDiffStrong(
       completeList[cb.pShort][cb.lenShort-1] > 
         completeList[cb.pLong][cb.numTopsLongHigh])
   {
-    if (pickFlag) holdCtr[0xa52]++;
+    // Doesn't work yet.  Start with some Complex finesses (a.txt).
     return false;
+
+    if (pickFlag) holdCtr[0xa52]++;
+
+    if (cb.pLong == QT_ACE)
+    {
+      trick[0].Set(QT_BOTH, cb.pLong, HR(cb.pLong, cb.numTopsLongHigh-1),
+        cb.numTopsLongHigh);
+      trick[1].Set(QT_BOTH, cb.pShort, 
+        HR(cb.pShort, cb.lenShort-1 - cb.numTopsLongHigh),
+        cb.lenShort - cb.numTopsLongHigh);
+      trick[2].Set(cb.pLong, cb.pLong, SDS_VOID, cb.lenLong - cb.lenShort);
+    }
+    else
+    {
+      trick[0].Set(QT_BOTH, cb.pLong, HR(cb.pLong, cb.numTopsLongHigh-1),
+        cb.numTopsHigh);
+      trick[1].Set(QT_BOTH, cb.pShort, 
+        HR(cb.pShort, cb.lenShort-1 - cb.numTopsLongHigh),
+        cb.lenShort - cb.numTopsHigh);
+      trick[2].Set(cb.pLong, cb.pLong, SDS_VOID, cb.lenLong - cb.lenShort);
+    }
+    return def.Set3(trick[0], trick[1], trick[2]);
   }
   else if (cb.numTopsLongHigh == 1 && cb.numTopsShortHigh == 1 &&
     cb.lenLong >= 4 && cb.lenShort >= 3 &&
@@ -1358,10 +1380,10 @@ bool LoopHold::CashoutBothDiffStrong(
   else if (cb.numTopsHigh > cb.lenOppMax)
     pd.prevPlay = Max(pd.nextLong, pd.nextShort);
 
-  if (pickFlag) holdCtr[0xa75]++;
+  if (pickFlag) holdCtr[0xa55]++;
   lowestRank = Holding::ListToRank(pd.prevPlay);
-  trick.Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-  return def.Set1(trick);
+  trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
+  return def.Set1(trick[0]);
 }
 
 
@@ -4897,8 +4919,41 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
   // ==== G14 ================ G38 =====================================
 
   if (pickFlag) holdCtr[0x1140]++;
-  UNUSED(def);
-  UNUSED(rank);
+
+  Trick trick[4];
+  PosType pa, pl, pp, pr;
+  if (htop.Q == QT_LHO)
+  {
+    // "G38"
+    pa = QT_ACE;
+    pl = QT_LHO;
+    pp = QT_PARD;
+    pr = QT_RHO;
+  }
+  else
+  {
+    pa = QT_PARD;
+    pl = QT_RHO;
+    pp = QT_ACE;
+    pr = QT_LHO;
+  }
+
+  if (length[pa] >= 4 && length[pp] == 3 && 
+      length[pl] == 2 && length[pr] <= 2)
+  {
+    if (htop.T == pp || (htop.T == pl && htop.N == pp))
+    {
+      // Axxx+ / QT / KJ9 / (xx).
+      if (pickFlag) holdCtr[0x1141]++;
+      rank = Holding::ListToRank(completeList[pp][2]);
+      trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
+      trick[1].Set(pp, pa, SDS_VOID-2, 2);
+      trick[2].Set(QT_BOTH, pp, SDS_VOID-4, 1);
+      trick[3].Set(pa, pa, SDS_VOID, length[pa]-3);
+      return def.Set13(trick);
+    }
+  }
+  
   return false;
 }
 
