@@ -1297,56 +1297,50 @@ bool LoopHold::CashoutBothDiffStrong(
     trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick[0]);
   }
-  else if (cb.lenShort == 2 && cb.lenOppMax == 2 && cb.numTopsHigh == 2)
+  else if (cb.numTopsHigh > cb.lenOppHighest ||
+      completeList[cb.pShort][cb.lenShort-1] < 
+        completeList[cb.pLong][cb.numTopsLongHigh] ||
+      (cb.numTopsHigh >= cb.lenOppMax &&
+      cb.lenShort <= cb.lenOppMax))
   {
+    if (cb.numTopsHigh == cb.lenOppMax)
+    {
+      if (cb.lenShort > cb.lenOppMax)
+      {
+        if (cb.numTopsShortHigh >= cb.lenOppHighest)
+          pd.prevPlay = Max(pd.nextLong, pd.nextShort);
+        else
+          pd.prevPlay = pd.nextLong;
+      }
+    }
+    else if (cb.numTopsHigh > cb.lenOppMax)
+      pd.prevPlay = Max(pd.nextLong, pd.nextShort);
+
     if (pickFlag) holdCtr[0xa51]++;
-    lowestRank = SDS_VOID - 2;
+    lowestRank = Holding::ListToRank(pd.prevPlay);
     trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick[0]);
   }
 
-  if (cb.numTopsHigh == cb.lenOppHighest &&
-      completeList[cb.pShort][cb.lenShort-1] > 
-        completeList[cb.pLong][cb.numTopsLongHigh])
-  {
-    // This comes out of the recursion a bit arbitrarily.
-    if (pickFlag) holdCtr[0xa52]++;
-    if (cb.pLong == QT_ACE && cb.numTopsLongHigh == 1)
-      l = cb.numTopsLongHigh;
-    else 
-    if (cb.pLong == QT_ACE && completeList[QT_ACE][1] > cb.maxPard)
-      l = cb.numTopsLongHigh;
-    else if (cb.pLong == QT_PARD && 
-        cb.numTopsShortHigh >= 2 &&
-        completeList[QT_ACE][1] < cb.maxPard)
-      l = cb.numTopsShortHigh;
-    else
-      l = cb.numTopsHigh;
+  // This comes out of the recursion a bit arbitrarily.
+  if (pickFlag) holdCtr[0xa52]++;
+  if (cb.pLong == QT_ACE && cb.numTopsLongHigh == 1)
+    l = cb.numTopsLongHigh;
+  else 
+  if (cb.pLong == QT_ACE && completeList[QT_ACE][1] > cb.maxPard)
+    l = cb.numTopsLongHigh;
+  else if (cb.pLong == QT_PARD && 
+      cb.numTopsShortHigh >= 2 &&
+      completeList[QT_ACE][1] < cb.maxPard)
+    l = cb.numTopsShortHigh;
+  else
+    l = cb.numTopsHigh;
 
-    trick[0].Set(QT_BOTH, cb.pLong, HR(cb.pLong, cb.numTopsLongHigh-1), l);
-    trick[1].Set(QT_BOTH, cb.pShort, 
-      HR(cb.pShort, cb.lenShort-1 - cb.numTopsLongHigh), cb.lenShort - l);
-    trick[2].Set(cb.pLong, cb.pLong, SDS_VOID, cb.lenLong - cb.lenShort);
-    return def.Set3(trick[0], trick[1], trick[2]);
-  }
-
-  if (cb.numTopsHigh == cb.lenOppMax)
-  {
-    if (cb.lenShort > cb.lenOppMax)
-    {
-      if (cb.numTopsShortHigh >= cb.lenOppHighest)
-        pd.prevPlay = Max(pd.nextLong, pd.nextShort);
-      else
-        pd.prevPlay = pd.nextLong;
-    }
-  }
-  else if (cb.numTopsHigh > cb.lenOppMax)
-    pd.prevPlay = Max(pd.nextLong, pd.nextShort);
-
-  if (pickFlag) holdCtr[0xa53]++;
-  lowestRank = Holding::ListToRank(pd.prevPlay);
-  trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-  return def.Set1(trick[0]);
+  trick[0].Set(QT_BOTH, cb.pLong, HR(cb.pLong, cb.numTopsLongHigh-1), l);
+  trick[1].Set(QT_BOTH, cb.pShort, 
+    HR(cb.pShort, cb.lenShort-1 - cb.numTopsLongHigh), cb.lenShort - l);
+  trick[2].Set(cb.pLong, cb.pLong, SDS_VOID, cb.lenLong - cb.lenShort);
+  return def.Set3(trick[0], trick[1], trick[2]);
 }
 
 
