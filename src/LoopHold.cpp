@@ -1341,15 +1341,6 @@ bool LoopHold::CashoutBothDiffStrong(
     trick[2].Set(cb.pLong, cb.pLong, SDS_VOID, cb.lenLong - cb.lenShort);
     return def.Set3(trick[0], trick[1], trick[2]);
   }
-  else if (cb.numTopsLongHigh == 1 && cb.numTopsShortHigh == 1 &&
-    cb.lenLong >= 4 && cb.lenShort >= 3 &&
-    cb.lenOppHighest == 2 && cb.lenOppLowest <= 3 &&
-    cb.pOppHighest == pl)
-  {
-    // AJx / (xxx) / Kxx / Qx.
-    if (pickFlag) holdCtr[0xa53]++;
-    return false;
-  }
   else if (cb.lenLong >= 5 && cb.lenShort == 4 && length[pl] == 3 &&
     cb.numTopsShortHigh == 2 && cb.numTopsLongHigh == 1 &&
     completeList[pl][0] == suitLength-4 && 
@@ -4947,6 +4938,15 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
       trick[3].Set(pa, pa, SDS_VOID, length[pa]-3);
       return def.Set13(trick);
     }
+    else
+    {
+      // ATxx / Qx / KJx / (xx).
+      if (pickFlag) holdCtr[0x1142]++;
+      rank = Holding::ListToRank(completeList[pa][1]);
+      trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
+      trick[1].Set(pp, QT_BOTH, rank, length[pa]);
+      return def.Set11(trick[0], trick[1]);
+    }
   }
   else if (length[pa] >= 5 && length[pp] == 4 && 
       length[pl] == 2 && length[pr] <= 2)
@@ -4954,7 +4954,7 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
     if (completeList[pp][3] > completeList[pa][1])
     {
       // Axxxx+ / QT / KJ98 / (xx).
-      if (pickFlag) holdCtr[0x1142]++;
+      if (pickFlag) holdCtr[0x1143]++;
       rank = Holding::ListToRank(completeList[pp][2]);
       trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
       trick[1].Set(pp, pa, SDS_VOID-2, 2);
@@ -4962,20 +4962,38 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
       trick[3].Set(pa, pa, SDS_VOID, length[pa]-4);
       return def.Set13(trick);
     }
+    else
+    {
+      // ATxxx / Qx / KJxx / (xx).
+      if (pickFlag) holdCtr[0x1144]++;
+      rank = Holding::ListToRank(completeList[pa][1]);
+      trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
+      trick[1].Set(pp, QT_BOTH, rank, length[pa]);
+      return def.Set11(trick[0], trick[1]);
+    }
   }
   else if (length[pa] == 6 && length[pp] == 5 && length[pl] == 2)
   {
     if (completeList[pp][4] > completeList[pa][1])
     {
       // Axxxxx / QT / KJ987 / -.
-      if (pickFlag) holdCtr[0x1143]++;
-      // Not clear why [3] here, but is conservative.
+      if (pickFlag) holdCtr[0x1145]++;
+      // PROBLEM: Not clear why [3] here, but is conservative.
       rank = Holding::ListToRank(completeList[pp][3]);
       trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
       trick[1].Set(pp, pa, SDS_VOID-2, 2);
       trick[2].Set(QT_BOTH, pp, rank, 3);
       trick[3].Set(pa, pa, SDS_VOID, length[pa]-5);
       return def.Set13(trick);
+    }
+    else
+    {
+      // ATxxxx / Qx / KJxxx / -.
+      if (pickFlag) holdCtr[0x1146]++;
+      rank = Holding::ListToRank(completeList[pa][1]);
+      trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
+      trick[1].Set(pp, QT_BOTH, rank, length[pa]);
+      return def.Set11(trick[0], trick[1]);
     }
   }
   
