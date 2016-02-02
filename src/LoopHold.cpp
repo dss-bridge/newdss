@@ -1432,7 +1432,40 @@ bool LoopHold::CashoutBothDiffSplit(
     cb.numTopsLow == Min(cb.lenLong, cb.lenOppLowest))
   {
     if (pickFlag) holdCtr[0xa83]++;
-    return false;
+    lowestRank = HR(cb.pShort, cb.lenShort-1);
+    unsigned r1 = HR(cb.pLong, cb.numTopsLongLow-1);
+    unsigned r2 = HR(cb.pShort, cb.numTopsShortLow-2);
+    PosType e, s, p;
+
+    // The way it comes out.
+    if (cb.pShort == QT_ACE)
+    {
+      s = QT_ACE;
+      p = QT_RHO;
+    }
+    else
+    {
+      s = QT_PARD;
+      p = QT_LHO;
+    }
+
+    if (length[p] >= length[s] && 
+        completeList[s][length[s]-2] > completeList[p][0] &&
+        completeList[s][length[s]-1] < completeList[p][0])
+      e = cb.pLong;
+    else
+      e = QT_BOTH;
+
+    unsigned re;
+    if (cb.lenOppLowest > cb.lenShort && r1 < lowestRank)
+      re = r1;
+    else
+      re = SDS_VOID;
+
+    trick[0].Set(QT_BOTH, QT_BOTH, Min(r1, r2), cb.numTopsLow-1);
+    trick[1].Set(e, cb.pShort, lowestRank, cb.lenShort);
+    trick[2].Set(cb.pLong, cb.pLong, re, cb.lenLong - cb.lenShort);
+    return def.Set12(trick[0], trick[1], trick[2]);
   }
   else if (cb.lenShort == 3 && cb.lenLong == 4 &&
     cb.lenOppHighest == 2 && cb.lenOppLowest == 4)
