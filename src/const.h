@@ -14,6 +14,12 @@
 #define SDS_HANDS 4
 #define SDS_VOID 13
 #define SDS_ACE 12
+#define SDS_KING 11
+#define SDS_QUEEN 10
+#define SDS_JACK 9
+#define SDS_TEN 8
+#define SDS_NINE 7
+#define SDS_EIGHT 6
 
 #define SDS_MAX_DEF 4
 #define SDS_MAX_ALT 6
