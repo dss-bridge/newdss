@@ -5027,6 +5027,57 @@ bool LoopHold::SolveComplex11(DefList& def, unsigned& rank) const
       return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
+  else if (length[QT_ACE] == 2 && length[QT_PARD] >= 3 &&
+      length[QT_RHO] == 1)
+  {
+    if (htop.Q == QT_ACE)
+    {
+      // AQ / Txxx / Jxx / K.
+      if (pickFlag) holdCtr[0x1112]++;
+      unsigned r1 = HR(QT_ACE, 1);
+      unsigned l;
+      if (length[QT_LHO] <= 3 || length[QT_PARD] == 3)
+      {
+        l = length[QT_PARD] - 2;
+        rank = length[QT_LHO] <= 2 ? SDS_VOID : SDS_JACK;
+      }
+      else if (length[QT_LHO] == 4 || length[QT_LHO] == 4)
+      {
+        if (htop.T == QT_PARD)
+        {
+          l = length[QT_PARD] - 2;
+          rank = SDS_TEN;
+        }
+        else
+        {
+          l = 1;
+          rank = SDS_JACK;
+        }
+      }
+      else
+      {
+        if (htop.T == QT_PARD && htop.N == QT_PARD)
+        {
+          l = length[QT_PARD] - 2;
+          rank = (l > 2 ? SDS_NINE : SDS_TEN);
+        }
+        else if (htop.T == QT_PARD)
+        {
+          l = 2;
+          rank = SDS_TEN;
+        }
+        else
+        {
+          l = 1;
+          rank = SDS_JACK;
+        }
+      }
+
+      trick[0].Set(QT_BOTH, QT_ACE, r1, 2);
+      trick[1].Set(QT_PARD, QT_PARD, rank, l);
+      return def.Set2(trick[0], trick[1]);
+    }
+  }
 
   return false;
 }
