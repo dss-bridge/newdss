@@ -5172,6 +5172,29 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
     pr = QT_LHO;
   }
 
+  if (length[pa] >= 4 && length[pp] > length[pa] && length[pl] == 3)
+  {
+    if (htop.T == pa && htop.N == pa)
+    {
+      // AJxxx / x / KTxx / Qxx.
+      if (pickFlag) holdCtr[0x114c]++;
+      rank = SDS_NINE;
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pp]);
+      return def.Set1(trick[0]);
+    }
+  }
+  else if (length[pp] == 4 && length[pa] > length[pp] && length[pl] == 3)
+  {
+    if (htop.T == pa && htop.N == pa)
+    {
+      // AJxx / x / KTxxx / Qxx.
+      if (pickFlag) holdCtr[0x114d]++;
+      rank = SDS_TEN;
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pa]);
+      return def.Set1(trick[0]);
+    }
+  }
+
   if (length[pa] >= 4 && length[pp] == 3 && length[pl] == 2)
   {
     if (length[pr] <= 3)
