@@ -4923,6 +4923,19 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
       }
     }
   }
+  else if (length[pa] == 3 && length[pp] >= 4 &&
+      length[pl] == 3 && length[pr] <= 3 &&
+      htop.T == pa)
+  {
+    // Axxx / xxx / KJT / Qxx.
+    // PROBLEM:  Should be SDS_TEN, not SDS_JACK.
+    if (pickFlag) holdCtr[0x1069]++;
+    rank = SDS_JACK;
+    trick[0].Set(QT_BOTH, pp, SDS_KING, 2);
+    trick[1].Set(QT_BOTH, pa, rank, 1);
+    trick[2].Set(pp, pp, SDS_VOID, length[pp] - length[pa]);
+    return def.Set3(trick[0], trick[1], trick[2]);
+  }
 
   return false;
 }
@@ -5078,8 +5091,6 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
     pp = QT_ACE;
     pr = QT_LHO;
   }
-
-  // Lots of stuff can be simplified here.
 
   if (length[pa] >= 4 && length[pp] == 3 && length[pl] == 2)
   {
