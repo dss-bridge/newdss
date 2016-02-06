@@ -5798,6 +5798,21 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
       return def.Set13(trick);
     }
   }
+  else if (length[QT_ACE] >= 4 && length[QT_PARD] == 2 &&
+      length[QT_LHO] == 1 && length[QT_RHO] >= 3)
+  {
+    if (htop.T == QT_RHO)
+    {
+      // AKxx / Q / Jx / Txx.
+      if (pickFlag) holdCtr[0x1362]++;
+      unsigned l = (length[QT_RHO] == 3 ? length[QT_ACE]-2 : 1);
+      rank = SDS_JACK;
+      trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_BOTH, QT_PARD, rank, 1);
+      trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l);
+      return def.Set3(trick[0], trick[1], trick[2]);
+    }
+  }
   return false;
 }
 
