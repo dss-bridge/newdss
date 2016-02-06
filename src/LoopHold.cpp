@@ -5771,12 +5771,60 @@ bool LoopHold::SolveComplex28(DefList& def, unsigned& rank) const
   // ==== G28 ============= G30 =========== G52 =========== G54 ========
   //      AK+        |      A+       |      AK+      |      A+
   // Q+         J+   |  Q+      J+   |  J+      Q+   |  J+      Q+ 
-  //      +          |      K+       |      +        |      +
+  //      +          |      K+       |      +        |      K+
   // ==== G28 ============= G30 =========== G52 =========== G54 ========
 
   if (pickFlag) holdCtr[0x1280]++;
-  UNUSED(def);
-  UNUSED(rank);
+
+  Trick trick[3];
+  PosType pa, pl, pp, pr;
+  if (length[QT_ACE] >= length[QT_PARD])
+  {
+    pa = QT_ACE;
+    pl = QT_LHO;
+    pp = QT_PARD;
+    pr = QT_RHO;
+  }
+  else
+  {
+    pa = QT_PARD;
+    pl = QT_RHO;
+    pp = QT_ACE;
+    pr = QT_LHO;
+  }
+
+  if (htop.K == QT_PARD)
+  {
+    if (length[pa] == 5 && length[pp] == 4 &&
+        length[pr] == 1 && length[pl] == 3)
+    {
+      if (completeList[pp][1] > completeList[pl][1] &&
+          completeList[pp][1] > completeList[pa][4] &&
+          completeList[pa][1] > completeList[pp][3])
+      {
+        if (completeList[pa][3] > completeList[pp][1] &&
+            completeList[pa][3] > completeList[pl][1])
+        {
+          // A7xx / Q / KT98x / Jxx.
+          if (pickFlag) holdCtr[0x1281]++;
+          rank = HR(pa, 3);
+          trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pa]);
+          return def.Set1(trick[0]);
+        }
+        else
+        {
+          // A8xxx / Jxx / KT97 / Q.
+          if (pickFlag) holdCtr[0x1282]++;
+          unsigned r1 = HR(pa, 1);
+          unsigned r2 = HR(pp, 1);
+          rank = Min(r1, r2);
+          trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pa]);
+          return def.Set1(trick[0]);
+        }
+      }
+    }
+  }
+
   return false;
 }
 
