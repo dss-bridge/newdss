@@ -1394,17 +1394,19 @@ bool LoopHold::CashoutBothDiffSplit(
   bool BBflag;
   if (delta1 > delta)
     BBflag = false;
-    else if (cb.lenLong == 5 && cb.lenShort == 4 &&
-        cb.lenOppHighest == 1 && cb.lenOppLowest == 3 &&
-        cb.numTopsHigh == 2 &&
-        cb.numTopsLow == 3 &&
-        completeList[cb.pShort][3] > 
-          completeList[cb.pLong][cb.numTopsLongLow])
-      BBflag = false;
+  else if (cb.lenLong == 5 && cb.lenShort == 4 &&
+      cb.lenOppHighest == 1 && cb.lenOppLowest == 3 &&
+      cb.numTopsHigh == 2 &&
+      cb.numTopsLow == 3 &&
+      completeList[cb.pShort][3] > 
+        completeList[cb.pLong][cb.numTopsLongLow])
+    BBflag = false;
   else if (cb.numTopsShortHigh + cb.numTopsLongLow >= cb.lenCashLow)
   {
-    if (cb.lenShort == 3 && cb.lenOppHighest == 2 && cb.numTopsHigh == 2 &&
-       completeList[cb.pShort][2] > completeList[cb.pLong][1])
+    if (cb.lenShort == 3 && 
+        cb.lenOppHighest == 2 && 
+        cb.numTopsHigh == 2 &&
+        completeList[cb.pShort][2] > completeList[cb.pLong][1])
       BBflag = false;
     else
       BBflag = true;
@@ -1416,6 +1418,8 @@ bool LoopHold::CashoutBothDiffSplit(
   else
     BBflag = true;
 
+if (BBflag)
+  goto SCUT;
 
   if (cb.lenLong >= 4 && cb.lenShort == 3 &&
     cb.lenOppMax == 3 &&
@@ -1428,14 +1432,6 @@ bool LoopHold::CashoutBothDiffSplit(
     unsigned r1 = HR(cb.pLong, 1);
     unsigned r2 = HR(cb.pShort, 1);
     lowestRank = Max(r1, r2);
-if (BBflag)
-  holdCtr[0x1500]++;
-else
-{
-  cout << "A0\n";
-  holdCtr[0x1550]++;
-  Holding::Print();
-}
     trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
     return def.Set1(trick[0]);
   }
@@ -1449,14 +1445,6 @@ else
     if (pickFlag) holdCtr[0xa82]++;
     lowestRank = HR(cb.pLong, 2);
     trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-if (BBflag)
-  holdCtr[0x1501]++;
-else
-{
-  cout << "A1\n";
-  holdCtr[0x1551]++;
-  Holding::Print();
-}
     return def.Set1(trick[0]);
   }
 
@@ -1479,14 +1467,6 @@ else
       if (pickFlag) holdCtr[0xa83]++;
       lowestRank = HR(cb.pLong, l);
       trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-if (BBflag)
-  holdCtr[0x1502]++;
-else
-{
-  cout << "A2\n";
-  holdCtr[0x1552]++;
-  Holding::Print();
-}
       return def.Set1(trick[0]);
     }
     else
@@ -1517,14 +1497,6 @@ else
       trick[0].Set(QT_BOTH, cb.pLong, r0, t0);
       trick[1].Set(QT_BOTH, cb.pShort, r1, t1);
       trick[2].Set(cb.pLong, cb.pLong, r2, cb.lenLong - cb.lenShort);
-if ( !BBflag)
-  holdCtr[0x1510]++;
-else
-{
-  cout << "B0\n";
-  holdCtr[0x1560]++;
-  Holding::Print();
-}
       return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
@@ -1549,14 +1521,6 @@ else
       trick[0].Set(QT_BOTH, cb.pLong, r0, t0);
       trick[1].Set(QT_BOTH, cb.pShort, r1, t1);
       trick[2].Set(cb.pLong, cb.pLong, SDS_VOID, 1);
-if ( !BBflag)
-  holdCtr[0x1511]++;
-else
-{
-  cout << "B1\n";
-  holdCtr[0x1561]++;
-  Holding::Print();
-}
       return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
@@ -1606,18 +1570,11 @@ else
       trick[0].Set(QT_BOTH, cb.pLong, r0, t0);
       trick[1].Set(QT_BOTH, cb.pShort, r1, t1);
       trick[2].Set(cb.pLong, cb.pLong, SDS_VOID, 1);
-if ( !BBflag)
-  holdCtr[0x1512]++;
-else
-{
-  cout << "B2\n";
-  holdCtr[0x1562]++;
-  Holding::Print();
-}
       return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
 
+SCUT:
   PlayDetails pd;
   unsigned l = Min(cb.lenOppMax, cb.lenLong);
   LoopHold::SetPlayDetails(l, cb, pd);
@@ -1655,18 +1612,17 @@ else
   {
     pd.prevPlay = pd.nextLong;
   }
+  else if (cb.lenLong == 4 && cb.lenShort == 3 &&
+      cb.lenOppHighest == 2 && cb.lenOppLowest == 4 &&
+      cb.numTopsHigh == 2 &&
+      completeList[cb.pShort][1] > completeList[cb.pLong][1])
+  {
+    pd.prevPlay = pd.nextLong;
+  }
 
   if (pickFlag) holdCtr[0xa86]++;
   lowestRank = Holding::ListToRank(pd.prevPlay);
   trick[0].Set(QT_BOTH, QT_BOTH, lowestRank, cb.lenLong);
-if (BBflag)
-  holdCtr[0x1503]++;
-else
-{
-  cout << "A3\n";
-  holdCtr[0x1553]++;
-  Holding::Print();
-}
   return def.Set1(trick[0]);
 }
 
