@@ -5593,6 +5593,20 @@ bool LoopHold::SolveComplex27(DefList& def, unsigned& rank) const
       return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
+  else if (length[QT_ACE] > 3 && length[QT_PARD] == 3 &&
+      length[QT_RHO] == 1 && length[QT_LHO] == 3)
+  {
+    if (htop.T == QT_ACE && htop.N == QT_ACE)
+    {
+      // AT9x / Jxx / Qxx / K.
+      if (pickFlag) holdCtr[0x1272]++;
+      rank = SDS_NINE;
+      trick[0].Set(QT_BOTH, QT_ACE, rank, 2);
+      trick[1].Set(QT_BOTH, QT_PARD, SDS_VOID, 1);
+      trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
+      return def.Set3(trick[0], trick[1], trick[2]);
+    }
+  }
 
   return false;
 }
