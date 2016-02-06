@@ -5576,8 +5576,24 @@ bool LoopHold::SolveComplex27(DefList& def, unsigned& rank) const
   // ==== G27 ==========================================================
 
   if (pickFlag) holdCtr[0x1270]++;
-  UNUSED(def);
-  UNUSED(rank);
+
+  Trick trick[3];
+  if (length[QT_ACE] == 3 && length[QT_PARD] > 3 &&
+      length[QT_RHO] == 1 && length[QT_LHO] == 3)
+  {
+    if (htop.T == QT_ACE && htop.N == QT_ACE)
+    {
+      // AT9 / Jxx / Qxxx+ / K.
+      // PROBLEM: Should be SDS_NINE.
+      if (pickFlag) holdCtr[0x1271]++;
+      rank = SDS_TEN;
+      trick[0].Set(QT_BOTH, QT_PARD, SDS_QUEEN, 2);
+      trick[1].Set(QT_BOTH, QT_ACE, rank, 1);
+      trick[2].Set(QT_PARD, QT_PARD, SDS_VOID, length[QT_PARD]-3);
+      return def.Set3(trick[0], trick[1], trick[2]);
+    }
+  }
+
   return false;
 }
 
