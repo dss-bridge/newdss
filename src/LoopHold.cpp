@@ -5381,6 +5381,20 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
     pr = QT_LHO;
   }
 
+  if (length[pa] == 3 && 
+     ((length[pp] == 4 && length[pl] >= 4) ||
+      (length[pp] >= 4 && length[pl] == 4)))
+  {
+    if (htop.T == pp)
+    {
+      // AQx / Jxxx / KTxx / x.
+      if (pickFlag) holdCtr[0x118a]++;
+      rank = SDS_TEN;
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pp]);
+      return def.Set1(trick[0]);
+    }
+  }
+
   if (distHex == 0x4153)
   {
     if (htop.K == QT_PARD && htop.Q == QT_ACE && 
