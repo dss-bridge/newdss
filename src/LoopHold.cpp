@@ -4844,6 +4844,18 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
       return def.Set1(trick[0]);
     }
   }
+  else if (length[pa] >= 4 && length[pp] > length[pa] && length[pl] == 3)
+  {
+    if (htop.T == pa &&
+        completeList[pp][1] > completeList[pa][length[pa]-1])
+    {
+      // A7xxxx / - / KJT6 / Q98.
+      if (pickFlag) holdCtr[0x106b]++;
+      rank = HR(pp, 1);
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pp]);
+      return def.Set1(trick[0]);
+    }
+  }
   else if (length[pa] >= 4 && length[pp] == 3 && length[pl] == 2)
   {
     if (length[pr] == 4)
