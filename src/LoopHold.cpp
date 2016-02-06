@@ -5178,49 +5178,31 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
 
   if (length[pa] >= 4 && length[pp] == 3 && length[pl] == 2)
   {
-    if (length[pr] <= 2)
+    if (length[pr] <= 3)
     {
-      if (completeList[pp][2] > completeList[pa][1])
+      if (completeList[pa][1] > completeList[pp][2] &&
+         (length[pr] <= 2 ||
+          completeList[pa][1] > completeList[pr][0]))
+      {
+        // ATxx / Qx / KJx / (xxx).
+        if (pickFlag) holdCtr[0x1141]++;
+        rank = HR(pa, 1);
+        trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
+        trick[1].Set(pp, QT_BOTH, rank, length[pa]);
+        return def.Set11(trick[0], trick[1]);
+      }
+      else
       {
         // Axxx+ / QT / KJ9 / (xx).
-        if (pickFlag) holdCtr[0x1141]++;
-        rank = HR(pp, 2);
+        // Axxx+ / QT / KJx / 9xx.
+        if (pickFlag) holdCtr[0x1142]++;
+        if (length[pr] == 2)
+          rank = HR(pp, 1);
+        else
+          rank = HR(pp, 2);
         trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
         trick[1].Set(pp, pa, SDS_VOID-2, 2);
         trick[2].Set(QT_BOTH, pp, SDS_VOID-4, 1);
-        trick[3].Set(pa, pa, SDS_VOID, length[pa]-3);
-        return def.Set13(trick);
-      }
-      else
-      {
-        // ATxx / Qx / KJx / (xx).
-        if (pickFlag) holdCtr[0x1142]++;
-        rank = HR(pa, 1);
-        trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
-        trick[1].Set(pp, QT_BOTH, rank, length[pa]);
-        return def.Set11(trick[0], trick[1]);
-      }
-    }
-    else if (length[pr] == 3)
-    {
-      if (completeList[pa][1] > completeList[pp][2] &&
-          completeList[pa][1] > completeList[pr][0])
-      {
-        // ATxx / Qx / KJx / xxx.
-        if (pickFlag) holdCtr[0x1143]++;
-        rank = HR(pa, 1);
-        trick[0].Set(pa, QT_BOTH, SDS_VOID-4, length[pa]);
-        trick[1].Set(pp, QT_BOTH, rank, length[pa]);
-        return def.Set11(trick[0], trick[1]);
-      }
-      else
-      {
-        // Axxx / QT / KJx / 9xx.
-        if (pickFlag) holdCtr[0x1144]++;
-        rank = HR(pp, 1);
-        trick[0].Set(pa, QT_BOTH, rank, length[pa]);
-        trick[1].Set(pp, pa, SDS_VOID-2, 2);
-        trick[2].Set(QT_BOTH, pp, rank, 1);
         trick[3].Set(pa, pa, SDS_VOID, length[pa]-3);
         return def.Set13(trick);
       }
