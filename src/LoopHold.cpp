@@ -1473,73 +1473,53 @@ bool LoopHold::CashoutBothDiffSplit(
   }
 
 
-  unsigned t0 = 0, t1 = 0, 
-    r0 = SDS_VOID, r1 = SDS_VOID, r2 = SDS_VOID;
-  if (cb.lenShort == 3 && cb.lenLong >= 4 && cb.numTopsHigh == 2 &&
-      cb.lenOppHighest == 2 && cb.lenOppLowest >= 3 &&
-      (completeList[cb.pShort][1] == suitLength-4 ||
-      (completeList[cb.pShort][1] == suitLength-5 ||
-       completeList[cb.pShort][2] == suitLength-6)))
+  unsigned t0 = 0, t1 = 0, r0 = SDS_VOID, r1 = SDS_VOID, r2 = SDS_VOID;
+  if (cb.lenShort == 3 && cb.lenLong == 4 &&
+    cb.lenOppHighest == 2 && cb.lenOppLowest == 4)
   {
+    // The way it comes out.
+    r0 = HR(cb.pLong, 0);
+    t0 = (cb.pLong == QT_PARD ? 2 : 1);
+    r1 = HR(cb.pShort, 1);
+  }
+  else if (cb.lenShort == 4 && cb.lenLong == 5 &&
+    cb.lenOppHighest == 1 && cb.lenOppLowest == 3)
+  {
+    // The way it comes out.
+    if (cb.numTopsLongLow > 1 ||
+       (cb.pShort == QT_ACE &&
+        cb.pOppHighest == QT_LHO && 
+        completeList[QT_ACE][2] > completeList[QT_RHO][1]))
+    {
+      t0 = 3;
+      r0 = SDS_JACK;
+    }
+    else if (cb.pShort == QT_ACE)
+    {
+      t0 = 2;
+      r0 = SDS_KING;
+    }
+    else
+    {
+      t0 = 1;
+      r0 = SDS_ACE;
+    }
+    r1 = HR(cb.pShort, cb.numTopsShortLow);
+  }
+  else
+  {
+    // The way it comes out.
     if (cb.pLong == QT_PARD)
     {
-      if (pickFlag) holdCtr[0xa85]++;
       t0 = cb.numTopsHigh;
       r0 = HR(cb.pLong, 0);
     }
     else
     {
-      if (pickFlag) holdCtr[0xa86]++;
       t0 = cb.numTopsLongHigh;
       r0 = HR(cb.pLong, t0-1);
     }
     r1 = HR(cb.pShort, cb.numTopsShortHigh);
-  }
-  else if (cb.lenShort == 3 && cb.lenLong == 4 &&
-    cb.lenOppHighest == 2 && cb.lenOppLowest == 4)
-  {
-    // The way it comes out.
-    if (pickFlag) holdCtr[0xa87]++;
-    r0 = HR(cb.pLong, 0);
-    t0 = (cb.pLong == QT_PARD ? 2 : 1);
-    r1 = HR(cb.pShort, 1);
-  }
-  else
-  {
-    // The way it comes out.
-    if (cb.pShort == QT_ACE)
-    {
-      if (cb.numTopsLongLow > 1 || 
-         (cb.pOppHighest == QT_LHO && 
-          completeList[QT_ACE][2] > completeList[QT_RHO][1]))
-      {
-        if (pickFlag) holdCtr[0xa88]++;
-        t0 = 3;
-        r0 = SDS_JACK;
-      }
-      else
-      {
-        if (pickFlag) holdCtr[0xa89]++;
-        t0 = 2;
-        r0 = SDS_KING;
-      }
-    }
-    else
-    {
-      if (cb.numTopsLongLow == 1)
-      {
-        if (pickFlag) holdCtr[0xa8a]++;
-        t0 = 1;
-        r0 = SDS_ACE;
-      }
-      else
-      {
-        if (pickFlag) holdCtr[0xa8b]++;
-        t0 = 3;
-        r0 = SDS_JACK;
-      }
-    }
-    r1 = HR(cb.pShort, cb.numTopsShortLow);
   }
 
   t1 = cb.lenShort - t0;
