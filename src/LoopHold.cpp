@@ -4818,8 +4818,7 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
     pr = QT_LHO;
   }
 
-  if (length[pa] >= 4 && length[pp] == length[pa] &&
-      length[pl] == 3 && length[pr] <= 3)
+  if (length[pa] >= 4 && length[pp] == length[pa] && length[pl] == 3)
   {
     if (htop.T == pp)
     {
@@ -4827,6 +4826,21 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
       rank = SDS_TEN;
       unsigned l = Max(length[pa], length[pp]);
       trick[0].Set(QT_BOTH, QT_BOTH, rank, l);
+      return def.Set1(trick[0]);
+    }
+  }
+  else if (length[pp] >= 4 && length[pa] > length[pp] && length[pl] == 3)
+  {
+    if (htop.T == pa &&
+        completeList[pa][3] > completeList[pp][length[pp]-1])
+    {
+      // Axxx / - / KJTxxx / Q98.
+      if (pickFlag) holdCtr[0x106a]++;
+      if (htop.N == pp || (htop.N == pr && htop.E == pp))
+        rank = HR(pp, 1);
+      else
+        rank = HR(pa, 3);
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pa]);
       return def.Set1(trick[0]);
     }
   }
