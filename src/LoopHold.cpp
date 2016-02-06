@@ -5920,6 +5920,21 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
       }
     }
   }
+  else if (length[QT_ACE] == 3 && length[QT_PARD] >= 4 &&
+      length[QT_RHO] <= 2 && length[QT_LHO] >= 4)
+  {
+    if (completeList[QT_PARD][1] > completeList[QT_ACE][2] &&
+        completeList[QT_PARD][1] > completeList[QT_LHO][1] &&
+        completeList[QT_LHO][0] > completeList[QT_PARD][1])
+    {
+      // AKx / Txxx / J9xx / Q.
+      if (pickFlag) holdCtr[0x144d]++;
+      unsigned l = (length[QT_LHO] == 4 ? length[QT_PARD] : 4);
+      rank = HR(QT_PARD, 1);
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, l);
+      return def.Set1(trick[0]);
+    }
+  }
   else if (length[QT_ACE] >= 4 && length[QT_PARD] == 2 &&
       length[QT_RHO] == 1 && length[QT_LHO] >= 3)
   {
