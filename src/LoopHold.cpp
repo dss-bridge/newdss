@@ -5434,11 +5434,12 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
      ((length[pp] == 4 && length[pl] >= 4) ||
       (length[pp] >= 4 && length[pl] == 4)))
   {
-    if (htop.T == pp)
+    if (completeList[pp][1] > completeList[pa][2] &&
+        completeList[pp][1] > completeList[pl][1])
     {
       // AQx / Jxxx / KTxx / x.
       if (pickFlag) holdCtr[0x118a]++;
-      rank = SDS_TEN;
+      rank = HR(pp, 1);
       trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pp]);
       return def.Set1(trick[0]);
     }
