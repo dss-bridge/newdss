@@ -4865,6 +4865,14 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
 
       }
     }
+    else if (htop.T == pp)
+    {
+      // ATxx / - / KJxxxx / Q98.
+      if (pickFlag) holdCtr[0x106f]++;
+      rank = SDS_TEN;
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pa]);
+      return def.Set1(trick[0]);
+    }
   }
   else if (length[pa] >= 4 && length[pp] > length[pa] && length[pl] == 3)
   {
