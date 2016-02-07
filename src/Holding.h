@@ -116,6 +116,8 @@ class Holding
     unsigned GetMaxOppRank() const;
     Trick GetTrick() const;
     unsigned GetNumTops() const;
+    unsigned PossiblyFixRank(
+      unsigned& fixedRank) const;
 
     bool IsAATrick() const;
 

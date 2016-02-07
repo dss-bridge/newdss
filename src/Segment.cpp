@@ -215,6 +215,21 @@ void Segment::Localize(
 }
 
 
+void Segment::FixEquals(
+  const Holding& holding)
+{
+  unsigned fixedRank;
+  unsigned rankToFix = holding.PossiblyFixRank(fixedRank);
+  if (rankToFix == SDS_VOID)
+    return;
+
+  // AKQ2 / - / T9 / J876: Turn later T to 9.
+  for (unsigned l = 0; l < len; l++)
+    if (list[len-1].trick.ranks == rankToFix)
+      list[len-1].trick.ranks = fixedRank;
+}
+
+
 bool Segment::Prepend(
   const Holding& holding,
   const bool lastSegFlag)
@@ -238,6 +253,7 @@ bool Segment::Prepend(
   assert(len > 0);
 
   const Trick& mergingMove = holding.GetTrick();
+  Segment::FixEquals(holding);
   bool lastFlag = (lastSegFlag && (len == 1));
   const bool mergeSpecialFlag = holding.GetMergeType();
 

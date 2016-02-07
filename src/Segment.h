@@ -118,6 +118,9 @@ class Segment
     void Localize(
       const Holding& holding);
 
+    void FixEquals(
+      const Holding& holding);
+
     bool Prepend(
       const Holding& holding,
       const bool lastSegFlag);

@@ -1,35 +1,3 @@
-Working on 0x1361
-
-
-Bugs
-----
-Ranks
-12, 3a553
-AKQ3 / 8765 / T9 / J3.
-Comes out BA3Q or PP2T+AA2-, should be PP29.
-Also 0x1486 should then be fixed.
-
-12, ca547
-AKJ5 / 8764 / T9 / Q3.
-Comes out BA3J or PP2T + AA2-, should be PP29.
-Also 0x1122 should then be fixed.
-
-Ditto 12, e8457, AK97 / 8654 / JT / Q3 (0x1122).
-
-Also 0x1442.
-
-
-Rank errors
------------
-s 10 c 0xe857
-AK9 / 876 / JT / Qx: Rank J isn't right.
-
-
-
-
-Test the SolveComplex initial function.
-Make a new histogram number for it.
-
 Maybe make an input option to control creation of track.txt file.
 option goes in MakeComplexSingleMove.
 
@@ -74,8 +42,6 @@ This now segfaults when called from the command line!
     KJT92
 
 Looks a bit odd all round.
-Idea:  If an AltList Compare produces rank diff, pick the one
-with the highest minimum rank.
 
 
 Remove GetKeyNew and GetKey

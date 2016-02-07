@@ -572,6 +572,60 @@ void Holding::AdjustWinRank()
 }
 
 
+unsigned Holding::PossiblyFixRank(
+  unsigned& fixedRank) const
+{
+  // AKQ2 / - / T9 / J876.
+  // Lead 9: 9-J-A-void, then later PA1A + AP1T + AA2-.
+  // But only covers when we have T9.
+  // General rule turns out to be: length >= #tops with leader.
+  // But some small exceptions.
+
+  unsigned lr = static_cast<unsigned>(leadRank);
+
+  if (length[side] == 3 && length[lho] == 2 && 
+      length[pard] == 4 && length[rho] == 4 &&
+      numLeads == 3 && leadList[0] == SDS_NINE && leadList[2] == SDS_JACK &&
+      completeList[lho][0] == SDS_QUEEN &&
+      completeList[pard][0] == SDS_ACE &&
+      completeList[pard][1] == SDS_KING &&
+      completeList[rho][0] > completeList[pard][2])
+  {
+    // Very specific!  Probably the only case where the rank should be
+    // corrected two levels down, not one.
+    // AKxx / 8xxx / JT9 / Qx.
+    fixedRank = SDS_NINE;
+    return SDS_TEN;
+  }
+
+  fixedRank = SDS_VOID;
+  if (leadRank < lhoRank && 
+      length[lho] >= Holding::TopsOverRank(side, lr))
+  {
+    if (leadCurrIndex < numLeads && leadList[leadCurrIndex] == leadRank + 1)
+    {
+      fixedRank = Holding::ListToRank(lr);
+      return Holding::ListToRank(lr+1);
+    }
+    else if (leadCurrIndex > 1 && 
+        leadCurrIndex == numLeads &&
+        numLeads == 2 &&
+        leadList[leadCurrIndex-2]+1 != leadRank &&
+        leadList[leadCurrIndex-2] < lhoRank)
+    {
+      // Bit of a kludge, effectively for AKTx / ? / J9 / Qx.
+      fixedRank = Holding::ListToRank(lr);
+      unsigned lr2 = static_cast<unsigned>(leadList[leadCurrIndex-2]);
+      return Holding::ListToRank(lr2);
+    }
+    else
+      return SDS_VOID;
+  }
+  else
+    return SDS_VOID;
+}
+
+
 bool Holding::MakePlay(
   unsigned& slNew,
   unsigned& cNew)
