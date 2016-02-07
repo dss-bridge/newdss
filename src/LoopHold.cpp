@@ -4753,8 +4753,34 @@ bool LoopHold::SolveComplex2(DefList& def, unsigned& rank) const
   // ==== G42 ==========================================================
 
   if (pickFlag) holdCtr[0x1020]++;
-  UNUSED(def);
-  UNUSED(rank);
+
+  int na = 1;
+  if (htop.K == QT_ACE) na++;
+  if (htop.Q == QT_ACE) na++;
+  if (htop.J == QT_ACE) na++;
+
+  Trick trick;
+  if (distHex == 0x3550 && na == 2)
+  {
+    if (htop.T == QT_LHO && htop.N == QT_PARD)
+    {
+      if (pickFlag) holdCtr[0x1021]++;
+      rank = SDS_NINE;
+      trick.Set(QT_BOTH, QT_BOTH, rank, 5);
+      return def.Set1(trick);
+    }
+  }
+  else if (distHex == 0x5035 && na == 2)
+  {
+    if (htop.T == QT_RHO && htop.N == QT_ACE)
+    {
+      if (pickFlag) holdCtr[0x1022]++;
+      rank = SDS_NINE;
+      trick.Set(QT_BOTH, QT_BOTH, rank, 5);
+      return def.Set1(trick);
+    }
+  }
+
   return false;
 }
 
