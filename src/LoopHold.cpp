@@ -5577,11 +5577,14 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
       return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
-  else if (length[pa] == 5 && length[pp] == 4 && length[pl] == 4)
+  else if (((length[pa] == 5 && length[pp] == 4) ||
+      (length[pa] == 4 && length[pp] == 5)) && 
+       length[pl] == 4)
   {
     if (htop.T == pp)
     {
       // ATxx / - / KQxxx / Jxxx.
+      // ATxxx / - / KQxx / Jxxx.
       if (pickFlag) holdCtr[0x118b]++;
       rank = SDS_TEN;
       trick[0].Set(QT_BOTH, QT_BOTH, rank, 5);
