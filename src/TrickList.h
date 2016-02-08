@@ -96,6 +96,9 @@ class TrickList
     CmpDetailType Compare(
       const TrickList& lNew) const;
 
+    bool IsSimpleComplement(
+      const TrickList& lNew) const;
+
     bool EqualsExceptStart(
       const TrickList& lNew) const;
 

@@ -427,6 +427,12 @@ bool DefList::MergeSidesSoft(
       * this = def1;
       list[0].SetStart();
     }
+    else if (def1.list[0].MergeSoftSpecial(def2.list[0]))
+    {
+      // Success.
+      * this = def1;
+      list[0].Concatenate(def2.list[0]);
+    }
     else
     {
       AltList alt = def1.list[0] + def2.list[0];

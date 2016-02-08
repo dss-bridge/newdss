@@ -30,6 +30,9 @@ class AltList
     TrickList list[SDS_MAX_ALT];
     unsigned len;
 
+    bool MergeSoftSpecial12(
+      const AltList& aNew) const;
+
     void Backtrack1D(
       AltMatrix1D& comp,
       const unsigned dimFixed,
@@ -160,6 +163,12 @@ class AltList
 
     bool CanMergeSides(
       const AltList& aNew) const;
+
+    bool MergeSoftSpecial(
+      const AltList& aNew) const;
+
+    void Concatenate(
+      const AltList& aNew);
 
     void SetStart();
 

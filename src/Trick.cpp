@@ -183,6 +183,28 @@ bool Trick::EqualsExceptStart(
 }
 
 
+bool Trick::IsSimpleComplement(
+  const Trick& t2) const
+{
+  if (t2.trick.start == trick.start ||
+      trick.start == QT_BOTH ||
+      t2.trick.start == QT_BOTH)
+    return false;
+
+  if (t2.trick.cashing != trick.cashing ||
+      t2.trick.ranks != trick.ranks)
+    return false;
+
+  if (t2.trick.end == QT_BOTH && trick.end == QT_BOTH)
+    return false;
+  else if (t2.trick.end != QT_BOTH && trick.end != QT_BOTH)
+    return false;
+  else
+    return true;
+  // So AP+PB, AA+PB, AB+PA, AP+PB.
+}
+
+
 bool Trick::Extends(
   const Trick& tEarlier) const
 {

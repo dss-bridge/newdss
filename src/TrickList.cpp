@@ -152,6 +152,16 @@ void TrickList::GetFirstSummaryTrick(
 }
 
 
+bool TrickList::IsSimpleComplement(
+  const TrickList& lNew) const
+{
+  if (len > 1 || lNew.len > 1)
+    return false;
+
+  return list[0].IsSimpleComplement(lNew.list[0]);
+}
+
+
 CmpDetailType TrickList::CompareInit(
   const TrickList& lNew,
   CompareStruct cdata) const

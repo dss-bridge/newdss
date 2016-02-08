@@ -97,6 +97,9 @@ class Segment
       Trick& summaryTrick,
       const bool lastFlag = true) const;
 
+    bool IsSimpleComplement(
+      const Segment& seg2) const;
+
     CmpDetailType Compare(
       const Segment& seg2) const;
 

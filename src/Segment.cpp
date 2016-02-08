@@ -148,6 +148,16 @@ void Segment::GetSummaryTrick(
 }
 
 
+bool Segment::IsSimpleComplement(
+  const Segment& seg2) const
+{
+  if (len != 1 || seg2.len != 1)
+    return false;
+
+  return list[0].IsSimpleComplement(seg2.list[0]);
+}
+
+
 CmpDetailType Segment::Compare(
   const Segment& seg2) const
 {
@@ -717,6 +727,18 @@ bool Segment::Fix11_12(
     t1.trick.end = t21.trick.start;
     fix1 = SDS_FIX_WEAKER;
     fix2 = SDS_FIX_UNCHANGED;
+    return true;
+  }
+  else if (c == SDS_SAME &&
+      t1.trick.start != QT_BOTH &&
+      t1.trick.start == t20.trick.start &&
+      t1.trick.end == SDS_PARTNER[t1.trick.start] &&
+      t21.trick.end == t1.trick.start)
+  {
+    // AP or AP+PA, or PA or PA+AP.
+    t1.trick.end = QT_BOTH;
+    fix1 = SDS_FIX_STRONGER;
+    fix2 = SDS_FIX_PURGED;
     return true;
   }
   else

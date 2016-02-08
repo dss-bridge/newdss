@@ -333,6 +333,39 @@ bool AltList::CanMergeSides(
 }
 
 
+bool AltList::MergeSoftSpecial12(
+  const AltList& aNew) const
+{
+  return 
+    (list[0].IsSimpleComplement(aNew.list[0]) ||
+     list[0].IsSimpleComplement(aNew.list[1]));
+}
+
+
+void AltList::Concatenate(
+  const AltList& aNew)
+{
+  for (unsigned l = 0; l < aNew.len; l++)
+    list[len+l] = aNew.list[l];
+  len += aNew.len;
+}
+
+
+bool AltList::MergeSoftSpecial(
+  const AltList& aNew) const
+{
+  // The regular merge (currently) takes AKT9 / - / Q87 / J654 and
+  // turns AP3Q / AA4T + PB4T into BB4T.  This is avoided here, for now.
+
+  if (len == 1 && aNew.len == 2)
+    return AltList::MergeSoftSpecial12(aNew);
+  else if (len == 2 && aNew.len == 1)
+    return aNew.MergeSoftSpecial12(* this);
+  else
+    return false;
+}
+
+
 void AltList::SetStart()
 {
   for (unsigned a = 0; a < len; a++)
