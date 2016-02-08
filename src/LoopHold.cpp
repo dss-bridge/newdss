@@ -5630,9 +5630,7 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
     pr = QT_LHO;
   }
 
-  if (length[pa] == 3 && 
-     ((length[pp] == 4 && length[pl] >= 4) ||
-      (length[pp] >= 4 && length[pl] == 4)))
+  if (length[pa] == 3 && length[pp] >= 4 && length[pl] >= 4)
   {
     if (completeList[pp][1] > completeList[pa][2] &&
         completeList[pp][1] > completeList[pl][1])
@@ -5640,7 +5638,8 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
       // AQx / Jxxx / KTxx / x.
       if (pickFlag) holdCtr[0x118a]++;
       rank = HR(pp, 1);
-      trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pp]);
+      unsigned l = (length[pl] > 4 ? 4 : length[pp]);
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, l);
       return def.Set1(trick[0]);
     }
   }
