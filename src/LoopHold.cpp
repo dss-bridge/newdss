@@ -5393,8 +5393,7 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
       return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
-
-  if (length[pa] >= 4 && length[pp] == 3 && length[pl] == 2)
+  else if (length[pa] >= 4 && length[pp] == 3 && length[pl] == 2)
   {
     if (length[pr] <= 3)
     {
@@ -5548,6 +5547,21 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
       unsigned l = (length[pp] > 4 ? 4 : length[pa]);
       trick[0].Set(QT_BOTH, QT_BOTH, rank, l);
       return def.Set1(trick[0]);
+    }
+  }
+  else if (length[pa] == 3 && length[pp] >= 4 &&
+      length[pl] == 1 && length[pr] >= 4)
+  {
+    if (htop.T == pr && htop.N == pp && htop.E == pp)
+    {
+      // AJ98x / Txxx / Kxx / Q.
+      if (pickFlag) holdCtr[0x138a]++;
+      rank = SDS_EIGHT;
+      unsigned l = (length[pr] > 4 ? 4 : length[pp]);
+      trick[0].Set(QT_BOTH, pp, rank, 2);
+      trick[1].Set(QT_BOTH, pa, SDS_VOID, 1);
+      trick[2].Set(pp, pp, SDS_VOID, l-3);
+      return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
   
