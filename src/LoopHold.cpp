@@ -5728,13 +5728,26 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
       trick[0].Set(QT_BOTH, QT_BOTH, rank, 5);
       return def.Set1(trick[0]);
     }
-    else if (htop.T == pa && htop.N == pp)
+    else if (htop.T == pa)
     {
-      // AKTxx / Jxxx / Q9xx / -.
-      if (pickFlag) holdCtr[0x118c]++;
-      rank = SDS_NINE;
-      trick[0].Set(QT_BOTH, QT_BOTH, rank, 5);
-      return def.Set1(trick[0]);
+      if (htop.N == pp || (htop.N == pa && length[pa] == 5))
+      {
+        // AKTxx / Jxxx / Q9xx / -.
+        if (pickFlag) holdCtr[0x118c]++;
+        rank = SDS_NINE;
+        trick[0].Set(QT_BOTH, QT_BOTH, rank, 5);
+        return def.Set1(trick[0]);
+      }
+      else
+      {
+        // Axxxx / - / KQT9 / Jxxx.
+        if (pickFlag) holdCtr[0x118d]++;
+        rank = SDS_NINE;
+        trick[0].Set(QT_BOTH, pp, SDS_QUEEN, 3);
+        trick[1].Set(QT_BOTH, pa, rank, 1);
+        trick[2].Set(pp, pp, SDS_VOID, 1);
+        return def.Set3(trick[0], trick[1], trick[2]);
+      }
     }
   }
   else if (distHex == 0x4234 || distHex == 0x3442)
