@@ -5143,6 +5143,17 @@ bool LoopHold::SolveComplex9(DefList& def, unsigned& rank) const
       }
     }
   }
+  else if (length[QT_ACE] == 2 && length[QT_RHO] >= 4)
+  {
+    if (htop.Q == QT_ACE && htop.T == QT_RHO)
+    {
+      // AQ / K / Jxx / Txxx.
+      if (pickFlag) holdCtr[0x1093]++;
+      trick[0].Set(QT_BOTH, QT_ACE, SDS_QUEEN, 2);
+      trick[1].Set(QT_PARD, QT_PARD, SDS_JACK, 1);
+      return def.Set2(trick[0], trick[1]);
+    }
+  }
 
   return false;
 }
@@ -5320,13 +5331,26 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
 
   if (length[pa] == 4 && length[pp] > length[pa] && length[pl] == 3)
   {
-    if (htop.T == pa && htop.N == pa)
+    if (htop.T == pa)
     {
-      // AJxxx / x / KT9x / Qxx.
-      if (pickFlag) holdCtr[0x1140]++;
-      rank = SDS_NINE;
-      trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pp]);
-      return def.Set1(trick[0]);
+      if (htop.N == pa)
+      {
+        // AJxxx / x / KT9x / Qxx.
+        if (pickFlag) holdCtr[0x1140]++;
+        rank = SDS_NINE;
+        trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pp]);
+        return def.Set1(trick[0]);
+      }
+      else if (completeList[pa][3] > completeList[pa][2])
+      {
+        // AJxxxx / - / KTxx / Q98.
+        if (pickFlag) holdCtr[0x1382]++;
+        rank = SDS_TEN;
+        trick[0].Set(QT_BOTH, pp, SDS_JACK, 3);
+        trick[1].Set(QT_BOTH, pa, rank, 1);
+        trick[2].Set(pp, pp, SDS_VOID, length[pp]-4);
+        return def.Set3(trick[0], trick[1], trick[2]);
+      }
     }
     else if (completeList[pp][2] > completeList[pa][3])
     {
@@ -5354,6 +5378,19 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
       rank = HR(pa, 1);
       trick[0].Set(QT_BOTH, QT_BOTH, rank, length[pa]);
       return def.Set1(trick[0]);
+    }
+    else
+    {
+      // A76432 / QT5 / KJ98 / -.
+      // Actually AP2K or BA48+PP1- seems right.
+      return false;
+
+      if (pickFlag) holdCtr[0x1381]++;
+      rank = HR(pp, 2);
+      trick[0].Set(QT_BOTH, pa, SDS_JACK, 3);
+      trick[1].Set(QT_BOTH, pp, rank, 1);
+      trick[2].Set(pa, pa, SDS_VOID, length[pa]-4);
+      return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
 
