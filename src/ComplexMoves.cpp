@@ -90,6 +90,7 @@ void DumpMoves(
   DefList& def2,
   unsigned& count);
 
+extern vector<unsigned> holdCtr;
 void MakeComplexMoves()
 {
   DefList def1, def2;
@@ -138,6 +139,14 @@ void MakeComplexMoves()
               def1, def2, summary.countRest);
           }
 
+          // Other possibility:
+          unsigned cc = holding.GetCounter();
+          unsigned s = holding.GetSuitLength();
+          unsigned top = cc >> (2*s - 8);
+          holdCtr[0x1700+top]++;
+          // Specialized: AKQJ with ace.
+          // if (top == 0) ...
+
           // To help in table development, certain tricks are printed.
           unsigned t = moveList.GetSymmTricks(singles[sl][c].moveNo);
           if (t == 0)
@@ -164,12 +173,6 @@ void MakeComplexMoves()
               def1, def2, summary.countDiff);
           }
 
-          // Other possibility:
-          // unsigned c = holding.GetCounter();
-          // unsigned s = holding.GetSuitLength();
-          // unsigned top = c >> (2*s - 8);
-          // Specialized: AKQJ with ace.
-          // if (top == 0) ...
         }
       }
     }
