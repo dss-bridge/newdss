@@ -79,7 +79,12 @@ bool TrickList::Set3(
     len = 2;
   }
   else
-    assert(false);
+  {
+    list[2].Set1(trick1);
+    list[1].Set1(trick2);
+    list[0].Set1(trick3);
+    len = 3;
+  }
 
   return true;
 }
