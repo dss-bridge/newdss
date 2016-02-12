@@ -146,7 +146,7 @@ void MakeComplexMoves()
           unsigned s = holding.GetSuitLength();
           unsigned top = cc >> (2*s - 8);
           holdCtr[0x1700+top]++;
-          if (top == 0)
+          if (top == 1 || top == 4 || top == 16)
           {
             DumpMoves(files.simpleRest, holding, 
               def1, def2, summary.countRest);
