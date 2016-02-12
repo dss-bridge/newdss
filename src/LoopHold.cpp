@@ -4971,9 +4971,27 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
       return def.Set13(trick);
     }
   }
-  else
+  else if (htop.T == QT_RHO &&
+      ! LoopHold::StopFinesse(1, 3, 0, false, QT_ACE))
   {
-    if (pickFlag) holdCtr[0x101f]++;
+    // AKQ9 / J / 6542 / T873.
+    if (pickFlag) holdCtr[0x1014]++;
+    unsigned r1 = HR(QT_ACE, 2);
+    PosType e;
+    if (htop.N == QT_PARD && htop.E == QT_PARD)
+    {
+      rank = HR(QT_PARD, 1);
+      e = QT_BOTH;
+    }
+    else
+    {
+      rank = HR(QT_ACE, 3);
+      e = QT_ACE;
+    }
+    trick[0].Set(QT_BOTH, QT_ACE, r1, 3);
+    trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
+    trick[2].Set(QT_PARD, e, rank, 3);
+    return def.Set12(trick[0], trick[1], trick[2]);
   }
 
 
