@@ -4968,7 +4968,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
           completeList[QT_ACE][4] > completeList[QT_RHO][0])
       {
         // AKQ98 / J / T7 / 65432.
-        if (pickFlag) holdCtr[0x101c]++;
+        if (pickFlag) holdCtr[0x1014]++;
         rank = HR(QT_ACE, 4);
         unsigned r1 = HR(QT_ACE, 3);
         trick[0].Set(QT_BOTH, QT_ACE, rank, 5);
@@ -4980,7 +4980,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
           completeList[QT_ACE][3] > completeList[QT_RHO][0])
       {
         // AQJ8 / K / T9 / 7654.
-        if (pickFlag) holdCtr[0x101e]++;
+        if (pickFlag) holdCtr[0x1015]++;
         rank = HR(QT_ACE, 3);
         l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
         trick[0].Set(QT_BOTH, QT_ACE, rank, l);
@@ -4992,7 +4992,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
           completeList[QT_ACE][3] > completeList[QT_RHO][0])
       {
         // AKQ95 / J / T8 / 76432.
-        if (pickFlag) holdCtr[0x101d]++;
+        if (pickFlag) holdCtr[0x1016]++;
         rank = HR(QT_ACE, 3);
         trick[0].Set(QT_BOTH, QT_ACE, rank, 4);
         trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
@@ -5003,7 +5003,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
       else
       {
         // AQJ32 / K / T3 / 98765.
-        if (pickFlag) holdCtr[0x101f]++;
+        if (pickFlag) holdCtr[0x1017]++;
         rank = SDS_TEN;
         unsigned r2 = HR(QT_ACE, 2);
         l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
@@ -5020,7 +5020,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
           completeList[QT_ACE][4] > completeList[QT_PARD][1] &&
           completeList[QT_ACE][4] > completeList[QT_RHO][1])
       {
-        if (pickFlag) holdCtr[0x101b]++;
+        if (pickFlag) holdCtr[0x1018]++;
         rank = HR(QT_ACE, 4);
         trick[0].Set(QT_BOTH, QT_ACE, SDS_TEN, 4);
         trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
@@ -5033,7 +5033,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
         ! LoopHold::StopFinesse(1, 3, 0, true, QT_ACE))
     {
       // AKQ9 / J / 76 / T8543.
-      if (pickFlag) holdCtr[0x1014]++;
+      if (pickFlag) holdCtr[0x1019]++;
       rank = HR(QT_ACE, 3);
       unsigned r1 = HR(QT_ACE, 2);
       l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
@@ -5050,14 +5050,12 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
         ! LoopHold::StopFinesse(1, 3, 0, false, QT_ACE))
     {
       if (htop.N == QT_PARD && htop.E == QT_PARD &&
-          completeList[QT_RHO][1] > completeList[QT_ACE][3] &&
-          completeList[QT_RHO][1] > completeList[QT_PARD][2])
+          completeList[QT_RHO][1] > completeList[QT_ACE][3])
       {
-        if (completeList[QT_ACE][3] < completeList[QT_PARD][2] ||
-            completeList[QT_ACE][3] < completeList[QT_RHO][2])
+        if (completeList[QT_ACE][3] < completeList[QT_RHO][2])
         {
           // AKQ3 / J / 987 / T654.
-          if (pickFlag) holdCtr[0x1015]++;
+          if (pickFlag) holdCtr[0x101a]++;
           rank = HR(QT_PARD, 1);
           unsigned r1 = HR(QT_ACE, 1);
           unsigned r2 = HR(QT_ACE, 2);
@@ -5071,10 +5069,11 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
         else
           return false;
       }
-      else if (completeList[QT_PARD][2] < completeList[QT_ACE][3])
+      else if (completeList[QT_PARD][2] < completeList[QT_ACE][3] ||
+          completeList[QT_RHO][1] < completeList[QT_ACE][3])
       {
         // AQJ95 / K / 763 / T842.
-        if (pickFlag) holdCtr[0x1016]++;
+        if (pickFlag) holdCtr[0x101b]++;
         rank = HR(QT_ACE, 3);
         unsigned r1 = HR(QT_ACE, 2);
         l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
@@ -5089,7 +5088,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
         ! LoopHold::StopFinesse(2, 3, 0, false, QT_ACE))
     {
       // AKQ7 / J / 954 / T863.
-      if (pickFlag) holdCtr[0x1017]++;
+      if (pickFlag) holdCtr[0x101c]++;
       rank = HR(QT_ACE, 3);
       unsigned r1 = HR(QT_ACE, 1);
       unsigned r2 = HR(QT_ACE, 2);
@@ -5107,7 +5106,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
       ! LoopHold::StopFinesse(1, 3, 0, false, QT_ACE))
   {
     // AKQ9 / J / 6542 / T873.
-    if (pickFlag) holdCtr[0x1019]++;
+    if (pickFlag) holdCtr[0x101d]++;
     unsigned r1 = HR(QT_ACE, 2);
     PosType e;
     if (htop.N == QT_PARD && htop.E == QT_PARD)
@@ -5133,7 +5132,7 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
       return false;
 
     // AKQ7 / J / 9642 / T853.
-    if (pickFlag) holdCtr[0x101a]++;
+    if (pickFlag) holdCtr[0x101e]++;
     unsigned r1 = HR(QT_ACE, 1);
     unsigned r2 = HR(QT_ACE, 2);
     PosType s = (htop.K == QT_LHO ? QT_BOTH : QT_PARD);
