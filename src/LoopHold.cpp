@@ -5128,27 +5128,28 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
   else if (htop.T == QT_RHO &&
       ! LoopHold::StopFinesse(2, 3, 0, false, QT_ACE))
   {
+    if (completeList[QT_ACE][3] < completeList[QT_PARD][1] &&
+        completeList[QT_ACE][3] > completeList[QT_PARD][3])
+      return false;
+
     // AKQ7 / J / 9642 / T853.
     if (pickFlag) holdCtr[0x101a]++;
     unsigned r1 = HR(QT_ACE, 1);
     unsigned r2 = HR(QT_ACE, 2);
+    PosType s = (htop.K == QT_LHO ? QT_BOTH : QT_PARD);
     PosType e;
-    if (completeList[QT_PARD][2] > completeList[QT_RHO][2])
+    if (completeList[QT_PARD][2] > completeList[QT_ACE][3])
     {
-      return false;
-
       rank = HR(QT_PARD, 2);
       e = QT_BOTH;
     }
     else
     {
-      return false;
-
       rank = HR(QT_ACE, 3);
       e = QT_ACE;
     }
     trick[0].Set(QT_BOTH, QT_ACE, r2, 3);
-    trick[1].Set(QT_PARD, QT_ACE, SDS_ACE, 1);
+    trick[1].Set(s, QT_ACE, SDS_ACE, 1);
     trick[2].Set(QT_PARD, QT_ACE, r1, 1);
     trick[3].Set(QT_PARD, e, rank, 2);
     return def.Set13(trick);
