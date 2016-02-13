@@ -143,6 +143,16 @@ bool AltList::Set112(
 }
 
 
+bool AltList::Set122(
+  const Trick trick[])
+{
+  len = 3;
+  (void) list[0].Set1(trick[0]);
+  (void) list[1].Set2(trick[1], trick[2]);
+  return list[2].Set2(trick[3], trick[4]);
+}
+
+
 bool AltList::Set113(
   const Trick trick[])
 {

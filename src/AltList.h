@@ -138,6 +138,9 @@ class AltList
     bool Set112(
       const Trick trick[]);
 
+    bool Set122(
+      const Trick trick[]);
+
     bool Set113(
       const Trick trick[]);
 

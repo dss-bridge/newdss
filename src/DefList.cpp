@@ -148,6 +148,15 @@ bool DefList::Set112(
 }
 
 
+bool DefList::Set122(
+  const Trick trick[])
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set122(trick);
+}
+
+
 bool DefList::Set113(
   const Trick trick[])
 {
