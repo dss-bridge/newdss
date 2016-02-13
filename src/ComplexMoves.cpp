@@ -146,7 +146,7 @@ void MakeComplexMoves()
           unsigned s = holding.GetSuitLength();
           unsigned top = cc >> (2*s - 8);
           holdCtr[0x1700+top]++;
-          if (top == 1 || top == 4 || top == 16)
+          if (top == 2 || top == 8 || top == 32 || top == 42)
           {
             DumpMoves(files.simpleRest, holding, 
               def1, def2, summary.countRest);
@@ -168,8 +168,7 @@ void MakeComplexMoves()
             DumpMoves(files.simpleShort, holding, 
               def1, def2, summary.countShort);
           }
-          else 
-          if (gl1 == gl2)
+          else if (gl1 == gl2)
           {
             DumpMoves(files.simpleEqual, holding, 
               def1, def2, summary.countEqual);
@@ -179,7 +178,6 @@ void MakeComplexMoves()
             DumpMoves(files.simpleDiff, holding, 
               def1, def2, summary.countDiff);
           }
-
         }
       }
     }
