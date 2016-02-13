@@ -5497,7 +5497,6 @@ bool LoopHold::SolveComplex3(DefList& def, unsigned& rank) const
         return def.Set11(trick[0], trick[1]);
       }
       else if (length[QT_LHO] == 0)
-      // else if (0 && topsHeld >= topsNeeded)
       {
         // PROBLEM
         if (pickFlag) holdCtr[0x1033]++;
