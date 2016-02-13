@@ -5480,7 +5480,9 @@ bool LoopHold::SolveComplex3(DefList& def, unsigned& rank) const
     }
     else if (length[QT_PARD] == 2)
     {
-      if (completeList[QT_RHO][1] > completeList[QT_PARD][0] ||
+      if (completeList[QT_ACE][length[QT_ACE]-1] >
+            completeList[QT_PARD][1] ||
+          completeList[QT_RHO][1] > completeList[QT_PARD][1] ||
          (length[QT_LHO] > 0 &&
           completeList[QT_LHO][0] > completeList[QT_PARD][0]))
       {
@@ -5490,6 +5492,10 @@ bool LoopHold::SolveComplex3(DefList& def, unsigned& rank) const
         trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
         trick[1].Set(QT_PARD, QT_ACE, rank, l);
         return def.Set11(trick[0], trick[1]);
+      }
+      else
+      {
+        Holding::Print();
       }
     }
   }
