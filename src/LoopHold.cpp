@@ -5958,28 +5958,42 @@ bool LoopHold::SolveComplex10(DefList& def, unsigned& rank) const
 
   if (pickFlag) holdCtr[0x1100]++;
 
-  Trick trick;
-  if (distHex == 0x3550)
+  PosType pa, pl, pp, pr;
+  if (length[QT_ACE] == 5)
   {
-    if (htop.T == QT_LHO && htop.N == QT_PARD)
+    // Aceholder has 5.
+    if (distHex != 0x5035 && distHex != 0x5530)
+      return false;
+    pa = QT_ACE;
+    pl = QT_LHO;
+    pp = QT_PARD;
+    pr = QT_RHO;
+  }
+  else if (length[QT_PARD] == 5)
+  {
+    if (distHex != 0x3055 && distHex != 0x3550)
+      return false;
+    pa = QT_PARD;
+    pl = QT_RHO;
+    pp = QT_ACE;
+    pr = QT_LHO;
+  }
+  else
+    return false;
+
+  Trick trick[4];
+  if (htop.T == pr)
+  {
+    if (htop.N == pa)
     {
+      // AK9xx / - / QJx / Txxxx.
       if (pickFlag) holdCtr[0x1101]++;
       rank = SDS_NINE;
-      trick.Set(QT_BOTH, QT_BOTH, rank, 5);
-      return def.Set1(trick);
+      trick[0].Set(QT_BOTH, QT_BOTH, rank, 5);
+      return def.Set1(trick[0]);
     }
   }
-  else if (distHex == 0x5035)
-  {
-    if (htop.T == QT_RHO && htop.N == QT_ACE)
-    {
-      if (pickFlag) holdCtr[0x1102]++;
-      rank = SDS_NINE;
-      trick.Set(QT_BOTH, QT_BOTH, rank, 5);
-      return def.Set1(trick);
-    }
-  }
-
+  
   return false;
 }
 
