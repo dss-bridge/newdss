@@ -7353,79 +7353,108 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
   // ==== G36 ==========================================================
 
   if (pickFlag) holdCtr[0x1360]++;
+  if (length[QT_LHO] != 1)
+    return false;
 
   Trick trick[5];
-  if (length[QT_LHO] == 1)
+  if (length[QT_PARD] == 2)
   {
-    if (length[QT_PARD] == 2)
+    if (length[QT_ACE] >= 4 && length[QT_RHO] >= 3)
     {
-      if (length[QT_ACE] >= 4 && length[QT_RHO] >= 3)
+      if (htop.T == QT_RHO || (htop.T == QT_PARD && htop.N == QT_RHO))
       {
-        if (htop.T == QT_RHO || (htop.T == QT_PARD && htop.N == QT_RHO))
-        {
-          // AKxx / Q / Jx / Txx.
-          if (pickFlag) holdCtr[0x1361]++;
-          unsigned l = (length[QT_RHO] == 3 ? length[QT_ACE] : 3);
-          rank = SDS_JACK;
-          trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
-          trick[1].Set(QT_BOTH, QT_PARD, rank, 1);
-          trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l-2);
-          return def.Set3(trick[0], trick[1], trick[2]);
-        }
+        // AKxx / Q / Jx / Txx.
+        if (pickFlag) holdCtr[0x1361]++;
+        unsigned l = (length[QT_RHO] == 3 ? length[QT_ACE] : 3);
+        rank = SDS_JACK;
+        trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_BOTH, QT_PARD, rank, 1);
+        trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l-2);
+        return def.Set3(trick[0], trick[1], trick[2]);
+      }
+      else if (distHex == 0x5125 && htop.T == QT_ACE && htop.N == QT_RHO)
+      {
+        // AKTxx / Q / Jx / 9xxxx.
+        if (pickFlag) holdCtr[0x1362]++;
+        rank = SDS_TEN;
+        trick[0].Set(QT_BOTH, QT_ACE, SDS_TEN, 3);
+        trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
+        trick[2].Set(QT_BOTH, QT_PARD, SDS_JACK, 1);
+        trick[3].Set(QT_ACE, QT_ACE, SDS_TEN, 2);
+        return def.Set13(trick);
       }
     }
-    else if (length[QT_PARD] == 3)
+  }
+  else if (length[QT_PARD] == 3)
+  {
+    if (length[QT_ACE] >= 4 && length[QT_RHO] >= 4)
     {
-      if (length[QT_ACE] >= 4 && length[QT_RHO] >= 4)
+      if (htop.T == QT_PARD && htop.N == QT_RHO && htop.E == QT_ACE)
       {
-        if (htop.T == QT_PARD && htop.N == QT_RHO && htop.E == QT_ACE)
+        // AK8x / Q / JTx / 9xxx.
+        if (pickFlag) holdCtr[0x1363]++;
+        rank = SDS_EIGHT;
+        unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
+        trick[0].Set(QT_BOTH, QT_ACE, rank, l);
+        trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+        trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 2);
+        trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
+        return def.Set13(trick);
+      }
+      else if (htop.T == QT_RHO && htop.N == QT_ACE)
+      {
+        if (htop.E != QT_PARD ||
+            completeList[QT_RHO][1] > completeList[QT_ACE][3])
         {
-          // AK8x / Q / JTx / 9xxx.
-          if (pickFlag) holdCtr[0x1362]++;
-          rank = SDS_VOID - 7;
+          // AK9x / Q / Jxx / Txxx.
+          if (pickFlag) holdCtr[0x1364]++;
+          rank = SDS_NINE;
           unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
           trick[0].Set(QT_BOTH, QT_ACE, rank, l);
-          trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
-          trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 2);
-          trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
-          return def.Set13(trick);
-        }
-        else if (htop.T == QT_RHO && htop.N == QT_ACE)
-        {
-          if (htop.E != QT_PARD ||
-              completeList[QT_RHO][1] > completeList[QT_ACE][3])
-          {
-            // AK9x / Q / Jxx / Txxx.
-            if (pickFlag) holdCtr[0x1363]++;
-            rank = SDS_NINE;
-            unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
-            trick[0].Set(QT_BOTH, QT_ACE, rank, l);
-            trick[1].Set(QT_ACE, QT_PARD, SDS_JACK, 3);
-            return def.Set11(trick[0], trick[1]);
-          }
-        }
-      }
-    }
-    else if (length[QT_ACE] == 3)
-    {
-      if (length[QT_PARD] >= 4 && length[QT_RHO] >= 4)
-      {
-        if (htop.T == QT_RHO && htop.N == QT_PARD && htop.E == QT_PARD)
-        {
-          // AKx / Q / J98xx / Txxx.
-          if (pickFlag) holdCtr[0x1364]++;
-          rank = SDS_EIGHT;
-          unsigned l = (length[QT_RHO] == 4 ? length[QT_PARD] : 4);
-          trick[0].Set(QT_BOTH, QT_BOTH, SDS_JACK, 3);
-          trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
-          trick[2].Set(QT_PARD, QT_PARD, rank, 1);
-          trick[3].Set(QT_BOTH, QT_ACE, SDS_VOID, 1);
-          trick[4].Set(QT_PARD, QT_PARD, SDS_VOID, l-3);
-          return def.Set14(trick);
+          trick[1].Set(QT_ACE, QT_PARD, SDS_JACK, 3);
+          return def.Set11(trick[0], trick[1]);
         }
       }
     }
   }
+  else if (length[QT_ACE] == 3)
+  {
+    if (length[QT_PARD] >= 4 && length[QT_RHO] >= 4)
+    {
+      if (htop.T == QT_RHO && htop.N == QT_PARD && 
+         (htop.E == QT_PARD ||
+           (htop.E == QT_ACE &&
+            completeList[QT_PARD][2] > completeList[QT_RHO][1])))
+      {
+        // AKx / Q / J98xx / Txxx.
+        // AK8 / Q / J97xx / Txxx.
+        // PROBLEM:  Feels like the seven matters here.
+        if (pickFlag) holdCtr[0x1365]++;
+        rank = SDS_EIGHT;
+        unsigned l = (length[QT_RHO] == 4 ? length[QT_PARD] : 4);
+        trick[0].Set(QT_BOTH, QT_BOTH, SDS_JACK, 3);
+        trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
+        trick[2].Set(QT_PARD, QT_PARD, rank, 1);
+        trick[3].Set(QT_BOTH, QT_ACE, SDS_VOID, 1);
+        trick[4].Set(QT_PARD, QT_PARD, SDS_VOID, l-3);
+        return def.Set14(trick);
+      }
+      else if (htop.T == QT_RHO && 
+          completeList[QT_ACE][2] > completeList[QT_RHO][1])
+      {
+        // AK9 / Q / Jxxx / Txxx.
+        if (pickFlag) holdCtr[0x1366]++;
+        rank = HR(QT_ACE, 2);
+        unsigned l = (length[QT_RHO] == 4 ? length[QT_PARD] : 4);
+        trick[0].Set(QT_BOTH, QT_BOTH, SDS_JACK, 3);
+        trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
+        trick[2].Set(QT_PARD, QT_ACE, rank, 2);
+        trick[3].Set(QT_PARD, QT_PARD, SDS_VOID, l-3);
+        return def.Set13(trick);
+      }
+    }
+  }
+
   return false;
 }
 
