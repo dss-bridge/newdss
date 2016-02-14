@@ -90,6 +90,55 @@ bool TrickList::Set3(
 }
 
 
+bool TrickList::Set4(
+  const Trick& trick1,
+  const Trick& trick2,
+  const Trick& trick3,
+  const Trick& trick4)
+{
+  if (trick2.Extends(trick1))
+  {
+    if (trick4.Extends(trick3))
+    {
+      list[1].Set2(trick1, trick2);
+      list[0].Set2(trick3, trick4);
+      len = 2;
+    }
+    else
+    {
+      list[2].Set2(trick1, trick2);
+      list[1].Set1(trick3);
+      list[0].Set1(trick4);
+      len = 3;
+    }
+  }
+  else if (trick3.Extends(trick2))
+  {
+    list[2].Set1(trick1);
+    list[1].Set2(trick2, trick3);
+    list[0].Set1(trick4);
+    len = 3;
+  }
+  else if (trick4.Extends(trick3))
+  {
+    list[2].Set1(trick1);
+    list[1].Set1(trick2);
+    list[0].Set2(trick3, trick4);
+    len = 3;
+  }
+  else
+  {
+    list[3].Set1(trick1);
+    list[2].Set1(trick2);
+    list[1].Set1(trick3);
+    list[0].Set1(trick4);
+    len = 4;
+  }
+
+  return true;
+}
+
+
 bool TrickList::Set21(
   const Trick& trick10,
   const Trick& trick11,

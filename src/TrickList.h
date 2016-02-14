@@ -72,6 +72,12 @@ class TrickList
       const Trick& trick2,
       const Trick& trick3);
 
+    bool Set4(
+      const Trick& trick1,
+      const Trick& trick2,
+      const Trick& trick3,
+      const Trick& trick4);
+
     bool Set21(
       const Trick& trick10,
       const Trick& trick11,

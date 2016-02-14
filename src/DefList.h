@@ -75,6 +75,9 @@ class DefList
     bool Set13(
       const Trick trick[]);
 
+    bool Set14(
+      const Trick trick[]);
+
     bool Set31(
       const Trick trick[]);
 
