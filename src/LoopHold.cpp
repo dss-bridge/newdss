@@ -6479,8 +6479,126 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
   // ==== G51 ==========================================================
 
   if (pickFlag) holdCtr[0x1150]++;
-  UNUSED(def);
-  UNUSED(rank);
+  Trick trick[4];
+
+  unsigned m = Max(length[QT_LHO], length[QT_RHO]);
+
+  if (length[QT_PARD] == 1 || length[QT_ACE] == 2)
+  {
+    if (length[QT_RHO] > 2 || 
+       (length[QT_ACE] == 2 && length[QT_PARD] <= 2) ||
+       (length[QT_LHO] > 2 && htop.T == QT_LHO))
+    {
+      // AQ / Txx / xxx / KJ.
+      if (pickFlag) holdCtr[0x1151]++;
+      rank = SDS_QUEEN;
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, rank, 2);
+      return def.Set11(trick[0], trick[1]);
+    }
+    else if (length[QT_PARD] == 1)
+    {
+      // AQ9 / 876 / T / KJ.
+      if (pickFlag) holdCtr[0x1152]++;
+      unsigned hasTops = Holding::TopsOverRank(QT_ACE,
+        completeList[QT_LHO][0]);
+      unsigned needTops = m;
+      unsigned useTops = Min(hasTops, needTops);
+      rank = HR(QT_ACE, useTops-1);
+      unsigned l = (hasTops >= needTops ? length[QT_ACE] : hasTops);
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, rank, l);
+      return def.Set11(trick[0], trick[1]);
+    }
+    else if (length[QT_LHO] <= 2)
+    {
+      // AQ / xx / xxx / KJ.
+      if (pickFlag) holdCtr[0x1153]++;
+      rank = SDS_QUEEN;
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, rank, 2);
+      trick[2].Set(QT_PARD, QT_PARD, SDS_VOID, length[QT_PARD]-2);
+      return def.Set12(trick[0], trick[1], trick[2]);
+    }
+    else 
+    {
+      // AQ / xxx / Txx / KJ.
+      if (pickFlag) holdCtr[0x1154]++;
+      unsigned hasTops = Holding::TopsOverRank(QT_PARD,
+        completeList[QT_LHO][0]);
+      unsigned needTops = Min(length[QT_LHO], length[QT_PARD]) - 2;
+      unsigned useTops = Min(hasTops, needTops);
+      rank = HR(QT_PARD, useTops-1);
+      unsigned l = (hasTops >= needTops ? length[QT_PARD]-2 : useTops);
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+      trick[2].Set(QT_PARD, QT_PARD, rank, l);
+      return def.Set12(trick[0], trick[1], trick[2]);
+    }
+  }
+  else if (length[QT_RHO] == 2)
+  {
+    if (length[QT_PARD] == 2)
+    {
+      if (length[QT_LHO] <= 2)
+      {
+        // AQ9 / Tx / xx / KJ.
+        if (pickFlag) holdCtr[0x1155]++;
+        rank = SDS_QUEEN;
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]);
+        return def.Set11(trick[0], trick[1]);
+      }
+      else if (completeList[QT_LHO][0] > completeList[QT_ACE][2])
+      {
+        // AQ9 / Txx / xx / KJ.
+        if (pickFlag) holdCtr[0x1156]++;
+        rank = SDS_QUEEN;
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, rank, 2);
+        return def.Set11(trick[0], trick[1]);
+      }
+      else
+      {
+        // AQTx / 9xx / xx / KJ.
+        if (pickFlag) holdCtr[0x1157]++;
+        unsigned hasTops = Holding::TopsOverRank(QT_ACE,
+          completeList[QT_LHO][0]);
+        unsigned needTops = length[QT_LHO];
+        unsigned useTops = Min(hasTops, needTops);
+        rank = HR(QT_ACE, useTops-1);
+        unsigned l = (hasTops >= needTops ? length[QT_ACE] : hasTops);
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, rank, l);
+        return def.Set11(trick[0], trick[1]);
+      }
+    }
+    else if (length[QT_LHO] <= 2)
+    {
+    }
+    else if (htop.T == QT_LHO)
+    {
+      // AQx / Txx / xxx / KJ.
+      if (pickFlag) holdCtr[0x1158]++;
+      rank = SDS_QUEEN;
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, rank, 2);
+      return def.Set11(trick[0], trick[1]);
+    }
+    else
+    {
+    }
+  }
+  else if (hopp.T || (htop.T == QT_PARD && htop.N == QT_RHO))
+  {
+    // AQx / Txx / 9xx / KJ.
+    if (pickFlag) holdCtr[0x1159]++;
+    rank = SDS_QUEEN;
+    trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+    trick[1].Set(QT_PARD, QT_ACE, rank, 2);
+    return def.Set11(trick[0], trick[1]);
+  }
+
   return false;
 }
 
