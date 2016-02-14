@@ -7352,7 +7352,6 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
   //      J+     
   // ==== G36 ==========================================================
 
-  if (pickFlag) holdCtr[0x1360]++;
   if (length[QT_LHO] != 1)
     return false;
 
@@ -7364,7 +7363,7 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
       if (htop.T == QT_RHO || (htop.T == QT_PARD && htop.N == QT_RHO))
       {
         // AKxx / Q / Jx / Txx.
-        if (pickFlag) holdCtr[0x1361]++;
+        if (pickFlag) holdCtr[0x1360]++;
         unsigned l = (length[QT_RHO] == 3 ? length[QT_ACE] : 3);
         rank = SDS_JACK;
         trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
@@ -7375,7 +7374,7 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
       else if (distHex == 0x5125 && htop.T == QT_ACE && htop.N == QT_RHO)
       {
         // AKTxx / Q / Jx / 9xxxx.
-        if (pickFlag) holdCtr[0x1362]++;
+        if (pickFlag) holdCtr[0x1361]++;
         rank = SDS_TEN;
         trick[0].Set(QT_BOTH, QT_ACE, SDS_TEN, 3);
         trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
@@ -7392,7 +7391,7 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
       if (htop.T == QT_PARD && htop.N == QT_RHO && htop.E == QT_ACE)
       {
         // AK8x / Q / JTx / 9xxx.
-        if (pickFlag) holdCtr[0x1363]++;
+        if (pickFlag) holdCtr[0x1362]++;
         rank = SDS_EIGHT;
         unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
         trick[0].Set(QT_BOTH, QT_ACE, rank, l);
@@ -7407,7 +7406,7 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
             completeList[QT_RHO][1] > completeList[QT_ACE][3])
         {
           // AK9x / Q / Jxx / Txxx.
-          if (pickFlag) holdCtr[0x1364]++;
+          if (pickFlag) holdCtr[0x1363]++;
           rank = SDS_NINE;
           unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
           trick[0].Set(QT_BOTH, QT_ACE, rank, l);
@@ -7429,7 +7428,7 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
         // AKx / Q / J98xx / Txxx.
         // AK8 / Q / J97xx / Txxx.
         // PROBLEM:  Feels like the seven matters here.
-        if (pickFlag) holdCtr[0x1365]++;
+        if (pickFlag) holdCtr[0x1364]++;
         rank = SDS_EIGHT;
         unsigned l = (length[QT_RHO] == 4 ? length[QT_PARD] : 4);
         trick[0].Set(QT_BOTH, QT_BOTH, SDS_JACK, 3);
@@ -7443,7 +7442,7 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
           completeList[QT_ACE][2] > completeList[QT_RHO][1])
       {
         // AK9 / Q / Jxxx / Txxx.
-        if (pickFlag) holdCtr[0x1366]++;
+        if (pickFlag) holdCtr[0x1365]++;
         rank = HR(QT_ACE, 2);
         unsigned l = (length[QT_RHO] == 4 ? length[QT_PARD] : 4);
         trick[0].Set(QT_BOTH, QT_BOTH, SDS_JACK, 3);
@@ -7464,7 +7463,7 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
           completeList[QT_PARD][2] > completeList[QT_ACE][3])
       {
         // AK8x / Q / J97x / Txxx.
-        if (pickFlag) holdCtr[0x1367]++;
+        if (pickFlag) holdCtr[0x1366]++;
         unsigned r1 = HR(QT_ACE, 2);
         rank = HR(QT_PARD, 2);
         trick[0].Set(QT_BOTH, QT_ACE, r1, 4);
@@ -7475,7 +7474,7 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
       {
         // AK9x / Q / Jxxx / Txxx.
         // AK8x / Q / Jxxx / 9xxx.
-        if (pickFlag) holdCtr[0x1368]++;
+        if (pickFlag) holdCtr[0x1367]++;
         rank = HR(QT_ACE, 2);
         trick[0].Set(QT_BOTH, QT_ACE, rank, 4);
         trick[1].Set(QT_ACE, QT_PARD, SDS_JACK, 3);
