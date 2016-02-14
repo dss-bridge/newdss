@@ -7359,8 +7359,6 @@ bool LoopHold::SolveComplex41(DefList& def, unsigned& rank) const
   //      QJ+    
   // ==== G41 ==========================================================
 
-  if (pickFlag) holdCtr[0x1410]++;
-
   Trick trick[4];
   unsigned l;
   if (length[QT_ACE] >= 4 && length[QT_PARD] == 3 &&
@@ -7371,7 +7369,7 @@ bool LoopHold::SolveComplex41(DefList& def, unsigned& rank) const
       if (htop.T == QT_ACE && htop.N == QT_RHO && htop.E == QT_ACE)
       {
         // AT8x / K / QJx / 9xxx.
-        if (pickFlag) holdCtr[0x1411]++;
+        if (pickFlag) holdCtr[0x1410]++;
         rank = SDS_VOID - 7;
         l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
         trick[0].Set(QT_BOTH, QT_ACE, rank, l);
@@ -7388,7 +7386,7 @@ bool LoopHold::SolveComplex41(DefList& def, unsigned& rank) const
     if (htop.N == QT_RHO || length[QT_ACE] == 3 || length[QT_RHO] == 3)
     {
       // ATx / K / QJ / 9xx.
-      if (pickFlag) holdCtr[0x1412]++;
+      if (pickFlag) holdCtr[0x1411]++;
       l = (length[QT_RHO] == 3 ? length[QT_ACE] : 3);
       rank = SDS_TEN;
       trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
@@ -7400,7 +7398,7 @@ bool LoopHold::SolveComplex41(DefList& def, unsigned& rank) const
         length[QT_ACE] == 4 || length[QT_RHO] == 4)
     {
       // AT9x / K / QJ / 8xxx.
-      if (pickFlag) holdCtr[0x1413]++;
+      if (pickFlag) holdCtr[0x1412]++;
       l = (length[QT_RHO] <= 4 ? length[QT_ACE] : 4);
       rank = SDS_NINE;
       trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
@@ -7409,6 +7407,20 @@ bool LoopHold::SolveComplex41(DefList& def, unsigned& rank) const
       return def.Set3(trick[0], trick[1], trick[2]);
     }
   }
+  else if (distHex == 0x2155)
+  {
+    if (htop.T == QT_ACE && htop.N == QT_RHO)
+    {
+      // AT / K / QJ754 / 98632.
+      if (pickFlag) holdCtr[0x1413]++;
+      rank = SDS_TEN;
+      trick[0].Set(QT_BOTH, QT_BOTH, SDS_JACK, 3);
+      trick[1].Set(QT_BOTH, QT_ACE, rank, 2);
+      trick[2].Set(QT_PARD, QT_PARD, SDS_VOID, 2);
+      return def.Set12(trick[0], trick[1], trick[2]);
+    }
+  }
+
   return false;
 }
 
