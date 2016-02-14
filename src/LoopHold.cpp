@@ -7454,6 +7454,35 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
       }
     }
   }
+  else if (distHex == 0x4144)
+  {
+    if (htop.T == QT_RHO)
+    {
+      if (! hopp.N &&
+          completeList[QT_PARD][2] > completeList[QT_RHO][1] &&
+          completeList[QT_PARD][2] < completeList[QT_ACE][2] &&
+          completeList[QT_PARD][2] > completeList[QT_ACE][3])
+      {
+        // AK8x / Q / J97x / Txxx.
+        if (pickFlag) holdCtr[0x1367]++;
+        unsigned r1 = HR(QT_ACE, 2);
+        rank = HR(QT_PARD, 2);
+        trick[0].Set(QT_BOTH, QT_ACE, r1, 4);
+        trick[1].Set(QT_ACE, QT_PARD, rank, 4);
+        return def.Set11(trick[0], trick[1]);
+      }
+      else
+      {
+        // AK9x / Q / Jxxx / Txxx.
+        // AK8x / Q / Jxxx / 9xxx.
+        if (pickFlag) holdCtr[0x1368]++;
+        rank = HR(QT_ACE, 2);
+        trick[0].Set(QT_BOTH, QT_ACE, rank, 4);
+        trick[1].Set(QT_ACE, QT_PARD, SDS_JACK, 3);
+        return def.Set11(trick[0], trick[1]);
+      }
+    }
+  }
 
   return false;
 }
