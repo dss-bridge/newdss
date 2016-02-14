@@ -265,9 +265,7 @@ class LoopHold: public Holding
     bool SolveComplex1(DefList& def, unsigned& rank) const;
     bool SolveComplex2(DefList& def, unsigned& rank) const;
     bool SolveComplex3(DefList& def, unsigned& rank) const;
-    bool SolveComplex5(DefList& def, unsigned& rank) const;
     bool SolveComplex6(DefList& def, unsigned& rank) const;
-    bool SolveComplex7(DefList& def, unsigned& rank) const;
     bool SolveComplex9(DefList& def, unsigned& rank) const;
     bool SolveComplex10(DefList& def, unsigned& rank) const;
     bool SolveComplex11(DefList& def, unsigned& rank) const;
@@ -286,7 +284,6 @@ class LoopHold: public Holding
     bool SolveComplex44(DefList& def, unsigned& rank) const;
     bool SolveComplex48(DefList& def, unsigned& rank) const;
     bool SolveComplex49(DefList& def, unsigned& rank) const;
-    bool SolveComplex57(DefList& def, unsigned& rank) const;
     bool SolveComplex60(DefList& def, unsigned& rank) const;
     bool SolveUnused(DefList& def, unsigned& rank) const;
 

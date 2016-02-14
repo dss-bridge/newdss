@@ -130,23 +130,23 @@ LoopHold::LoopHold()
   SolveComplexFunction[14] = &LoopHold::SolveComplex44;
   SolveComplexFunction[15] = &LoopHold::SolveComplex60;
   SolveComplexFunction[16] = &LoopHold::SolveComplex1;
-  SolveComplexFunction[17] = &LoopHold::SolveComplex15;
+  SolveComplexFunction[17] = &LoopHold::SolveUnused;
   SolveComplexFunction[18] = &LoopHold::SolveComplex9;
   SolveComplexFunction[19] = &LoopHold::SolveComplex49;
 
-  SolveComplexFunction[20] = &LoopHold::SolveComplex5;
+  SolveComplexFunction[20] = &LoopHold::SolveUnused;
   SolveComplexFunction[21] = &LoopHold::SolveUnused;
-  SolveComplexFunction[22] = &LoopHold::SolveComplex5;
-  SolveComplexFunction[23] = &LoopHold::SolveComplex5;
+  SolveComplexFunction[22] = &LoopHold::SolveUnused;
+  SolveComplexFunction[23] = &LoopHold::SolveUnused;
   SolveComplexFunction[24] = &LoopHold::SolveComplex9;
-  SolveComplexFunction[25] = &LoopHold::SolveComplex15;
+  SolveComplexFunction[25] = &LoopHold::SolveUnused;
   SolveComplexFunction[26] = &LoopHold::SolveComplex41;
-  SolveComplexFunction[27] = &LoopHold::SolveComplex57;
-  SolveComplexFunction[28] = &LoopHold::SolveComplex7;
-  SolveComplexFunction[29] = &LoopHold::SolveComplex15;
+  SolveComplexFunction[27] = &LoopHold::SolveUnused;
+  SolveComplexFunction[28] = &LoopHold::SolveUnused;
+  SolveComplexFunction[29] = &LoopHold::SolveUnused;
 
-  SolveComplexFunction[30] = &LoopHold::SolveComplex7;
-  SolveComplexFunction[31] = &LoopHold::SolveComplex15;
+  SolveComplexFunction[30] = &LoopHold::SolveUnused;
+  SolveComplexFunction[31] = &LoopHold::SolveUnused;
   SolveComplexFunction[32] = &LoopHold::SolveComplex2;
   SolveComplexFunction[33] = &LoopHold::SolveComplex18;
   SolveComplexFunction[34] = &LoopHold::SolveComplex10;
@@ -169,19 +169,19 @@ LoopHold::LoopHold()
 
   SolveComplexFunction[50] = &LoopHold::SolveComplex11;
   SolveComplexFunction[51] = &LoopHold::SolveComplex15;
-  SolveComplexFunction[52] = &LoopHold::SolveComplex7;
+  SolveComplexFunction[52] = &LoopHold::SolveUnused;
   SolveComplexFunction[53] = &LoopHold::SolveUnused;
-  SolveComplexFunction[54] = &LoopHold::SolveComplex7;
-  SolveComplexFunction[55] = &LoopHold::SolveComplex15;
+  SolveComplexFunction[54] = &LoopHold::SolveUnused;
+  SolveComplexFunction[55] = &LoopHold::SolveUnused;
   SolveComplexFunction[56] = &LoopHold::SolveComplex11;
   SolveComplexFunction[57] = &LoopHold::SolveComplex27;
   SolveComplexFunction[58] = &LoopHold::SolveComplex43;
-  SolveComplexFunction[59] = &LoopHold::SolveComplex15;
+  SolveComplexFunction[59] = &LoopHold::SolveUnused;
 
-  SolveComplexFunction[60] = &LoopHold::SolveComplex15;
-  SolveComplexFunction[61] = &LoopHold::SolveComplex15;
-  SolveComplexFunction[62] = &LoopHold::SolveComplex15;
-  SolveComplexFunction[63] = &LoopHold::SolveComplex15;
+  SolveComplexFunction[60] = &LoopHold::SolveUnused;
+  SolveComplexFunction[61] = &LoopHold::SolveUnused;
+  SolveComplexFunction[62] = &LoopHold::SolveUnused;
+  SolveComplexFunction[63] = &LoopHold::SolveUnused;
 }
 
 
@@ -5533,22 +5533,6 @@ bool LoopHold::SolveComplex3(DefList& def, unsigned& rank) const
 }
 
 
-bool LoopHold::SolveComplex5(DefList& def, unsigned& rank) const
-{
-  // ==== G5 ============== G21 =========== G37 =========== G53 ========
-  //      AJ+        |      A+       |      A+       |      A+
-  // +          KQ+  |  +       KQJ+ |  +       KQ+  |  J+      KQ+
-  //      +          |      +        |      J+       |      +
-  // ==== G5 ============== G21 =========== G37 =========== G53 ========
-
-  if (pickFlag) holdCtr[0x1050]++;
-  UNUSED(def);
-  UNUSED(rank);
-  assert(false);
-  return false;
-}
-
-
 bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
 {
   // ==== G6 ================= G46 =====================================
@@ -5872,21 +5856,6 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
     }
   }
 
-  return false;
-}
-
-
-bool LoopHold::SolveComplex7(DefList& def, unsigned& rank) const
-{
-  // ==== G7 ============== G13 =========== G39 =========== G45 ========
-  //      AJ+        |      AJ+      |      A+       |      A+
-  // K+         Q+   | Q+       K+   |  K+      Q+   |  Q+      K+ 
-  //      +          |      +        |      J+       |      J+
-  // ==== G7 ============== G13 =========== G39 =========== G45 ========
-
-  if (pickFlag) holdCtr[0x1070]++;
-  UNUSED(def);
-  UNUSED(rank);
   return false;
 }
 
@@ -6489,29 +6458,11 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
 
 bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
 {
-  // ==== G15 ================ G17 ================ G23 ================
-  //      AJ+        |         AQ+        |         A+  
-  // KQ+        +    |   +           KJ+  |   K+          QJ+
-  //      +          |         +          |         + 
-  // ==== G15 ================ G17 ================ G23 ================
-
-  // ==== G25 ================ G29 ================ G31 ================
-  //      A+         |         A+         |         A+  
-  // +          KJ+  |   Q+          KJ+  |   KQ+         J+ 
-  //      Q+         |         +          |         + 
-  // ==== G25 ================ G29 ================ G31 ================
-
-  // ==== G47 ================ G51 ================ G55 ================
-  //      A+         |         AQ+        |         A+  
-  // KQ+        +    |   KJ+         +    |   KJ+         Q+ 
-  //      J+         |         +          |         + 
-  // ==== G47 ================ G51 ================ G55 ================
-
-  // ==== G59 ================ G61 ================ G63 ================
-  //      A+         |         A+         |         A+  
-  // KJ+        +    |   QJ+         K+   |   KQJ+        +  
-  //      Q+         |         +          |         + 
-  // ==== G59 ================ G61 ================ G63 ================
+  // ==== G51 ==========================================================
+  //      AQ+     
+  // KJ+        +
+  //      +     
+  // ==== G51 ==========================================================
 
   if (pickFlag) holdCtr[0x1150]++;
   UNUSED(def);
@@ -7896,21 +7847,6 @@ bool LoopHold::SolveComplex49(DefList& def, unsigned& rank) const
 }
 
 
-bool LoopHold::SolveComplex57(DefList& def, unsigned& rank) const
-{
-  // ==== G57 ==========================================================
-  //      A+      
-  // J+         K+
-  //      Q+    
-  // ==== G57 ==========================================================
-
-  if (pickFlag) holdCtr[0x1570]++;
-  UNUSED(def);
-  UNUSED(rank);
-  return false;
-}
-
-
 bool LoopHold::SolveComplex60(DefList& def, unsigned& rank) const
 {
   // ==== G60 ============= G62 ========================================
@@ -7958,7 +7894,6 @@ bool LoopHold::SolveUnused(DefList& def, unsigned& rank) const
 {
   UNUSED(def);
   UNUSED(rank);
-  assert(false);
   return false;
 }
 
