@@ -6719,7 +6719,10 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       if (pickFlag) holdCtr[0x1161]++;
     }
   }
-  else if (hopp.T || (htop.T == QT_PARD && htop.N == QT_RHO))
+  else if (hopp.T || 
+      (htop.T == QT_PARD && htop.N == QT_RHO) ||
+      (htop.T == QT_PARD && htop.N == QT_PARD &&
+        (htop.E == QT_RHO || (htop.E == QT_LHO && length[QT_LHO] >= 3))))
   {
     // AQx / Txx / 9xx / KJ.
     if (pickFlag) holdCtr[0x1162]++;
