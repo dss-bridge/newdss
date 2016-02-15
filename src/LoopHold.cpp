@@ -6714,22 +6714,91 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       trick[1].Set(QT_PARD, QT_ACE, rank, 2);
       return def.Set11(trick[0], trick[1]);
     }
+    else if (length[QT_ACE] == 3 && length[QT_PARD] == 3)
+    {
+      if (htop.T == QT_ACE)
+      {
+        // AQT / xxx / xxx / KJ.
+        if (pickFlag) holdCtr[0x1161]++;
+        rank = SDS_TEN;
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, rank, 3);
+        return def.Set11(trick[0], trick[1]);
+      }
+      else
+      {
+        // ATx / xxx / Txx / KJ.
+        if (pickFlag) holdCtr[0x1162]++;
+        rank = SDS_TEN;
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_BOTH, rank, 3);
+        return def.Set11(trick[0], trick[1]);
+      }
+    }
+    else if (length[QT_ACE] == 4 && length[QT_PARD] == 4)
+    {
+      if (completeList[QT_PARD][0] > completeList[QT_ACE][3])
+      {
+        if (htop.T == QT_ACE)
+        {
+          // AQTx / xxx / 9xxx / KJ.
+          // PROBLEM: Last move should be PP.
+          // PROBLEM: Should  be Q in trick[2].
+          return false;
+
+          if (pickFlag) holdCtr[0x1163]++;
+          rank = HR(QT_PARD, 0);
+          trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+          trick[1].Set(QT_PARD, QT_ACE, SDS_TEN, 4);
+          trick[2].Set(QT_PARD, QT_ACE, rank, 1);
+          trick[3].Set(QT_ACE, QT_PARD, SDS_VOID, 3);
+          return def.Set13(trick);
+        }
+        else
+        {
+          // AQxx / xxx / Txxx / KJ.
+          if (pickFlag) holdCtr[0x1164]++;
+          rank = HR(QT_PARD, 0);
+          trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+          trick[1].Set(QT_PARD, QT_BOTH, rank, 4);
+          return def.Set11(trick[0], trick[1]);
+        }
+      }
+      else
+      {
+        // AQT9 / xxx / xxxx / KJ.
+        if (pickFlag) holdCtr[0x1165]++;
+        rank = HR(QT_ACE, 2);
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, rank, 4);
+        return def.Set11(trick[0], trick[1]);
+      }
+    }
     else
     {
-      if (pickFlag) holdCtr[0x1161]++;
+      if (pickFlag) holdCtr[0x1166]++;
     }
   }
   else if (hopp.T || 
-      (htop.T == QT_PARD && htop.N == QT_RHO) ||
+      (htop.T == QT_PARD && 
+        (htop.N == QT_RHO || (htop.N == QT_LHO && length[QT_LHO] >= 2))) ||
       (htop.T == QT_PARD && htop.N == QT_PARD &&
         (htop.E == QT_RHO || (htop.E == QT_LHO && length[QT_LHO] >= 3))))
   {
     // AQx / Txx / 9xx / KJ.
-    if (pickFlag) holdCtr[0x1162]++;
+    if (pickFlag) holdCtr[0x1167]++;
     rank = SDS_QUEEN;
     trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
     trick[1].Set(QT_PARD, QT_ACE, rank, 2);
     return def.Set11(trick[0], trick[1]);
+  }
+  else if (length[QT_LHO] >= 3)
+  {
+    if (pickFlag) holdCtr[0x1168]++;
+  }
+  else
+  {
+    if (pickFlag) holdCtr[0x1169]++;
   }
 
   return false;
