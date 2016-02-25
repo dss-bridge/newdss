@@ -6727,7 +6727,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       }
       else
       {
-        // ATx / xxx / Txx / KJ.
+        // AQx / xxx / Txx / KJ.
         if (pickFlag) holdCtr[0x1162]++;
         rank = SDS_TEN;
         trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);

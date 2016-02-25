@@ -174,6 +174,17 @@ CmpDetailType Segment::Compare(
   const unsigned runRankOld,
   const unsigned runRankNew) const
 {
+  if (len == 2 && seg2.len == 2)
+  {
+    CmpDetailType c1 = list[1].Compare(seg2.list[1]);
+    if (c1 == SDS_HEADER_RANK_NEW_BETTER ||
+        c1 == SDS_HEADER_RANK_OLD_BETTER)
+    {
+      if (list[0].Compare(seg2.list[0]) == SDS_HEADER_SAME)
+        return c1;
+    }
+  }
+
   Trick t1;
   Segment::GetSummaryTrick(t1);
   t1.trick.ranks = Min(t1.trick.ranks, runRankOld);
