@@ -672,7 +672,7 @@ bool Segment::Fix11_OneB(
 
 
 bool Segment::Fix11_12(
-  const Segment& seg2,
+  Segment& seg2,
   FixType& fix1,
   FixType& fix2)
 {
@@ -714,8 +714,8 @@ bool Segment::Fix11_12(
   }
 
   Trick& t1 = list[0];
-  const Trick& t20 = seg2.list[1];
-  const Trick& t21 = seg2.list[0];
+  Trick& t20 = seg2.list[1];
+  Trick& t21 = seg2.list[0];
 
   // PB vs PA+BP will taken care of elsewhere:  The latter will
   // be followed by another segment, so will win.
@@ -751,6 +751,25 @@ bool Segment::Fix11_12(
     fix1 = SDS_FIX_STRONGER;
     fix2 = SDS_FIX_PURGED;
     return true;
+  }
+  else if (t1.trick.start != QT_BOTH &&
+    t1.trick.end == SDS_PARTNER[t1.trick.start] &&
+    t20.trick.start == t1.trick.start &&
+    t21.trick.end == t20.trick.start &&
+    t20.trick.end == t1.trick.end &&
+    t1.CashRankOrder(t20.trick.cashing, t20.trick.ranks) != SDS_NEW_BETTER)
+  {
+    // We will consider PA1A + AP29 to be PP39 if compared
+    // against PA3Q.  There is no point in having PA1A available
+    // when PA3Q is also there.
+    t21.trick.start = t20.trick.start;
+    t21.trick.cashing += t20.trick.cashing;
+    if (t20.trick.ranks < t21.trick.ranks)
+      t21.trick.ranks = t20.trick.ranks;
+    seg2.len = 1;
+    fix2 = SDS_FIX_WEAKER;
+    return true;
+
   }
   else
     return false;
@@ -946,6 +965,7 @@ bool Segment::Fix12Special(
       }
       else
       {
+return false;
         t201.trick.start = t200.trick.start;
         t201.trick.cashing += t200.trick.cashing;
         if (t200.trick.ranks < t201.trick.ranks)

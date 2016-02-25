@@ -44,7 +44,7 @@ class Segment
       const bool lastFlag);
 
     bool Fix11_12(
-      const Segment& seg2,
+      Segment& seg2,
       FixType& fix1,
       FixType& fix2);
 
