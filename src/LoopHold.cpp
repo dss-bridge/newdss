@@ -6739,17 +6739,12 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         if (htop.T == QT_ACE)
         {
           // AQTx / xxx / 9xxx / KJ.
-          // PROBLEM: Last move should be PP.
-          // PROBLEM: Should  be Q in trick[2].
-          return false;
-
           if (pickFlag) holdCtr[0x1163]++;
           rank = HR(QT_PARD, 0);
           trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
           trick[1].Set(QT_PARD, QT_ACE, SDS_TEN, 4);
-          trick[2].Set(QT_PARD, QT_ACE, rank, 1);
-          trick[3].Set(QT_ACE, QT_PARD, SDS_VOID, 3);
-          return def.Set13(trick);
+          trick[2].Set(QT_PARD, QT_PARD, rank, 4);
+          return def.Set111(trick);
         }
         else
         {
