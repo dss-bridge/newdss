@@ -6713,40 +6713,22 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
     }
     else if (length[QT_ACE] == 3 && length[QT_PARD] == 3)
     {
-      if (htop.T == QT_ACE)
-      {
-        // AQT / xxx / xxx / KJ.
-        if (pickFlag) holdCtr[0x1161]++;
-        rank = SDS_TEN;
-        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
-        trick[1].Set(QT_PARD, QT_ACE, rank, 3);
-        return def.Set11(trick[0], trick[1]);
-      }
-      else
-      {
-        // AQx / xxx / Txx / KJ.
-        if (pickFlag) holdCtr[0x1162]++;
-        rank = SDS_TEN;
-        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
-        trick[1].Set(QT_PARD, QT_BOTH, rank, 3);
-        return def.Set11(trick[0], trick[1]);
-      }
+      // AQT / xxx / xxx / KJ.
+      // AQx / xxx / Txx / KJ.
+      PosType e = (htop.T == QT_ACE ? QT_ACE : QT_BOTH);
+      if (pickFlag) holdCtr[0x1161]++;
+      rank = SDS_TEN;
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, e, rank, 3);
+      return def.Set11(trick[0], trick[1]);
     }
     else if (length[QT_ACE] == 4 && length[QT_PARD] == 4)
     {
-      if (completeList[QT_PARD][0] < completeList[QT_ACE][3])
-      {
-        // AQT9 / xxx / xxxx / KJ.
-        if (pickFlag) holdCtr[0x1163]++;
-        rank = HR(QT_ACE, 2);
-        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
-        trick[1].Set(QT_PARD, QT_ACE, rank, 4);
-        return def.Set11(trick[0], trick[1]);
-      }
-      else if (htop.T == QT_ACE)
+      if (completeList[QT_PARD][0] > completeList[QT_ACE][3] &&
+          htop.T == QT_ACE)
       {
         // AQTx / xxx / 9xxx / KJ.
-        if (pickFlag) holdCtr[0x1164]++;
+        if (pickFlag) holdCtr[0x1162]++;
         rank = HR(QT_PARD, 0);
         trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
         trick[1].Set(QT_PARD, QT_ACE, SDS_TEN, 4);
@@ -6755,11 +6737,14 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       }
       else
       {
+        // AQT9 / xxx / xxxx / KJ.
         // AQxx / xxx / Txxx / KJ.
-        if (pickFlag) holdCtr[0x1165]++;
-        rank = HR(QT_PARD, 0);
+        if (pickFlag) holdCtr[0x1163]++;
+        PosType e = (completeList[QT_PARD][0] < completeList[QT_ACE][3] ?
+          QT_ACE : QT_BOTH);
+        rank = SDS_TEN;
         trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
-        trick[1].Set(QT_PARD, QT_BOTH, rank, 4);
+        trick[1].Set(QT_PARD, e, rank, 4);
         return def.Set11(trick[0], trick[1]);
       }
     }
