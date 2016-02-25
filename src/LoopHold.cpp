@@ -6686,8 +6686,6 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         }
         else
         {
-          return false;
-
           trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
           trick[1].Set(QT_PARD, QT_ACE, r, length[QT_ACE]);
           trick[2].Set(QT_PARD, QT_PARD, rank, length[QT_ACE]);
