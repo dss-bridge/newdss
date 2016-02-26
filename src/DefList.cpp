@@ -175,6 +175,15 @@ bool DefList::Set113(
 }
 
 
+bool DefList::Set114(
+  const Trick trick[])
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set114(trick);
+}
+
+
 Header& DefList::GetHeader()
 {
   holdCtr[950]++;
