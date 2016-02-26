@@ -6968,9 +6968,19 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
   }
   else if (hopp.T || 
       (htop.T == QT_PARD && 
-        (htop.N == QT_RHO || (htop.N == QT_LHO && length[QT_LHO] >= 2))) ||
+        (htop.N == QT_RHO || 
+          (htop.N == QT_LHO && 
+            (length[QT_LHO] >= 2 || 
+              (completeList[QT_RHO][2] > completeList[QT_ACE][2] &&
+                (length[QT_PARD] == 2 ||
+                completeList[QT_RHO][2] > completeList[QT_PARD][2])))))) ||
       (htop.T == QT_PARD && htop.N == QT_PARD &&
-        (htop.E == QT_RHO || (htop.E == QT_LHO && length[QT_LHO] >= 3))))
+        (htop.E == QT_RHO || 
+          (htop.E == QT_LHO && 
+            (length[QT_LHO] >= 3 || 
+              (completeList[QT_RHO][2] > completeList[QT_ACE][2] &&
+                (length[QT_PARD] == 2 ||
+                  completeList[QT_RHO][2] > completeList[QT_PARD][2])))))))
   {
     // AQx / Txx / 9xx / KJ.
     if (pickFlag) holdCtr[0x1177]++;
@@ -6981,10 +6991,22 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
   }
   else if (length[QT_PARD] == 2)
   {
-    if (htop.T == QT_ACE ||
+    if ((htop.T == QT_PARD && htop.N == QT_PARD && htop.E == QT_ACE) ||
+        (length[QT_LHO] == 1 && htop.T == QT_PARD && 
+         completeList[QT_PARD][1] > completeList[QT_ACE][2] &&
+         completeList[QT_ACE][2] > completeList[QT_RHO][2]) ||
+        (length[QT_LHO] == 2 && htop.T == QT_PARD && htop.N == QT_PARD &&
+         completeList[QT_PARD][1] > completeList[QT_ACE][2] &&
+         completeList[QT_ACE][2] > completeList[QT_RHO][2]))
+    {
+      // Mixed?
+      if (pickFlag) holdCtr[0x1178]++;
+      return false;
+    }
+    else if (htop.T == QT_ACE ||
        (htop.T == QT_PARD && htop.N == QT_ACE))
     {
-      if (pickFlag) holdCtr[0x1178]++;
+      if (pickFlag) holdCtr[0x1179]++;
       unsigned l = (length[QT_RHO] == 3 ? length[QT_ACE] : 3);
       unsigned r1, r2;
 
@@ -7040,23 +7062,26 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       trick[3].Set(QT_PARD, QT_ACE, r2, l-1);
       return def.Set112(trick);
     }
-    else if (completeList[QT_PARD][1] > completeList[QT_ACE][2] &&
-        completeList[QT_PARD][1] > completeList[QT_RHO][2])
-    {
-      // Mixed?
-    }
     else
     {
+      if (pickFlag) holdCtr[0x117a]++;
+      rank = HR(QT_ACE, 2);
+      unsigned l = (length[QT_RHO] == 3 ? length[QT_ACE] : 3);
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+      trick[3].Set(QT_PARD, QT_ACE, rank, l-1);
+      return def.Set112(trick);
     }
   }
-  else if (length[QT_LHO] <= 2)
+  else if (length[QT_LHO] >= 3)
   {
-    if (pickFlag) holdCtr[0x1179]++;
+    if (pickFlag) holdCtr[0x117b]++;
     // Holding::Print();
   }
   else
   {
-    if (pickFlag) holdCtr[0x117a]++;
+    if (pickFlag) holdCtr[0x117c]++;
   }
 
   return false;
