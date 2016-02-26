@@ -6979,14 +6979,84 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
     trick[1].Set(QT_PARD, QT_ACE, rank, 2);
     return def.Set11(trick[0], trick[1]);
   }
+  else if (length[QT_PARD] == 2)
+  {
+    if (htop.T == QT_ACE ||
+       (htop.T == QT_PARD && htop.N == QT_ACE))
+    {
+      if (pickFlag) holdCtr[0x1178]++;
+      unsigned l = (length[QT_RHO] == 3 ? length[QT_ACE] : 3);
+      unsigned r1, r2;
+
+      if (completeList[QT_PARD][0] > completeList[QT_RHO][2] &&
+          completeList[QT_PARD][0] > 
+            completeList[QT_ACE][length[QT_ACE]-1] &&
+          (length[QT_LHO] == 0 ||
+            completeList[QT_PARD][0] > completeList[QT_LHO][0]))
+      {
+        if (distHex == 0x4423)
+        {
+          if (completeList[QT_ACE][3] > completeList[QT_LHO][0])
+          {
+            r1 = SDS_QUEEN;
+            r2 = HR(QT_ACE, 3);
+          }
+          else
+          {
+            r1 = SDS_QUEEN;
+            r2 = HR(QT_ACE, 2);
+            l--;
+          }
+        }
+        else
+        {
+          r1 = SDS_QUEEN;
+          r2 = HR(QT_ACE, 2);
+        }
+      }
+      else if (distHex == 0x4423)
+      {
+        if (completeList[QT_ACE][3] > completeList[QT_LHO][0])
+        {
+          r1 = SDS_TEN;
+          r2 = HR(QT_ACE, 3);
+        }
+        else
+        {
+          r1 = SDS_TEN;
+          r2 = SDS_VOID;
+          l--;
+        }
+      }
+      else
+      {
+        r1 = SDS_TEN;
+        r2 = SDS_VOID;
+      }
+      rank = Min(r1, r2);
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+      trick[2].Set(QT_PARD, QT_ACE, r1, 1);
+      trick[3].Set(QT_PARD, QT_ACE, r2, l-1);
+      return def.Set112(trick);
+    }
+    else if (completeList[QT_PARD][1] > completeList[QT_ACE][2] &&
+        completeList[QT_PARD][1] > completeList[QT_RHO][2])
+    {
+      // Mixed?
+    }
+    else
+    {
+    }
+  }
   else if (length[QT_LHO] <= 2)
   {
-    if (pickFlag) holdCtr[0x1178]++;
+    if (pickFlag) holdCtr[0x1179]++;
     // Holding::Print();
   }
   else
   {
-    if (pickFlag) holdCtr[0x1179]++;
+    if (pickFlag) holdCtr[0x117a]++;
   }
 
   return false;
