@@ -104,6 +104,8 @@ void Holding::MakeRanks()
     minRank[h] = cardListLo[h][cardNo[h]-1];
 
   maxDef = Max(cardListLo[QT_LHO][0], cardListLo[QT_RHO][0]);
+
+  latentFlag = false;
 }
 
 
@@ -510,8 +512,24 @@ const unsigned hiMask[13] =
 
 void Holding::AdjustWinRank()
 {
-  // We only adjust winRank when the lead wins and when the defense
+  // We mainly adjust winRank when the lead wins and when the defense
   // has a card higher than the winner (so a finesse).
+
+  if (leadRank < lhoRank &&
+      lhoRank < pardRank &&
+      minRank[lho] < leadRank &&
+      numLeads > 1 &&
+      (length[rho] == 0 || 
+       completeList[rho][0] < static_cast<unsigned>(leadRank)) &&
+      minRank[pard] < leadRank)
+  {
+    // Effectively a covered finesse through LHO.
+    latentFlag = true;
+    latentWinRank = static_cast<unsigned>(leadRank);
+    latentWinSide = side;
+    return;
+  }
+
   if (static_cast<int>(winRank) != leadRank || 
       static_cast<int>(winRank) > maxDef)
     return;
