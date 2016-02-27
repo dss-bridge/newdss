@@ -104,8 +104,6 @@ void Holding::MakeRanks()
     minRank[h] = cardListLo[h][cardNo[h]-1];
 
   maxDef = Max(cardListLo[QT_LHO][0], cardListLo[QT_RHO][0]);
-
-  latentFlag = false;
 }
 
 
@@ -512,23 +510,8 @@ const unsigned hiMask[13] =
 
 void Holding::AdjustWinRank()
 {
-  // We mainly adjust winRank when the lead wins and when the defense
+  // We adjust winRank when the lead wins and when the defense
   // has a card higher than the winner (so a finesse).
-
-  if (leadRank < lhoRank &&
-      lhoRank < pardRank &&
-      minRank[lho] < leadRank &&
-      numLeads > 1 &&
-      (length[rho] == 0 || 
-       completeList[rho][0] < static_cast<unsigned>(leadRank)) &&
-      minRank[pard] < leadRank)
-  {
-    // Effectively a covered finesse through LHO.
-    latentFlag = true;
-    latentWinRank = static_cast<unsigned>(leadRank);
-    latentWinSide = side;
-    return;
-  }
 
   if (static_cast<int>(winRank) != leadRank || 
       static_cast<int>(winRank) > maxDef)
@@ -565,10 +548,19 @@ void Holding::AdjustWinRank()
   }
 
   // If declarer holds that card, 
-  if (leadCurrIndex < numLeads && leadList[leadCurrIndex] == 
-      static_cast<int>(soughtRank))
-    winRank = soughtRank;
-  else if (leadCurrIndex > 1 && 
+  if (leadCurrIndex < numLeads)
+  {
+    for (unsigned p = 0; p < length[side]; p++)
+    {
+      if (completeList[side][p] == soughtRank)
+      {
+        winRank = soughtRank;
+        return;
+      }
+    }
+  }
+
+  if (leadCurrIndex > 1 && 
       leadList[leadCurrIndex-2] == static_cast<int>(soughtRank))
   {
     // Effectively same rank, e.g. JT where we already played T.
@@ -601,6 +593,29 @@ unsigned Holding::PossiblyFixRank(
 
   unsigned lr = static_cast<unsigned>(leadRank);
 
+  if (leadRank < lhoRank &&
+      lhoRank < pardRank &&
+      minRank[lho] < leadRank &&
+      minRank[pard] < leadRank &&
+      (length[rho] == 0 || 
+       completeList[rho][0] < lr))
+  {
+    // Cards are in order for running a top card for a covered finesse.
+    int l = cardListLo[side][0];
+    int h = cardListHi[side][0];
+    int run = h-l+1;
+    if (run >= 3 &&
+        leadRank >= l &&
+        leadRank <= h-2 &&
+        (length[pard] < length[lho] ||
+          completeList[pard][length[lho]-1] < completeList[lho][1]))
+    {
+      // At least three in a row at the top.
+      fixedRank = Holding::ListToRank(lr);
+      return Holding::ListToRank(static_cast<unsigned>(h-1));
+    }
+  }
+
   if (length[side] == 3 && length[lho] == 2 && 
       length[pard] == 4 && length[rho] == 4 &&
       numLeads == 3 && leadList[0] == SDS_NINE && leadList[2] == SDS_JACK &&
@@ -609,8 +624,7 @@ unsigned Holding::PossiblyFixRank(
       completeList[pard][1] == SDS_KING &&
       completeList[rho][0] > completeList[pard][2])
   {
-    // Very specific!  Probably the only case where the rank should be
-    // corrected two levels down, not one.
+    // Very specific!  Correct down two levels, in effect.
     // AKxx / 8xxx / JT9 / Qx.
     fixedRank = SDS_NINE;
     return SDS_TEN;

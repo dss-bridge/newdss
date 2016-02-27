@@ -46,9 +46,6 @@ class Holding
 
     PosType winSide;
     unsigned winRank;
-    bool latentFlag;
-    unsigned latentWinRank;
-    PosType latentWinSide;
 
     int cardListLo[SDS_HANDS][SDS_MAX_RANKS];
     int cardListHi[SDS_HANDS][SDS_MAX_RANKS];

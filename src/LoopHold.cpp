@@ -5654,13 +5654,26 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
       }
       else if (htop.N == pa || (htop.N == pr && htop.E == pa))
       {
+        // The way it comes out.
         // AJT9 / Q43 / K8765 / -.
         if (pickFlag) holdCtr[0x1065]++;
-        rank = HR(pa, length[pa]-1);
-        trick[0].Set(QT_BOTH, pp, rank, 3);
-        trick[1].Set(QT_BOTH, pa, SDS_VOID, 1);
-        trick[2].Set(pp, pp, SDS_VOID, length[pp]-4);
-        return def.Set3(trick[0], trick[1], trick[2]);
+
+        if (completeList[pp][2] < completeList[pl][1])
+        {
+          rank = HR(pa, length[pa]-1);
+          trick[0].Set(QT_BOTH, pp, SDS_KING, 2);
+          trick[1].Set(QT_BOTH, pa, rank, 2);
+          trick[2].Set(pp, pp, SDS_VOID, length[pp]-4);
+          return def.Set3(trick[0], trick[1], trick[2]);
+        }
+        else
+        {
+          rank = HR(pa, length[pa]-1);
+          trick[0].Set(QT_BOTH, pp, rank, 3);
+          trick[1].Set(QT_BOTH, pa, SDS_VOID, 1);
+          trick[2].Set(pp, pp, SDS_VOID, length[pp]-4);
+          return def.Set3(trick[0], trick[1], trick[2]);
+        }
       }
       else
       {
@@ -7085,7 +7098,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         (length[QT_LHO] >= 3 &&
           completeList[QT_PARD][2] > completeList[QT_LHO][0])))
     {
-      if (length[QT_PARD] == 3)
+      if (length[QT_PARD] == 3 || length[QT_RHO] > 3)
       {
         if (pickFlag) holdCtr[0x117b]++;
         rank = HR(QT_PARD, 2);
@@ -7099,7 +7112,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       {
         // PROBLEM: rank comes out too high.
         if (pickFlag) holdCtr[0x117c]++;
-        return false;
+        // return false;
 
         rank = HR(QT_PARD, 2);
         trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
@@ -7168,26 +7181,64 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
     if (htop.T == QT_ACE)
     {
     }
-    else if (completeList[QT_PARD][2] > completeList[QT_ACE][2] &&
-        completeList[QT_PARD][2] > completeList[QT_RHO][2] &&
+    else if (completeList[QT_PARD][length[QT_PARD]-1] > 
+          completeList[QT_ACE][2] &&
+        completeList[QT_PARD][length[QT_PARD]-1] > 
+          completeList[QT_RHO][2] &&
         (length[QT_LHO] <= 1 ||
         (length[QT_LHO] == 2 && 
           completeList[QT_PARD][1] > completeList[QT_LHO][0]) ||
         (length[QT_LHO] >= 3 &&
           completeList[QT_PARD][2] > completeList[QT_LHO][0])))
     {
-      // PROBLEM:  rank comes out too high.
-      if (pickFlag) holdCtr[0x1210]++;
-      return false;
+      if (length[QT_ACE] <= length[QT_PARD])
+      {
+        if (pickFlag) holdCtr[0x1210]++;
+        if (length[QT_ACE] == 3 || length[QT_ACE] == length[QT_PARD])
+          rank = HR(QT_PARD, 2);
+        else
+          rank = HR(QT_PARD, 3);
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+        trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+        trick[3].Set(QT_PARD, QT_BOTH, rank, length[QT_PARD]-1);
+        return def.Set112(trick);
+      }
+      else if (length[QT_PARD] == 3)
+      {
+        if (pickFlag) holdCtr[0x1210]++;
+        rank = HR(QT_PARD, 2);
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+        trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+        trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 1);
+        trick[4].Set(QT_BOTH, QT_PARD, rank, 1);
+        trick[5].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
+        return def.Set114(trick);
+      }
+      else
+      {
+        if (pickFlag) holdCtr[0x1210]++;
+        rank = HR(QT_PARD, length[QT_PARD]-1);
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+        trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
 
-      rank = HR(QT_PARD, 2);
-      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
-      trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
-      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
-      trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 1);
-      trick[4].Set(QT_BOTH, QT_PARD, rank, 1);
-      trick[5].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
-      return def.Set114(trick);
+        // The way it comes out.
+        if (completeList[QT_ACE][2] < completeList[QT_RHO][2])
+        {
+          trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 1);
+          trick[4].Set(QT_BOTH, QT_PARD, rank, 2);
+        }
+        else
+        {
+          trick[3].Set(QT_PARD, QT_ACE, rank, 2);
+          trick[4].Set(QT_BOTH, QT_PARD, SDS_VOID, 1);
+        }
+
+        trick[5].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-4);
+        return def.Set114(trick);
+      }
     }
     else if (completeList[QT_PARD][1] > completeList[QT_RHO][2] &&
         (length[QT_LHO] == 0 ||
@@ -8022,12 +8073,25 @@ bool LoopHold::SolveComplex28(DefList& def, unsigned& rank) const
         if (completeList[pp][3] > completeList[pa][1])
         {
           // AT98 / Q65 / K7432 / J.
-          if (pickFlag) holdCtr[0x128d]++;
-          rank = HR(pp, 3);
-          trick[0].Set(QT_BOTH, pa, rank, 3);
-          trick[1].Set(QT_BOTH, pp, SDS_VOID, 1);
-          trick[2].Set(pa, pa, SDS_VOID, 1);
-          return def.Set3(trick[0], trick[1], trick[2]);
+          // The way it comes out.
+          if (completeList[pa][2] > completeList[pr][1])
+          {
+            if (pickFlag) holdCtr[0x128d]++;
+            rank = HR(pp, 3);
+            trick[0].Set(QT_BOTH, pa, rank, 3);
+            trick[1].Set(QT_BOTH, pp, SDS_VOID, 1);
+            trick[2].Set(pa, pa, SDS_VOID, 1);
+            return def.Set3(trick[0], trick[1], trick[2]);
+          }
+          else
+          {
+            if (pickFlag) holdCtr[0x128d]++;
+            rank = HR(pp, 3);
+            trick[0].Set(QT_BOTH, pa, SDS_KING, 2);
+            trick[1].Set(QT_BOTH, pp, rank, 2);
+            trick[2].Set(pa, pa, SDS_VOID, 1);
+            return def.Set3(trick[0], trick[1], trick[2]);
+          }
         }
         else
         {

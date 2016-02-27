@@ -246,7 +246,8 @@ void Segment::FixEquals(
 
   // AKQ2 / - / T9 / J876: Turn later T to 9.
   for (unsigned l = 0; l < len; l++)
-    if (list[len-1-l].trick.ranks == rankToFix)
+    if (list[len-1-l].trick.ranks <= rankToFix &&
+        list[len-1-l].trick.ranks > fixedRank)
       list[len-1-l].trick.ranks = fixedRank;
 }
 
