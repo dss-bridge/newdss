@@ -96,6 +96,9 @@ class DefList
     bool Set114(
       const Trick trick[]);
 
+    bool Set1123(
+      const Trick trick[]);
+
     Header& GetHeader();
 
     bool operator == (
