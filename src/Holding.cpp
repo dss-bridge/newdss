@@ -608,26 +608,13 @@ unsigned Holding::PossiblyFixRank(
         leadRank >= l &&
         leadRank <= h-2 &&
         (length[pard] < length[lho] ||
-          completeList[pard][length[lho]-1] < completeList[lho][1]))
+          completeList[pard][length[lho]-1] < completeList[lho][1] ||
+          (length[side] == 3 && length[pard] > length[side])))
     {
       // At least three in a row at the top.
       fixedRank = Holding::ListToRank(lr);
       return Holding::ListToRank(static_cast<unsigned>(h-1));
     }
-  }
-
-  if (length[side] == 3 && length[lho] == 2 && 
-      length[pard] == 4 && length[rho] == 4 &&
-      numLeads == 3 && leadList[0] == SDS_NINE && leadList[2] == SDS_JACK &&
-      completeList[lho][0] == SDS_QUEEN &&
-      completeList[pard][0] == SDS_ACE &&
-      completeList[pard][1] == SDS_KING &&
-      completeList[rho][0] > completeList[pard][2])
-  {
-    // Very specific!  Correct down two levels, in effect.
-    // AKxx / 8xxx / JT9 / Qx.
-    fixedRank = SDS_NINE;
-    return SDS_TEN;
   }
 
   fixedRank = SDS_VOID;
