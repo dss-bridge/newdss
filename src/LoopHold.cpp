@@ -7163,20 +7163,76 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       }
     }
   }
+  else if (length[QT_RHO] == 3)
+  {
+    if (htop.T == QT_ACE)
+    {
+    }
+    else if (completeList[QT_PARD][2] > completeList[QT_ACE][2] &&
+        completeList[QT_PARD][2] > completeList[QT_RHO][2] &&
+        (length[QT_LHO] <= 1 ||
+        (length[QT_LHO] == 2 && 
+          completeList[QT_PARD][1] > completeList[QT_LHO][0]) ||
+        (length[QT_LHO] >= 3 &&
+          completeList[QT_PARD][2] > completeList[QT_LHO][0])))
+    {
+      // PROBLEM:  rank comes out too high.
+      if (pickFlag) holdCtr[0x1210]++;
+      return false;
+
+      rank = HR(QT_PARD, 2);
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+      trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 1);
+      trick[4].Set(QT_BOTH, QT_PARD, rank, 1);
+      trick[5].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
+      return def.Set114(trick);
+    }
+    else if (completeList[QT_PARD][1] > completeList[QT_RHO][2] &&
+        (length[QT_LHO] == 0 ||
+          completeList[QT_PARD][1] > completeList[QT_LHO][0]))
+    {
+      // PROBLEM:  rank comes out too high.
+      if (pickFlag) holdCtr[0x1211]++;
+      return false;
+    }
+    else
+    {
+      // For now
+      return false;
+
+      if (pickFlag) holdCtr[0x1212]++;
+      rank = HR(QT_ACE, 2);
+      unsigned l = Max(length[QT_ACE], length[QT_PARD]);
+      PosType e;
+      if (length[QT_PARD] == 3)
+        e = QT_ACE;
+      else if (completeList[QT_PARD][2] > completeList[QT_ACE][3])
+        e = QT_BOTH;
+      else
+        e = QT_ACE;
+      trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+      trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+      trick[3].Set(QT_PARD, e, rank, l-1);
+      return def.Set112(trick);
+    }
+  }
   else if (length[QT_PARD] == 3)
   {
     if (length[QT_RHO] == 3)
     {
-      if (pickFlag) holdCtr[0x1212]++;
+      if (pickFlag) holdCtr[0x1213]++;
     }
     else
     {
-      if (pickFlag) holdCtr[0x1213]++;
+      if (pickFlag) holdCtr[0x1214]++;
     }
   }
   else if (length[QT_LHO] >= 3)
   {
-    if (pickFlag) holdCtr[0x1214]++;
+    if (pickFlag) holdCtr[0x1215]++;
     // Holding::Print();
   }
   else
