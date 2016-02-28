@@ -7161,11 +7161,41 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
   {
     if (htop.T == QT_ACE)
     {
-      // PROBLEM (not done yet).
-      if (pickFlag) holdCtr[0x122e]++;
-// trick[0].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-// return def.Set1(trick[0]);
-      return false;
+      if (htop.N == QT_PARD)
+      {
+        // PROBLEM (rank, the nine matters).
+        if (pickFlag) holdCtr[0x1230]++;
+        return false;
+      }
+      else if (htop.N == QT_ACE && htop.E == QT_PARD && length[QT_ACE] > 4)
+      {
+        // PROBLEM (rank, the eight matters).
+        if (pickFlag) holdCtr[0x1231]++;
+        return false;
+      }
+      else if (htop.N == QT_ACE && htop.E == QT_ACE &&
+        completeList[QT_PARD][0] > completeList[QT_ACE][length[QT_ACE]-1])
+      {
+        // PROBLEM (rank, the seven matters).
+        if (pickFlag) holdCtr[0x1232]++;
+        return false;
+      }
+      else if (length[QT_PARD] == 3)
+      {
+        if (pickFlag) holdCtr[0x1233]++;
+        rank = SDS_TEN;
+        trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+        trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+        trick[2].Set(QT_PARD, QT_ACE, rank, 1);
+        trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, length[QT_ACE]-1);
+        return def.Set112(trick);
+      }
+      else
+      {
+        // PROBLEM (undone).
+        if (pickFlag) holdCtr[0x1234]++;
+        return false;
+      }
     }
     else if (completeList[QT_PARD][length[QT_PARD]-1] > 
           completeList[QT_ACE][2] &&
