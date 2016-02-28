@@ -74,18 +74,25 @@ class AltList
     void PurgeMulti();
 
     CmpDetailType CompareMulti(
-      const TrickList& tref) const;
+      const TrickList& tref,
+      const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE] = cmpDetailMatrix)
+        const;
 
     bool CompareMultiSide(
       const PosType sideToLose,
       const AltMatrix2D& comp,
-      const AltList& altToLose) const;
+      const AltList& altToLose,
+      const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE] = cmpDetailMatrix)
+        const;
 
     CmpDetailType CompareMultiTrickList(
-      TrickList& tlist);
+      TrickList& tlist,
+      const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE] = cmpDetailMatrix);
 
     CmpDetailType FrontIsGE(
-      const TrickList& tlist) const;
+      const TrickList& tlist,
+      const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE] = cmpDetailMatrix)
+        const;
 
     CmpDetailType FrontIsGE(
       const Trick& trick) const;
@@ -159,6 +166,9 @@ class AltList
     unsigned GetLength() const;
 
     CmpDetailType Compare(
+      const AltList& aNew) const;
+
+    CmpDetailType CompareSemiHard(
       const AltList& aNew) const;
 
     CmpDetailType CompareHard(

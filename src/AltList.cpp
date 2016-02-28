@@ -239,6 +239,47 @@ CmpDetailType AltList::Compare(
 }
 
 
+CmpDetailType AltList::CompareSemiHard(
+  const AltList& aNew) const
+{
+  unsigned numOld = len;
+  unsigned numNew = aNew.len;
+
+  AltMatrix2D comp;
+  comp.SetDimensions(numOld, numNew);
+
+  for (unsigned lOld = 0; lOld < numOld; lOld++)
+    for (unsigned lNew = 0; lNew < numNew; lNew++)
+      comp.SetValue(lOld, lNew, list[lOld].Compare(aNew.list[lNew]));
+
+  CmpDetailType c = comp.CompareHard();
+  if (c != SDS_HEADER_PLAY_DIFFERENT && c != SDS_HEADER_RANK_DIFFERENT)
+    return c;
+
+  if (AltList::CompareMultiSide(QT_PARD, comp, aNew,
+      cmpDetailHardMatrix))
+  {
+    // Bit of a kludge.  If the new one wins a soft comparison,
+    // then it's probably too complex to decide here.
+    // 13 - 0x8328ff.
+    if (aNew.CompareMultiSide(QT_ACE, comp, * this))
+      return SDS_HEADER_PLAY_DIFFERENT;
+    else
+      return SDS_HEADER_PLAY_OLD_BETTER;
+  }
+  else if (aNew.CompareMultiSide(QT_ACE, comp, * this,
+      cmpDetailHardMatrix))
+  {
+    if (AltList::CompareMultiSide(QT_PARD, comp, aNew))
+      return SDS_HEADER_PLAY_DIFFERENT;
+    else
+      return SDS_HEADER_PLAY_NEW_BETTER;
+  }
+  else
+    return c;
+}
+
+
 CmpDetailType AltList::CompareHard(
   const AltList& aNew) const
 {
@@ -761,7 +802,8 @@ void AltList::PurgeMulti()
 
 
 CmpDetailType AltList::CompareMulti(
-  const TrickList& tref) const
+  const TrickList& tref,
+  const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE]) const
 {
   if (len < 2)
     return SDS_HEADER_PLAY_DIFFERENT;
@@ -776,14 +818,15 @@ CmpDetailType AltList::CompareMulti(
   if (aRed.len < 2)
     return SDS_HEADER_PLAY_DIFFERENT;
 
-  return aRed.CompareMultiTrickList(tlist);
+  return aRed.CompareMultiTrickList(tlist, cmpMat);
 }
 
 
 bool AltList::CompareMultiSide(
   const PosType sideToLose,
   const AltMatrix2D& comp,
-  const AltList& altToLose) const
+  const AltList& altToLose,
+  const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE]) const
 {
   bool use[SDS_MAX_ALT];
   CmpDetailType cRunning;
@@ -795,18 +838,19 @@ bool AltList::CompareMultiSide(
     if (! use[a])
       continue;
 
-    CmpDetailType c = AltList::CompareMulti(altToLose.list[a]);
+    CmpDetailType c = AltList::CompareMulti(altToLose.list[a], cmpMat);
     if (c == SDS_HEADER_PLAY_DIFFERENT)
       return false;
     else
-      cRunning = cmpDetailMatrix[cRunning][c];
+      cRunning = cmpMat[cRunning][c];
   }
   return cmpDetailToGE[cRunning];
 }
 
 
 CmpDetailType AltList::CompareMultiTrickList(
-  TrickList& tlist)
+  TrickList& tlist,
+  const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE])
 {
   // Both AltList and tlist are modified in this call!
   // They should be temporary to the caller.
@@ -820,10 +864,10 @@ CmpDetailType AltList::CompareMultiTrickList(
   CmpDetailType cRunning = SDS_HEADER_SAME;
   for (unsigned s = 0; s < tlen; s++)
   {
-    CmpDetailType c = AltList::FrontIsGE(tlist);
+    CmpDetailType c = AltList::FrontIsGE(tlist, cmpMat);
     if (c == SDS_HEADER_PLAY_DIFFERENT)
       return SDS_HEADER_PLAY_DIFFERENT;
-    cRunning = cmpDetailMatrix[cRunning][c];
+    cRunning = cmpMat[cRunning][c];
     
     PosType pend = tlist.ConnectFirst();
     AltList::ConnectFirst(pend);
@@ -833,7 +877,8 @@ CmpDetailType AltList::CompareMultiTrickList(
 
 
 CmpDetailType AltList::FrontIsGE(
-  const TrickList& tlist) const
+  const TrickList& tlist,
+  const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE]) const
 {
   // Uses same return values as below.
 
@@ -852,7 +897,7 @@ CmpDetailType AltList::FrontIsGE(
     if (cp == SDS_HEADER_PLAY_DIFFERENT)
       return SDS_HEADER_PLAY_DIFFERENT;
 
-    return cmpDetailMatrix[ca][cp];
+    return cmpMat[ca][cp];
   }
   else
     return AltList::FrontIsGE(htrick);

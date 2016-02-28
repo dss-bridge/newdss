@@ -7623,20 +7623,12 @@ bool LoopHold::SolveComplex20(DefList& def, unsigned& rank) const
     if (completeList[QT_PARD][2] < completeList[QT_ACE][2])
     {
       // AT8x / QJ / Kxx / 9xxx.
-      // The defense shouldn't matter.  If declarer unblocks
+      // The defense doesn't matter.  If declarer unblocks
       // the 8 from A82 / 9643 / KT75 / QJ, he can always get BP47.
       // If he doesn't, LHO can still cover and hold him to BP47.
       // Or he can duck.  Declarer only permits this when he
       // really wants to be in North.  And so the defender should
       // always cover anyway.
-
-      if (completeList[QT_PARD][1] > completeList[QT_ACE][2])
-      {
-        // PROBLEM?
-        // A82 / 9643 / KT75 / QJ, 13 - 0xbe4994.
-        // The recursion wants BP47 or PA37 + PP1-.
-        return false;
-      }
 
       if (pickFlag) holdCtr[0x1202]++;
       rank = HR(QT_ACE, 2);
@@ -8908,20 +8900,12 @@ bool LoopHold::SolveComplex62(DefList& def, unsigned& rank) const
       completeList[QT_ACE][2] < completeList[QT_PARD][2])
   {
     // A52 / 9643 / KT87 / QJ.
-    // The defense shouldn't matter.  If declarer unblocks
+    // The defense doesn't matter.  If declarer unblocks
     // the 8 from A82 / 9643 / KT75 / QJ, he can always get BP47.
     // If he doesn't, LHO can still cover and hold him to BP47.
     // Or he can duck.  Declarer only permits this when he
     // really wants to be in North.  And so the defender should
     // always cover anyway.
-
-    if (completeList[QT_ACE][1] > completeList[QT_PARD][2])
-    {
-      // PROBLEM?
-      // A82 / 9643 / KT75 / QJ, 13 - 0xbe4994.
-      // The recursion wants BP47 or PA37 + PP1-.
-      return false;
-    }
 
     if (pickFlag) holdCtr[0x1621]++;
     rank = HR(QT_PARD, 2);

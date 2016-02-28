@@ -431,8 +431,21 @@ void DefList::operator *= (
     {
       for (unsigned dold = 0; dold < oldLen; dold++)
       {
-        AltList alt = oldList[dold] + def2.list[dnew];
-        * this += alt;
+        switch (oldList[dold].CompareSemiHard(def2.list[dnew]))
+        {
+          case SDS_HEADER_SAME:
+          case SDS_HEADER_PLAY_OLD_BETTER:
+          case SDS_HEADER_RANK_OLD_BETTER:
+            * this += oldList[dold];
+            break;
+          case SDS_HEADER_PLAY_NEW_BETTER:
+          case SDS_HEADER_RANK_NEW_BETTER:
+            * this += def2.list[dnew];
+            break;
+          default:
+            AltList alt = oldList[dold] + def2.list[dnew];
+            * this += alt;
+        }
       }
     }
   }
