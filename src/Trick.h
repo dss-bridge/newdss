@@ -75,6 +75,9 @@ class Trick
     bool EqualsExceptStart(
       const Trick& t2) const;
 
+    bool EqualsExceptEnd(
+      const Trick& t2) const;
+
     bool IsSimpleComplement(
       const Trick& t2) const;
 

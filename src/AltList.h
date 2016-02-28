@@ -157,6 +157,9 @@ class AltList
     bool Set114(
       const Trick trick[]);
 
+    bool Set1122(
+      const Trick trick[]);
+
     bool Set1123(
       const Trick trick[]);
 

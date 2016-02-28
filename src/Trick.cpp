@@ -183,6 +183,20 @@ bool Trick::EqualsExceptStart(
 }
 
 
+bool Trick::EqualsExceptEnd(
+  const Trick& t2) const
+{
+  if (t2.trick.end == trick.end ||
+      trick.end == QT_BOTH ||
+      t2.trick.end == QT_BOTH)
+    return false;
+
+  return (t2.trick.start == trick.start &&
+          t2.trick.cashing == trick.cashing &&
+          t2.trick.ranks == trick.ranks);
+}
+
+
 bool Trick::IsSimpleComplement(
   const Trick& t2) const
 {

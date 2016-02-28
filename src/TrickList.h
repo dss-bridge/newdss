@@ -50,6 +50,9 @@ class TrickList
       const TrickList& lNew,
       CompareStruct cdata) const;
 
+    bool EqualsExceptEnd(
+      const TrickList& lNew) const;
+
     void Split();
 
   public:

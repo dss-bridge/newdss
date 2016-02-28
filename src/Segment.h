@@ -112,6 +112,9 @@ class Segment
       const Segment& seg2,
       const bool lastFlag) const;
 
+    bool EqualsExceptEnd(
+      const Segment& seg2) const;
+
     bool operator == (
       const Segment& seg2) const;
 

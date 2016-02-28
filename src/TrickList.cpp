@@ -387,6 +387,30 @@ bool TrickList::EqualsExceptStart(
 }
 
 
+bool TrickList::EqualsExceptEnd(
+  const TrickList& lNew) const
+{
+  assert(len > 0 && lNew.len > 0);
+
+  if (len != lNew.len)
+    return false;
+  else if (! list[0].EqualsExceptEnd(lNew.list[0]))
+    return false;
+  else
+  {
+    unsigned p = 0;
+    while (p < len-1)
+    {
+      if (list[len-1-p] != lNew.list[lNew.len-1-p])
+        return false;
+      p++;
+    }
+  }
+
+  return true;
+}
+
+
 bool TrickList::operator == (
   const TrickList& t2) const
 {
@@ -515,6 +539,12 @@ bool TrickList::Fix(
   if (TrickList::EqualsExceptStart(lOther))
   {
     list[len-1].SetStart(QT_BOTH);
+    fix1 = SDS_FIX_STRONGER;
+    fix2 = SDS_FIX_PURGED;
+  }
+  else if (TrickList::EqualsExceptEnd(lOther))
+  {
+    list[0].SetEnd(QT_BOTH);
     fix1 = SDS_FIX_STRONGER;
     fix2 = SDS_FIX_PURGED;
   }
