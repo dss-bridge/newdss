@@ -7315,7 +7315,47 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         (length[QT_LHO] == 0 ||
           completeList[QT_PARD][1] > completeList[QT_LHO][0]))
     {
+      unsigned a2 = completeList[QT_ACE][2];
+      unsigned p1 = completeList[QT_PARD][1];
+      unsigned p2 = completeList[QT_PARD][2];
+      unsigned r2 = completeList[QT_RHO][2];
+      unsigned l0 = (length[QT_LHO] <= 1 ? 0 : completeList[QT_LHO][0]);
+
+      if (length[QT_ACE] == length[QT_PARD])
+      {
+        if ((p2 > a2 && p2 > r2 && p2 > l0) ||
+            (p1 > a2 && p1 > r2 && p1 > l0 && a2 > r2 && a2 > l0))
+        {
+          // PROBLEM: Rank errors, but probably then OK.
+          return false;
+
+          if (pickFlag) holdCtr[0x121f]++;
+          rank = Holding::ListToRank(Max(p2, a2));
+          trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+          trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+          trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+          trick[3].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]-1);
+          return def.Set112(trick);
+        }
+        else
+        {
+          // PROBLEM: Rank errors, but probably then OK.
+          return false;
+
+          if (pickFlag) holdCtr[0x121f]++;
+          rank = HR(QT_ACE, 2);
+          trick[0].Set(QT_ACE, QT_ACE, SDS_ACE, 1);
+          trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 2);
+          trick[2].Set(QT_PARD, QT_ACE, rank, 1);
+          trick[3].Set(QT_PARD, QT_BOTH, SDS_VOID, length[QT_ACE]-1);
+          return def.Set112(trick);
+        }
+      }
+
+
       // PROBLEM (not done yet).
+// trick[0].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
+// return def.Set1(trick[0]);
       if (pickFlag) holdCtr[0x122f]++;
       return false;
 
@@ -7481,23 +7521,12 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
   }
   else if (length[QT_PARD] == 3)
   {
-    if (length[QT_RHO] == 3)
-    {
-      if (pickFlag) holdCtr[0x1213]++;
-    }
-    else
-    {
-      if (pickFlag) holdCtr[0x1214]++;
-    }
-  }
-  else if (length[QT_LHO] >= 3)
-  {
-    if (pickFlag) holdCtr[0x1215]++;
-    // Holding::Print();
+    // RHO > 3
+    if (pickFlag) holdCtr[0x1214]++;
   }
   else
   {
-    if (pickFlag) holdCtr[0x1215]++;
+    if (pickFlag) holdCtr[0x1216]++;
   }
 
   return false;
