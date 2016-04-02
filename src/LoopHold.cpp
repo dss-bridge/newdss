@@ -6980,7 +6980,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
             l--;
           }
         }
-        else
+        else 
         {
           r1 = SDS_QUEEN;
           r2 = HR(QT_ACE, 2);

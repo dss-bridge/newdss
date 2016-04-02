@@ -618,7 +618,9 @@ unsigned Holding::PossiblyFixRank(
   if (leadRank < lhoRank && 
       length[lho] >= Holding::TopsOverRank(side, lr))
   {
-    if (leadCurrIndex < numLeads && leadList[leadCurrIndex] == leadRank + 1)
+    if (leadCurrIndex < numLeads && 
+       (rankHolder[leadRank+1] == side ||
+         (rankHolder[leadRank+1] == pard && pardRank == leadRank+1)))
     {
       fixedRank = Holding::ListToRank(lr);
       return Holding::ListToRank(lr+1);
