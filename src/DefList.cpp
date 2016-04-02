@@ -292,6 +292,7 @@ void DefList::operator += (
   for (unsigned d = 0; d < len; d++)
   {
     CmpDetailType cd = list[d].Compare(alt);
+
     CmpType cc = cmpDetailToShort[cd];
     seen[cc] = 1;
 

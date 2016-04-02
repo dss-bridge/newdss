@@ -224,8 +224,7 @@ CmpDetailType TrickList::CompareInit(
   do
   {
     if (cdata.lenOld == 0 && cdata.lenNew == 0)
-      return (cdata.winnerFirst == SDS_HEADER_RANK_DIFFERENT ?
-        SDS_HEADER_RANK_DIFFERENT : SDS_HEADER_SAME);
+      return cdata.winnerFirst;
     else if (cdata.lenOld == 0)
       return SDS_HEADER_PLAY_NEW_BETTER;
     else if (cdata.lenNew == 0)
