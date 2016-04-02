@@ -6748,15 +6748,13 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         if (completeList[QT_LHO][0] > completeList[QT_PARD][1] &&
             completeList[QT_ACE][2] > completeList[QT_LHO][0])
         {
-          // PROBLEM.  trick[1] with SDS_ACE is wrong.
-          // s 13, c 0xce156a
           if (pickFlag) holdCtr[0x1166]++;
           rank = HR(QT_ACE, 2);
-          trick[1].Set(QT_PARD, QT_ACE, SDS_ACE, 1);
+          trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
           trick[2].Set(QT_ACE, QT_PARD, SDS_TEN, 2);
           trick[3].Set(QT_PARD, QT_ACE, rank, 3);
           trick[4].Set(QT_PARD, QT_PARD, SDS_VOID, 1);
-          def.Set122(trick);
+          return def.Set122(trick);
         }
         else if (completeList[QT_LHO][1] > completeList[QT_PARD][1])
         {
