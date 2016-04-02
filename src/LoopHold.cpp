@@ -6748,7 +6748,8 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         if (completeList[QT_LHO][0] > completeList[QT_PARD][1] &&
             completeList[QT_ACE][2] > completeList[QT_LHO][0])
         {
-          // PROBLEM?!  Is trick[1] with SDS_ACE right?
+          // PROBLEM.  trick[1] with SDS_ACE is wrong.
+          // s 13, c 0xce156a
           if (pickFlag) holdCtr[0x1166]++;
           rank = HR(QT_ACE, 2);
           trick[1].Set(QT_PARD, QT_ACE, SDS_ACE, 1);
@@ -7247,6 +7248,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
             (p1 > a2 && p1 > r2 && p1 > l0 && a2 > r2 && a2 > l0))
         {
           // PROBLEM: Rank errors, but probably then OK.
+// Holding::Print();
           return false;
 
           if (pickFlag) holdCtr[0x121f]++;

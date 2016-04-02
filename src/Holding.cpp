@@ -104,6 +104,14 @@ void Holding::MakeRanks()
     minRank[h] = cardListLo[h][cardNo[h]-1];
 
   maxDef = Max(cardListLo[QT_LHO][0], cardListLo[QT_RHO][0]);
+
+  // To have something.
+  for (r = 0; r < suitLength; r++)
+    rankHolder[r] = QT_SIZE;
+
+  for (h = 0; h < SDS_HANDS; h++)
+    for (unsigned n = 0; n < length[h]; n++)
+      rankHolder[completeList[h][n]] = h;
 }
 
 
@@ -565,20 +573,9 @@ void Holding::AdjustWinRank()
   {
     // Effectively same rank, e.g. JT where we already played T.
     winRank = soughtRank;
-    return;
   }
-  else
-  {
-    // Could have some kind of table instead.
-    for (unsigned p = 0; p < length[pard]; p++)
-    {
-      if (completeList[pard][p] == soughtRank)
-      {
-        winRank = soughtRank;
-        return;
-      }
-    }
-  }
+  else if (rankHolder[soughtRank] == pard)
+    winRank = soughtRank;
 }
 
 

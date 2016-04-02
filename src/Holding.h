@@ -72,6 +72,7 @@ class Holding
     unsigned counter;
     unsigned length[SDS_HANDS];
     unsigned completeList[SDS_HANDS][SDS_MAX_RANKS];
+    unsigned rankHolder[SDS_MAX_RANKS];
 
     PosType GetOppBest() const;
 
