@@ -15,20 +15,20 @@
 using namespace std;
 
 
-const CmpDetailType cmpPlayToDetail[SDS_CMP_SIZE] =
+const CmpTrickType cmpPlayToTrick[SDS_CMP_SIZE] =
 {
-  SDS_HEADER_SAME,
-  SDS_HEADER_PLAY_NEW_BETTER,
-  SDS_HEADER_PLAY_OLD_BETTER,
-  SDS_HEADER_PLAY_DIFFERENT
+  SDS_TRICK_SAME,
+  SDS_TRICK_PLAY_NEW_BETTER,
+  SDS_TRICK_PLAY_OLD_BETTER,
+  SDS_TRICK_PLAY_DIFFERENT
 };
 
-const CmpDetailType cmpRanksToDetail[SDS_CMP_SIZE] =
+const CmpTrickType cmpRanksToTrick[SDS_CMP_SIZE] =
 {
-  SDS_HEADER_SAME,
-  SDS_HEADER_RANK_NEW_BETTER,
-  SDS_HEADER_RANK_OLD_BETTER,
-  SDS_HEADER_RANK_DIFFERENT
+  SDS_TRICK_SAME,
+  SDS_TRICK_RANK_NEW_BETTER,
+  SDS_TRICK_RANK_OLD_BETTER,
+  SDS_TRICK_RANK_DIFFERENT
 };
 
 const CmpType cmpMergeMatrix[SDS_CMP_SIZE][SDS_CMP_SIZE] =
@@ -434,14 +434,14 @@ CmpType Trick::ComparePlay(
 }
 
 
-CmpDetailType Trick::Compare(
+CmpTrickType Trick::Compare(
   const Trick& t1) const
 {
   CmpType sideScore =
     reachMatrix[posToReach[trick.start]][posToReach[t1.trick.start]];
   CmpType runningScore = sideScore;
   if (runningScore == SDS_DIFFERENT)
-    return SDS_HEADER_PLAY_DIFFERENT;
+    return SDS_TRICK_PLAY_DIFFERENT;
 
   CmpType playScore;
   if (sideScore == SDS_OLD_BETTER)
@@ -458,14 +458,14 @@ CmpDetailType Trick::Compare(
   }
 
   if (playScore == SDS_DIFFERENT)
-    return SDS_HEADER_PLAY_DIFFERENT;
+    return SDS_TRICK_PLAY_DIFFERENT;
 
   runningScore = cmpMergeMatrix[runningScore][playScore];
   if (runningScore == SDS_DIFFERENT)
-    return SDS_HEADER_PLAY_DIFFERENT;
+    return SDS_TRICK_PLAY_DIFFERENT;
 
   if (runningScore != SDS_SAME && trick.cashing != t1.trick.cashing)
-    return cmpPlayToDetail[runningScore];
+    return cmpPlayToTrick[runningScore];
 
   CmpType rankScore;
   if (trick.ranks > t1.trick.ranks)
@@ -476,16 +476,21 @@ CmpDetailType Trick::Compare(
     rankScore = SDS_SAME;
 
   if (runningScore == SDS_SAME)
-    return cmpRanksToDetail[rankScore];
+    return cmpRanksToTrick[rankScore];
   else if (rankScore == SDS_SAME)
-    return cmpPlayToDetail[runningScore];
+    return cmpPlayToTrick[runningScore];
   else if (runningScore == rankScore)
-    return cmpPlayToDetail[rankScore];
+    return cmpPlayToTrick[rankScore];
+  else if (runningScore == SDS_NEW_BETTER)
+    return SDS_TRICK_PLAY_NEW_ADV;
   else
-    return SDS_HEADER_RANK_DIFFERENT;
+    return SDS_TRICK_PLAY_OLD_ADV;
+    // return SDS_HEADER_PLAY_DIFFERENT;
+    // return SDS_HEADER_RANK_DIFFERENT;
 
-  // SDS_HEADER_RANK_DIFFERENT signifies that one move would win
-  // on end range, but the other would win on rank.
+  // SDS_TRICK_PLAY_*_ADV signifies that one move would win
+  // on end range, but the other would win on rank.  The one with
+  // better range is the one with the advantage.
 }
 
 

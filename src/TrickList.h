@@ -43,6 +43,10 @@ class TrickList
       const TrickList& lNew,
       CompareStruct cdata) const;
 
+    CmpDetailType CompareInitNew(
+      const TrickList& lNew,
+      CompareStruct cdata) const;
+
     CmpDetailType CompareRunning(
       const CompareStruct cdata) const;
 
@@ -101,6 +105,12 @@ class TrickList
 
     void GetFirstSummaryTrick(
       Trick& t) const;
+
+    bool CanExpand() const;
+
+    void ExpandEnd(
+      const PosType endVal,
+      TrickList& tl) const;
 
     CmpDetailType Compare(
       const TrickList& lNew) const;

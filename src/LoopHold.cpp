@@ -1243,12 +1243,37 @@ bool LoopHold::CashoutBothDiffLongStrong(
       Holding::TopsOverRank(QT_ACE, cb.minPard) < cb.lenShort)
   {
     if (pickFlag) holdCtr[0xa44]++;
-
     lowestRank = Min(ra2, ra3);
     trick[0].Set(QT_BOTH, QT_ACE, ra1, t1);
     trick[1].Set(QT_BOTH, QT_PARD, ra2, t2);
     trick[2].Set(QT_ACE, QT_ACE, ra3, t3);
-    return def.Set3(trick[0], trick[1], trick[2]);
+
+    if (cb.lenShort == 2 &&
+        completeList[cb.pLong][1] > completeList[cb.pShort][0])
+    {
+      unsigned ra4 = HR(QT_ACE, t1-s);
+      trick[3].Set(QT_BOTH, QT_ACE, ra4, 2);
+      return def.Set31(trick);
+    }
+    else if (cb.lenShort == 3 &&
+        completeList[cb.pLong][2] > completeList[cb.pShort][0])
+    {
+      unsigned ra4 = HR(QT_ACE, t1-s);
+      trick[3].Set(QT_BOTH, QT_ACE, ra4, 3);
+      return def.Set31(trick);
+    }
+    else if (cb.lenShort == 3 && 
+        cb.lenOppHighest == 1 && cb.lenOppLowest >= 3 &&
+        cb.numTopsLongLow == 2 &&
+        SDS_QUEEN - cb.lenOppHighest > ra2)
+    {
+      unsigned ra4 = SDS_QUEEN - cb.lenOppHighest;
+      trick[3].Set(QT_PARD, QT_BOTH, ra4, 3);
+      return def.Set31(trick);
+    }
+    else
+      return def.Set3(trick[0], trick[1], trick[2]);
+
   }
 
   if (cb.numTopsLongLow >= cb.lenCashLow &&
@@ -1349,7 +1374,7 @@ bool LoopHold::CashoutBothDiffSplit(
   unsigned& lowestRank,
   const CashoutBothDetails& cb) const
 {
-  Trick trick[3];
+  Trick trick[4];
 
   if (cb.numTopsShortLow == cb.lenShort &&
     cb.numTopsLow == Min(cb.lenLong, cb.lenOppLowest))
@@ -1479,7 +1504,14 @@ bool LoopHold::CashoutBothDiffSplit(
   {
     // The way it comes out.
     r0 = HR(cb.pLong, 0);
-    t0 = (cb.pLong == QT_PARD ? 2 : 1);
+    // t0 = 1;
+    // t0 = (cb.pLong == QT_PARD && htop.T == QT_ACE ? 2 : 1);
+    if (cb.pLong == QT_PARD && 
+        completeList[QT_ACE][1] > completeList[QT_PARD][1] &&
+        completeList[QT_ACE][1] > completeList[cb.pOppLowest][0])
+      t0 = 2;
+    else
+      t0 = 1;
     r1 = HR(cb.pShort, 1);
   }
   else if (cb.lenShort == 4 && cb.lenLong == 5 &&
@@ -1539,7 +1571,26 @@ bool LoopHold::CashoutBothDiffSplit(
   trick[0].Set(QT_BOTH, cb.pLong, r0, t0);
   trick[1].Set(QT_BOTH, cb.pShort, r1, t1);
   trick[2].Set(cb.pLong, cb.pLong, r2, cb.lenLong - cb.lenShort);
-  return def.Set3(trick[0], trick[1], trick[2]);
+
+  unsigned r3 = Max(HR(cb.pLong, 1), HR(cb.pShort, 1));
+
+  if (cb.numTopsLongHigh == 2 && cb.numTopsShortHigh == 1)
+  {
+    trick[3].Set(QT_PARD, QT_BOTH, SDS_QUEEN, 3);
+    return def.Set31(trick);
+  }
+  /*
+  else if (cb.numTopsLongHigh == 1 && cb.numTopsShortHigh == 1 &&
+      Min(r0, r1) < r3 &&
+      cb.lenShort == 3 && 
+      cb.lenOppHighest <= 2)
+  {
+    trick[3].Set(QT_PARD, QT_BOTH, r3, 3);
+    return def.Set31(trick);
+  }
+  */
+  else
+    return def.Set3(trick[0], trick[1], trick[2]);
 }
 
 
@@ -4920,10 +4971,12 @@ bool LoopHold::SolveComplex1(DefList& def, unsigned& rank) const
           if (pickFlag) holdCtr[0x1010]++;
           rank = HR(QT_PARD, 0);
           unsigned r1 = HR(QT_ACE, 1);
+          unsigned r2 = HR(QT_ACE, 2);
           trick[0].Set(QT_BOTH, QT_ACE, r1, 2);
           trick[1].Set(QT_BOTH, QT_PARD, rank, 1);
           trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-          return def.Set3(trick[0], trick[1], trick[2]);
+          trick[3].Set(QT_BOTH, QT_ACE, r2, 3);
+          return def.Set31(trick);
         }
         else if (completeList[QT_ACE][3] < completeList[QT_PARD][0])
         {
@@ -5353,11 +5406,40 @@ bool LoopHold::SolveComplex2(DefList& def, unsigned& rank) const
       unsigned r2 = HR(pa, 2);
       if (r2 > r1)
         r2 = SDS_VOID;
-      trick[0].Set(pa, pa, rank, 5);
-      trick[1].Set(pp, QT_BOTH, rank, 5);
-      trick[2].Set(pa, pp, r1, 2);
-      trick[3].Set(pa, pa, r2, 2);
-      return def.Set112(trick);
+
+      // The way it comes out.  Not necessarily right.
+      if (htop.J == QT_PARD)
+      {
+        trick[0].Set(pa, pa, rank, 5);
+        trick[1].Set(pp, QT_BOTH, rank, 5);
+        trick[2].Set(pa, pp, r1, 2);
+        trick[3].Set(pa, pa, r2, 2);
+        return def.Set112(trick);
+      }
+      else if (htop.N == QT_ACE && htop.E == QT_PARD &&
+          completeList[QT_ACE][4] > completeList[QT_PARD][2] &&
+          completeList[QT_ACE][4] > completeList[QT_RHO][1])
+      {
+        // AKJ97 / - / Q8x / Txxxx.
+        rank = HR(QT_ACE, 4);
+        trick[0].Set(pa, pa, SDS_NINE, 5);
+        trick[1].Set(pp, QT_BOTH, SDS_NINE, 5);
+        trick[2].Set(pa, pp, rank, 3);
+        trick[3].Set(pa, pa, SDS_VOID, 1);
+        return def.Set112(trick);
+      }
+      else if (htop.N == QT_PARD && htop.E == QT_ACE)
+      {
+        // PROBLEM.  Are ranks wrong?
+        return false;
+      }
+      else
+      {
+        trick[0].Set(pa, pa, rank, 5);
+        trick[1].Set(pa, pp, r1, 3);
+        trick[2].Set(pp, QT_BOTH, rank, 5);
+        return def.Set111(trick);
+      }
     }
   }
   else if (htop.N == pp)
@@ -5750,8 +5832,8 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
           if (pickFlag) holdCtr[0x1069]++;
           rank = HR(pp, 1);
           trick[0].Set(pa, QT_BOTH, rank, length[pa]);
-          trick[1].Set(pp, pa, SDS_VOID-2, 2);
-          trick[2].Set(QT_BOTH, pp, rank, 1);
+          trick[1].Set(pp, pa, HR(pa, 0), 1);
+          trick[2].Set(QT_BOTH, pp, rank, 2);
           trick[3].Set(pa, pa, SDS_VOID, 1);
           return def.Set13(trick);
         }
@@ -5772,21 +5854,19 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
               rank = HR(pa, 2);
               unsigned r1 = HR(pp, 1);
               trick[0].Set(QT_BOTH, pa, rank, 4);
-              trick[1].Set(QT_BOTH, pa, SDS_VOID-1, 1);
-              trick[2].Set(QT_BOTH, pp, r1, 2);
-              trick[3].Set(pa, pa, SDS_VOID, 1);
-              return def.Set13(trick);
+              trick[1].Set(pa, pp, SDS_JACK, 3);
+              return def.Set11(trick[0], trick[1]);
             }
             else
             {
               // A9x / 8xxx / KJ7x / QT.
               if (pickFlag) holdCtr[0x106b]++;
               rank = HR(pa, 2);
-              unsigned r1 = HR(pp, 1);
+              // The way it comes out.  Could also have 
+              // pa-pp-HR(pa, 2)-3 + pa-pa-void-1.
               trick[0].Set(QT_BOTH, pa, rank, 4);
-              trick[1].Set(pa, pp, r1, 3);
-              trick[2].Set(pa, pa, SDS_VOID, 1);
-              return def.Set12(trick[0], trick[1], trick[2]);
+              trick[1].Set(pa, pp, SDS_JACK, 3);
+              return def.Set11(trick[0], trick[1]);
             }
           }
           else if (htop.E == pp && 
@@ -5811,8 +5891,11 @@ bool LoopHold::SolveComplex6(DefList& def, unsigned& rank) const
               rank = HR(pp, 1);
               unsigned r1 = HR(pa, 0);
               unsigned r2 = HR(pp, 0);
-              trick[0].Set(QT_BOTH, pa, Min(r1, r2), 2);
-              trick[1].Set(QT_BOTH, pp, rank, 1);
+              // Works for A98 / 7432 / KJ65 / QT, 13/bb0695.
+              trick[0].Set(QT_BOTH, pa, Min(r1, r2), 1);
+              trick[1].Set(QT_BOTH, pp, rank, 2);
+              // trick[0].Set(QT_BOTH, pa, Min(r1, r2), 2);
+              // trick[1].Set(QT_BOTH, pp, rank, 1);
               trick[2].Set(pa, pa, SDS_VOID, 1);
               return def.Set3(trick[0], trick[1], trick[2]);
             }
@@ -5880,10 +5963,12 @@ bool LoopHold::SolveComplex9(DefList& def, unsigned& rank) const
         rank = SDS_VOID - 7;
         unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
         trick[0].Set(QT_BOTH, QT_ACE, rank, l);
-        trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
-        trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 2);
-        trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
-        return def.Set13(trick);
+        trick[1].Set(QT_ACE, QT_PARD, SDS_JACK, 3);
+        // trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+        // trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 2);
+        // trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
+        // return def.Set13(trick);
+        return def.Set11(trick[0], trick[1]);
       }
     }
     else if (length[QT_PARD] == 2)
@@ -5894,13 +5979,21 @@ bool LoopHold::SolveComplex9(DefList& def, unsigned& rank) const
         if (pickFlag) holdCtr[0x1092]++;
         unsigned r1 = HR(QT_ACE, 1);
         unsigned r2 = HR(QT_PARD, 0);
+        unsigned rc = r1;
         rank = Min(r1, r2);
         if (r1 > r2)
           r1 = SDS_VOID;
         trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
         trick[1].Set(QT_BOTH, QT_PARD, r2, 1);
         trick[2].Set(QT_ACE, QT_ACE, r1, 1);
-        return def.Set3(trick[0], trick[1], trick[2]);
+
+        if (rc > r2)
+        {
+          trick[3].Set(QT_BOTH, QT_ACE, rc, 2);
+          return def.Set31(trick);
+        }
+        else
+          return def.Set3(trick[0], trick[1], trick[2]);
       }
     }
   }
@@ -6016,13 +6109,22 @@ bool LoopHold::SolveComplex11(DefList& def, unsigned& rank) const
       if (pickFlag) holdCtr[0x1111]++;
       unsigned r1 = HR(QT_ACE, 1);
       unsigned r2 = HR(QT_PARD, 0);
+      unsigned rc = r1;
       rank = Min(r1, r2);
       if (r1 > r2)
         r1 = SDS_VOID;
       trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
       trick[1].Set(QT_BOTH, QT_PARD, r2, 1);
       trick[2].Set(QT_ACE, QT_ACE, r1, 1);
-      return def.Set3(trick[0], trick[1], trick[2]);
+      trick[3].Set(QT_BOTH, QT_ACE, rc, 2);
+
+      if (rc > r2)
+      {
+        trick[3].Set(QT_BOTH, QT_ACE, rc, 2);
+        return def.Set31(trick);
+      }
+      else
+        return def.Set3(trick[0], trick[1], trick[2]);
     }
     else if (htop.T == QT_PARD)
     {
@@ -6032,13 +6134,21 @@ bool LoopHold::SolveComplex11(DefList& def, unsigned& rank) const
         if (pickFlag) holdCtr[0x1115]++;
         unsigned r1 = HR(QT_ACE, 1);
         unsigned r2 = HR(QT_PARD, 0);
+        unsigned rc = r1;
         rank = Min(r1, r2);
         if (r1 > r2)
           r1 = SDS_VOID;
         trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
         trick[1].Set(QT_BOTH, QT_PARD, r2, 1);
         trick[2].Set(QT_ACE, QT_ACE, r1, 1);
-        return def.Set3(trick[0], trick[1], trick[2]);
+
+        if (rc > r2)
+        {
+          trick[3].Set(QT_BOTH, QT_ACE, rc, 2);
+          return def.Set31(trick);
+        }
+        else
+          return def.Set3(trick[0], trick[1], trick[2]);
       }
     }
   }
@@ -6073,15 +6183,26 @@ bool LoopHold::SolveComplex11(DefList& def, unsigned& rank) const
         trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
         return def.Set3(trick[0], trick[1], trick[2]);
       }
-      else
+      else if (htop.J == QT_ACE)
       {
-        if (pickFlag) holdCtr[0x111f]++;
+        // The way it comes out.
+        if (pickFlag) holdCtr[0x111e]++;
         rank = SDS_EIGHT;
         unsigned l = (length[QT_LHO] > 4 ? 4 : length[QT_ACE]);
         trick[0].Set(QT_BOTH, QT_BOTH, SDS_JACK, 3);
         trick[1].Set(QT_BOTH, QT_PARD, rank, 3);
         trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
         return def.Set12(trick[0], trick[1], trick[2]);
+      }
+      else
+      {
+        if (pickFlag) holdCtr[0x111f]++;
+        rank = SDS_EIGHT;
+        unsigned l = (length[QT_LHO] > 4 ? 4 : length[QT_ACE]);
+        trick[0].Set(QT_BOTH, QT_ACE, rank, 2);
+        trick[1].Set(QT_BOTH, QT_PARD, SDS_VOID, 1);
+        trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
+        return def.Set3(trick[0], trick[1], trick[2]);
       }
     }
   }
@@ -6150,7 +6271,7 @@ bool LoopHold::SolveComplex12(DefList& def, unsigned& rank) const
   // ==== G12 ==========================================================
 
   if (pickFlag) holdCtr[0x1120]++;
-  Trick trick[4];
+  Trick trick[5];
 
   if (distHex == 0x4432 && htop.T == QT_PARD && htop.N == QT_PARD)
   {
@@ -6160,21 +6281,22 @@ bool LoopHold::SolveComplex12(DefList& def, unsigned& rank) const
       if (pickFlag) holdCtr[0x1121]++;
       rank = HR(QT_ACE, 3);
       trick[0].Set(QT_ACE, QT_ACE, rank, 4);
-      trick[1].Set(QT_PARD, QT_BOTH, SDS_VOID-6, 4);
-      trick[2].Set(QT_ACE, QT_PARD, SDS_VOID-5, 3);
+      trick[1].Set(QT_PARD, QT_BOTH, SDS_NINE, 4);
+      trick[2].Set(QT_ACE, QT_PARD, SDS_TEN, 3);
       trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
       return def.Set112(trick);
     }
     else
     {
       // AKJ7 / 8xxx / T9x / Qx.
-      if (pickFlag) holdCtr[0x1121]++;
+      if (pickFlag) holdCtr[0x1122]++;
       rank = SDS_VOID - 6;
-      trick[0].Set(QT_ACE, QT_ACE, SDS_VOID-2, 2);
-      trick[1].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 1);
-      trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-      trick[3].Set(QT_PARD, QT_BOTH, rank, 4);
-      return def.Set31(trick);
+      trick[0].Set(QT_PARD, QT_BOTH, rank, 4);
+      trick[1].Set(QT_ACE, QT_ACE, SDS_JACK, 3);
+      trick[2].Set(QT_ACE, QT_ACE, SDS_KING, 2);
+      trick[3].Set(QT_BOTH, QT_PARD, SDS_TEN, 1);
+      trick[4].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
+      return def.Set113(trick);
     }
   }
   else if (length[QT_ACE] >= 4 && length[QT_PARD] == 2 &&
@@ -6185,7 +6307,7 @@ bool LoopHold::SolveComplex12(DefList& def, unsigned& rank) const
       if (completeList[QT_LHO][0] > completeList[QT_ACE][3])
       {
         // AKJx / 8xxx / T9 / Qx.
-        if (pickFlag) holdCtr[0x1122]++;
+        if (pickFlag) holdCtr[0x1123]++;
         rank = SDS_NINE;
         unsigned l = (length[QT_LHO] == 4 ? length[QT_ACE] : 4);
         trick[0].Set(QT_BOTH, QT_ACE, SDS_JACK, 3);
@@ -6460,6 +6582,36 @@ bool LoopHold::SolveComplex14(DefList& def, unsigned& rank) const
       trick[1].Set(QT_BOTH, pa, SDS_VOID, 1);
       trick[2].Set(pp, pp, SDS_VOID, l-3);
       return def.Set3(trick[0], trick[1], trick[2]);
+    }
+  }
+  else if (length[pa] == 3 && length[pl] == 2 &&
+      length[pp] == 4 && length[pr] == 4)
+  {
+    if (completeList[pa][1] > completeList[pr][0] &&
+        completeList[pr][0] > completeList[pp][2])
+    {
+      // The way it comes out.
+      if (pa == QT_ACE)
+      {
+        // A9x / QT / KJxx / 8xxx.
+        if (pickFlag) holdCtr[0x138b]++;
+        rank = HR(pa, 1);
+        trick[0].Set(pa, pp, SDS_JACK, 3);
+        trick[1].Set(QT_BOTH, pa, rank, 3);
+        trick[2].Set(pp, pp, SDS_VOID, 1);
+        return def.Set12(trick[0], trick[1], trick[2]);
+      }
+      else
+      {
+        // AJxx / 7xxx / K98 / QT.
+        if (pickFlag) holdCtr[0x138c]++;
+        rank = HR(pa, 1);
+        trick[0].Set(pa, QT_BOTH, SDS_JACK, 3);
+        trick[1].Set(QT_BOTH, pp, SDS_ACE, 1);
+        trick[2].Set(QT_BOTH, pa, rank, 2);
+        trick[3].Set(pp, pp, SDS_VOID, 1);
+        return def.Set13(trick);
+      }
     }
   }
   
@@ -6869,9 +7021,20 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
             rank = r1;
             r2 = SDS_VOID;
           }
-          trick[2].Set(QT_BOTH, QT_PARD, r1, 1);
-          trick[3].Set(QT_ACE, QT_ACE, r2, length[QT_ACE]-3);
-          return def.Set13(trick);
+
+          if (htop.T == QT_ACE)
+          {
+            trick[1].Set(QT_PARD, QT_ACE, SDS_TEN, 3);
+            trick[2].Set(QT_PARD, QT_PARD, r1, 3);
+            trick[3].Set(QT_ACE, QT_ACE, r2, length[QT_ACE]-3);
+            return def.Set112(trick);
+          }
+          else
+          {
+            trick[2].Set(QT_BOTH, QT_PARD, r1, 1);
+            trick[3].Set(QT_ACE, QT_ACE, r2, length[QT_ACE]-3);
+            return def.Set13(trick);
+          }
         }
       }
       else if (distHex == 0x4432 &&
@@ -7108,12 +7271,28 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       {
         if (length[QT_PARD] == 3)
         {
-          if (completeList[QT_PARD][2] > 
-                completeList[QT_ACE][length[QT_ACE]-1] &&
-              completeList[QT_PARD][2] > completeList[QT_RHO][2])
+          if ((length[QT_LHO] == 3 &&
+              completeList[QT_LHO][0] > completeList[QT_PARD][2]) ||
+              (length[QT_LHO] == 2 &&
+              completeList[QT_LHO][0] > completeList[QT_PARD][1]) ||
+             completeList[QT_PARD][2] < 
+                completeList[QT_ACE][length[QT_ACE]-1] ||
+              completeList[QT_PARD][2] < completeList[QT_RHO][2])
+
           {
-return false;
             if (pickFlag) holdCtr[0x11a0]++;
+            rank = SDS_TEN;
+            trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+            trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
+            return def.Set112(trick);
+          }
+          else // if (completeList[QT_PARD][2] > 
+                // completeList[QT_ACE][length[QT_ACE]-1] &&
+              // completeList[QT_PARD][2] > completeList[QT_RHO][2])
+          {
+// return false;
+// return def.Set1(trick[0]);
+            if (pickFlag) holdCtr[0x11a1]++;
             rank = HR(QT_PARD, 2);
             trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
             trick[3].Set(QT_PARD, QT_ACE, SDS_TEN, length[QT_ACE]-1);
@@ -7122,14 +7301,14 @@ return false;
             trick[6].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
             return def.Set1123(trick);
           }
-          else
-          {
-            if (pickFlag) holdCtr[0x11a1]++;
-            rank = SDS_TEN;
-            trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
-            trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
-            return def.Set112(trick);
-          }
+          // else
+          // {
+            // if (pickFlag) holdCtr[0x11a1]++;
+            // rank = SDS_TEN;
+            // trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+            // trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
+            // return def.Set112(trick);
+          // }
         }
         else if (length[QT_ACE] == length[QT_PARD])
         {
@@ -7611,26 +7790,12 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
   {
     if (htop.T == pr && htop.N == pa && htop.E == pp)
     {
-      if (completeList[pl][1] > completeList[pa][3])
-      {
-        // The way it comes out.
-        // AK9xx / J7xx / Q8x / T.
-        if (pickFlag) holdCtr[0x118f]++;
-        rank = SDS_EIGHT;
-        trick[0].Set(QT_BOTH, QT_BOTH, SDS_QUEEN, 3);
-        trick[1].Set(QT_BOTH, pp, rank, 3);
-        trick[2].Set(pa, pa, SDS_VOID, length[pa]-3);
-        return def.Set12(trick[0], trick[1], trick[2]);
-      }
-      else
-      {
-        if (pickFlag) holdCtr[0x118e]++;
-        rank = SDS_EIGHT;
-        trick[0].Set(QT_BOTH, pa, rank, 2);
-        trick[1].Set(QT_BOTH, pp, SDS_VOID, 1);
-        trick[2].Set(pa, pa, SDS_VOID, length[pa]-3);
-        return def.Set3(trick[0], trick[1], trick[2]);
-      }
+      if (pickFlag) holdCtr[0x118e]++;
+      rank = SDS_EIGHT;
+      trick[0].Set(QT_BOTH, pa, rank, 2);
+      trick[1].Set(QT_BOTH, pp, SDS_VOID, 1);
+      trick[2].Set(pa, pa, SDS_VOID, length[pa]-3);
+      return def.Set3(trick[0], trick[1], trick[2]);
     }
     else if (htop.T == pr && htop.N == pa && htop.E == pa)
     {
@@ -7664,10 +7829,10 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
           unsigned r1 = HR(pp, 0);
           unsigned r2 = HR(pa, 0);
           trick[0].Set(pa, QT_BOTH, rank, 4);
-          trick[1].Set(pp, pa, Min(r1, r2), 2);
-          trick[2].Set(QT_BOTH, pp, rank, 1);
+          trick[1].Set(pp, QT_BOTH, SDS_QUEEN, 3);
+          trick[2].Set(pp, pp, rank, 3);
           trick[3].Set(pa, pa, SDS_VOID, 1);
-          return def.Set13(trick);
+          return def.Set112(trick);
         }
         else if (completeList[pp][2] < completeList[pa][2])
         {
@@ -7692,24 +7857,21 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
             {
               // AK7x / JT / Q9x / 8xxx.
               if (pickFlag) holdCtr[0x1184]++;
-              unsigned r1 = HR(pa, 0);
-              unsigned r2 = HR(pp, 1);
               rank = HR(pa, 2);
               trick[0].Set(QT_BOTH, pa, rank, 4);
-              trick[1].Set(QT_BOTH, pa, r1, 1);
-              trick[2].Set(QT_BOTH, pp, r2, 2);
-              trick[3].Set(pa, pa, SDS_VOID, 1);
-              return def.Set13(trick);
+              trick[1].Set(pa, pp, SDS_QUEEN, 3);
+              return def.Set11(trick[0], trick[1]);
             }
             else
             {
               if (pickFlag) holdCtr[0x1185]++;
               unsigned r = HR(pa, 0);
               rank = HR(pp, 1);
-              trick[0].Set(QT_BOTH, pa, r, 1);
-              trick[1].Set(QT_BOTH, pp, rank, 2);
-              trick[2].Set(pa, pa, SDS_VOID, 1);
-              return def.Set3(trick[0], trick[1], trick[2]);
+              trick[0].Set(QT_PARD, QT_BOTH, SDS_QUEEN, 3);
+              trick[1].Set(QT_BOTH, pa, r, 1);
+              trick[2].Set(QT_BOTH, pp, rank, 2);
+              trick[3].Set(pa, pa, SDS_VOID, 1);
+              return def.Set13(trick);
             }
           }
           else if (completeList[pa][2] > completeList[pr][1])
@@ -7717,23 +7879,44 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
             // A92 / 8543 / KQ76 / JT.
             if (pickFlag) holdCtr[0x1186]++;
             rank = HR(pa, 2);
-            unsigned r3 = HR(pp, 1);
+            unsigned r3 = HR(pa, 1);
             trick[0].Set(QT_BOTH, pa, rank, 4);
             trick[1].Set(pa, pp, r3, 3);
-            trick[2].Set(pa, pa, SDS_VOID, 1);
-            return def.Set12(trick[0], trick[1], trick[2]);
+            return def.Set11(trick[0], trick[1]);
           }
           else
           {
             // A92 / 8743 / KQ65 / JT.
             if (pickFlag) holdCtr[0x1187]++;
-            unsigned r = HR(pa, 0);
+            unsigned r = HR(pa, 1);
             rank = HR(pp, 1);
-            trick[0].Set(QT_BOTH, pa, r, 2);
-            trick[1].Set(QT_BOTH, pp, rank, 1);
+            trick[0].Set(pp, pa, r, 3);
+            trick[1].Set(QT_BOTH, pp, rank, 3);
             trick[2].Set(pa, pa, SDS_VOID, 1);
-            return def.Set3(trick[0], trick[1], trick[2]);
+            return def.Set12(trick[0], trick[1], trick[2]);
           }
+        }
+        else if (length[QT_ACE] == 4)
+        {
+          // The way it comes out.  Not necessarily right.
+          // AQ54 / JT / K93 / 8762.
+          if (pickFlag) holdCtr[0x1188]++;
+          rank = HR(pp, 1);
+          trick[0].Set(QT_PARD, QT_BOTH, SDS_QUEEN, 3);
+          trick[1].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
+          trick[2].Set(QT_BOTH, QT_PARD, rank, 2);
+          trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
+          return def.Set13(trick);
+        }
+        else
+        {
+          // A94 / 8765 / KQ32 / JT.
+          if (pickFlag) holdCtr[0x1189]++;
+          rank = HR(pp, 1);
+          trick[0].Set(QT_ACE, QT_PARD, SDS_QUEEN, 3);
+          trick[1].Set(QT_BOTH, QT_ACE, rank, 3);
+          trick[2].Set(QT_PARD, QT_PARD, SDS_VOID, 1);
+          return def.Set12(trick[0], trick[1], trick[2]);
         }
       }
       else if (completeList[pr][0] < completeList[pa][2] &&
@@ -7742,7 +7925,7 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
       {
         // Will have to unblock.
         // AK9x / Jx / QT8 / 65xx.
-        if (pickFlag) holdCtr[0x1188]++;
+        if (pickFlag) holdCtr[0x118a]++;
         unsigned r1 = HR(pp, 1);
         rank = HR(pa, 2);
         trick[0].Set(pa, QT_BOTH, r1, 4);
@@ -7756,15 +7939,46 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
           if (completeList[pp][1] > completeList[pl][1])
           {
             // AK65 / J9 / QT8 / 7432.
-            if (pickFlag) holdCtr[0x1189]++;
+            if (pickFlag) holdCtr[0x118b]++;
             unsigned r1 = HR(pp, 0);
             unsigned r2 = HR(pa, 0);
             rank = HR(pp, 1);
             trick[0].Set(pa, QT_BOTH, rank, 4);
-            trick[1].Set(pp, pa, Min(r1, r2), 2);
-            trick[2].Set(QT_BOTH, pp, rank, 1);
+            trick[1].Set(pp, QT_BOTH, SDS_QUEEN, 3);
+            trick[2].Set(pp, pp, rank, 3);
             trick[3].Set(pa, pa, SDS_VOID, 1);
-            return def.Set13(trick);
+            return def.Set112(trick);
+            // trick[0].Set(pa, QT_BOTH, rank, 4);
+            // trick[1].Set(pp, pa, Min(r1, r2), 2);
+            // trick[2].Set(QT_BOTH, pp, rank, 1);
+            // trick[3].Set(pa, pa, SDS_VOID, 1);
+            // return def.Set13(trick);
+          }
+          else if (completeList[pp][2] > completeList[pa][2] &&
+              completeList[pr][0] > completeList[pa][2])
+          {
+            // The way it comes out.
+            if (length[QT_ACE] == 4)
+            {
+              // AK65 / JT / Q98 / 7432.
+              if (pickFlag) holdCtr[0x118c]++;
+              rank = HR(pp, 1);
+              trick[0].Set(pp, QT_BOTH, SDS_QUEEN, 3);
+              trick[1].Set(QT_BOTH, pa, SDS_ACE, 1);
+              trick[2].Set(QT_BOTH, pp, rank, 2);
+              trick[3].Set(pa, pa, SDS_VOID, 1);
+              return def.Set13(trick);
+            }
+            else
+            {
+              // A98 / 7432 / KQ65 / JT.
+              if (pickFlag) holdCtr[0x118d]++;
+              rank = HR(pp, 1);
+              trick[0].Set(pp, pa, SDS_QUEEN, 3);
+              trick[1].Set(QT_BOTH, pp, rank, 3);
+              trick[2].Set(pa, pa, SDS_VOID, 1);
+              return def.Set12(trick[0], trick[1], trick[2]);
+            }
           }
         }
       }
@@ -7827,17 +8041,29 @@ bool LoopHold::SolveComplex20(DefList& def, unsigned& rank) const
         completeList[QT_ACE][2] > completeList[QT_RHO][1])
     {
       // A97x / QJ / KTx / 8xxx.
+      // Clean up.
       if (pickFlag) holdCtr[0x1201]++;
       rank = HR(QT_ACE, 2);
-      unsigned r1 = HR(QT_PARD, 1);
-      unsigned r2 = HR(QT_ACE, 1);
-      if (r2 > r1)
-        r2 = SDS_VOID;
-      trick[0].Set(QT_BOTH, QT_ACE, rank, 4);
-      trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
-      trick[2].Set(QT_BOTH, QT_PARD, r1, 2);
-      trick[3].Set(QT_ACE, QT_ACE, r2, 1);
-      return def.Set13(trick);
+
+      // The way it comes out.
+      if (htop.T == QT_ACE)
+      {
+        trick[0].Set(QT_BOTH, QT_ACE, rank, 4);
+        trick[1].Set(QT_ACE, QT_PARD, SDS_TEN, 3);
+        return def.Set11(trick[0], trick[1]);
+      }
+      else
+      {
+        unsigned r1 = HR(QT_PARD, 1);
+        unsigned r2 = HR(QT_ACE, 1);
+        if (r2 > r1)
+          r2 = SDS_VOID;
+        trick[0].Set(QT_BOTH, QT_ACE, rank, 4);
+        trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
+        trick[2].Set(QT_BOTH, QT_PARD, r1, 2);
+        trick[3].Set(QT_ACE, QT_ACE, r2, 1);
+        return def.Set13(trick);
+      }
     }
   }
   else if (htop.T == QT_ACE && htop.N == QT_RHO && 
@@ -8004,19 +8230,75 @@ bool LoopHold::SolveComplex26(DefList& def, unsigned& rank) const
           if (pickFlag) holdCtr[0x1266]++;
           rank = SDS_EIGHT;
           unsigned l = (length[pr] == 4 ? length[pp] : 4);
-          trick[0].Set(QT_BOTH, QT_BOTH, SDS_QUEEN, 3);
-          trick[1].Set(QT_BOTH, pa, rank, 3);
-          trick[2].Set(pp, pp, SDS_VOID, l-3);
-          return def.Set12(trick[0], trick[1], trick[2]);
+
+          // The way it comes out.  May not be right.
+          if (pa == QT_ACE)
+          {
+            trick[0].Set(QT_BOTH, QT_BOTH, SDS_QUEEN, 3);
+            trick[1].Set(QT_BOTH, pa, rank, 3);
+            trick[2].Set(pp, pp, SDS_VOID, l-3);
+            return def.Set12(trick[0], trick[1], trick[2]);
+          }
+          else
+          {
+            trick[0].Set(QT_BOTH, pp, rank, 2);
+            trick[1].Set(QT_BOTH, pa, SDS_VOID, 1);
+            trick[2].Set(pp, pp, SDS_VOID, l-3);
+            return def.Set3(trick[0], trick[1], trick[2]);
+          }
         }
       }
     }
     else if (htop.T == pr)
     {
       // Axx / Jx / KQxx / Txxx.
+      if (pickFlag) holdCtr[0x1267]++;
       rank = SDS_QUEEN;
       trick[0].Set(QT_BOTH, QT_BOTH, SDS_QUEEN, 3);
       return def.Set1(trick[0]);
+    }
+    else if (htop.T == pl &&
+        completeList[pa][1] > completeList[pr][0] &&
+        completeList[pr][0] > completeList[pp][2])
+    {
+      // The way it comes out.
+      if (length[QT_ACE] == 4)
+      {
+        // AQ32 / 7654 / K98 / JT.
+        if (pickFlag) holdCtr[0x1268]++;
+        rank = HR(pa, 1);
+        trick[0].Set(pa, QT_BOTH, SDS_QUEEN, 3);
+        trick[1].Set(QT_BOTH, pp, SDS_ACE, 1);
+        trick[2].Set(QT_BOTH, pa, rank, 2);
+        trick[3].Set(pp, pp, SDS_VOID, 1);
+        return def.Set13(trick);
+      }
+      else
+      {
+        // A98 / JT / KQ65 / 7432.
+        if (pickFlag) holdCtr[0x1269]++;
+        rank = HR(pa, 1);
+        trick[0].Set(pa, pp, SDS_QUEEN, 3);
+        trick[1].Set(QT_BOTH, pa, rank, 3);
+        trick[2].Set(pp, pp, SDS_VOID, 1);
+        return def.Set12(trick[0], trick[1], trick[2]);
+      }
+    }
+    else if (htop.T == pa &&
+        completeList[pr][0] > completeList[pp][2]) // &&
+        // completeList[pr][0] > completeList[pa][2])
+    {
+      // The way it comes out.
+      if (length[QT_ACE] == 3)
+      {
+        // AT2 / J3 / KQ54 // 9876.
+        if (pickFlag) holdCtr[0x126a]++;
+        rank = HR(pa, 1);
+        trick[0].Set(pa, pp, SDS_QUEEN, 3);
+        trick[1].Set(QT_BOTH, pa, rank, 3);
+        trick[2].Set(pp, pp, SDS_VOID, 1);
+        return def.Set12(trick[0], trick[1], trick[2]);
+      }
     }
   }
 
@@ -8443,7 +8725,8 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
         trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
         trick[1].Set(QT_BOTH, QT_PARD, rank, 1);
         trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l-2);
-        return def.Set3(trick[0], trick[1], trick[2]);
+        trick[3].Set(QT_BOTH, QT_ACE, SDS_KING, 2);
+        return def.Set31(trick);
       }
       else if (distHex == 0x5125 && htop.T == QT_ACE && htop.N == QT_RHO)
       {
@@ -8469,10 +8752,8 @@ bool LoopHold::SolveComplex36(DefList& def, unsigned& rank) const
         rank = SDS_EIGHT;
         unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
         trick[0].Set(QT_BOTH, QT_ACE, rank, l);
-        trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID-1, 1);
-        trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 2);
-        trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, l-3);
-        return def.Set13(trick);
+        trick[1].Set(QT_ACE, QT_PARD, SDS_JACK, 3);
+        return def.Set11(trick[0], trick[1]);
       }
       else if (htop.T == QT_RHO && htop.N == QT_ACE)
       {
@@ -8759,7 +9040,8 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
       trick[0].Set(QT_BOTH, QT_ACE, SDS_ACE, 1);
       trick[1].Set(QT_BOTH, QT_PARD, rank, 1);
       trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, l);
-      return def.Set3(trick[0], trick[1], trick[2]);
+      trick[3].Set(QT_BOTH, QT_ACE, SDS_KING, 2);
+      return def.Set31(trick);
     }
   }
   else if (length[QT_ACE] > length[QT_PARD] && length[QT_PARD] == 3 &&
@@ -8813,8 +9095,10 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
             // AKxx / 8xxx / JT9 / Qx.
             // AKxx / 9xxx / JT8 / Qx.
             // AKxx / xxxx / JT8 / Q9.
+            // PROBLEM (actual error) with rank.
+            // Should be HR(QT_PARD, 2).
             if (pickFlag) holdCtr[0x1445]++;
-            rank = HR(QT_PARD, 2);
+            rank = HR(QT_PARD, 1); // PROBLEM
             trick[0].Set(QT_BOTH, QT_BOTH, SDS_JACK, 3);
             trick[1].Set(QT_PARD, QT_PARD, rank, 3);
             trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
@@ -8831,22 +9115,18 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
             unsigned r1 = HR(QT_ACE, 3);
             unsigned r2 = HR(QT_PARD, 2);
             rank = Max(r1, r2);
-            trick[0].Set(QT_PARD, QT_ACE, rank, 2);
-            trick[1].Set(QT_BOTH, QT_PARD, SDS_VOID, 1);
-            trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-            trick[3].Set(QT_ACE, QT_BOTH, SDS_VOID-4, 3);
-            return def.Set31(trick);
           }
           else
           {
             // AK8x / 9xxx / JT7 / Qx.
             if (pickFlag) holdCtr[0x1447]++;
             rank = HR(QT_PARD, 2);
-            trick[0].Set(QT_BOTH, QT_BOTH, SDS_VOID-4, 3);
-            trick[1].Set(QT_PARD, QT_PARD, rank, 3);
-            trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-            return def.Set12(trick[0], trick[1], trick[2]);
           }
+          trick[0].Set(QT_PARD, QT_ACE, rank, 2);
+          trick[1].Set(QT_BOTH, QT_PARD, SDS_VOID, 1);
+          trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
+          trick[3].Set(QT_ACE, QT_BOTH, SDS_JACK, 3);
+          return def.Set31(trick);
         }
       }
     }
@@ -9026,10 +9306,11 @@ bool LoopHold::SolveComplex48(DefList& def, unsigned& rank) const
       if (pickFlag) holdCtr[0x1485]++;
       rank = SDS_VOID - 6;
       trick[0].Set(QT_PARD, QT_BOTH, rank, 4);
-      trick[1].Set(QT_ACE, QT_ACE, SDS_VOID-2, 2);
-      trick[2].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 1);
-      trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-      return def.Set13(trick);
+      trick[1].Set(QT_ACE, QT_ACE, SDS_QUEEN, 3);
+      trick[2].Set(QT_ACE, QT_ACE, SDS_VOID-2, 2);
+      trick[3].Set(QT_BOTH, QT_PARD, SDS_VOID-5, 1);
+      trick[4].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
+      return def.Set113(trick);
     }
   }
   else if (length[QT_ACE] >= 4 && length[QT_PARD] == 2 &&
@@ -9107,15 +9388,27 @@ bool LoopHold::SolveComplex62(DefList& def, unsigned& rank) const
     {
       // ATx / 8xxx / K97x / Qx.
       if (pickFlag) holdCtr[0x1620]++;
+
       rank = SDS_VOID-8;
       unsigned r1 = HR(QT_ACE, 1);
       unsigned r2 = HR(QT_PARD, 1);
       if (r2 > r1)
         r2 = SDS_VOID;
-      trick[0].Set(QT_BOTH, QT_PARD, rank, 4);
-      trick[1].Set(QT_PARD, QT_ACE, r1, 3);
-      trick[2].Set(QT_PARD, QT_PARD, r2, 1);
-      return def.Set12(trick[0], trick[1], trick[2]);
+
+      // The way it comes out.  Not necessarily correct.
+      if (htop.T == QT_ACE)
+      {
+        trick[0].Set(QT_BOTH, QT_PARD, rank, 4);
+        trick[1].Set(QT_PARD, QT_ACE, r1, 3);
+        trick[2].Set(QT_PARD, QT_PARD, r2, 1);
+        return def.Set12(trick[0], trick[1], trick[2]);
+      }
+      else
+      {
+        trick[0].Set(QT_BOTH, QT_PARD, rank, 4);
+        trick[1].Set(QT_PARD, QT_ACE, SDS_TEN, 3);
+        return def.Set11(trick[0], trick[1]);
+      }
     }
   }
   else if (htop.T == QT_PARD && htop.N == QT_LHO &&

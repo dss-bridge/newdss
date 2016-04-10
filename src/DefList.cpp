@@ -291,7 +291,9 @@ void DefList::operator += (
 
   for (unsigned d = 0; d < len; d++)
   {
-    CmpDetailType cd = list[d].Compare(alt);
+    CmpDetailType cd;
+    // cd = list[d].CompareWithExpand(alt);
+    cd = list[d].Compare(alt);
 
     CmpType cc = cmpDetailToShort[cd];
     seen[cc] = 1;
@@ -313,6 +315,7 @@ void DefList::operator += (
     DefList::Print();
     cout << "\n";
     alt.Print(cout, "Offending alt");
+    CmpDetailType cd = list[0].Compare(alt);
     cout << endl;
     assert(c <= 1);
   }

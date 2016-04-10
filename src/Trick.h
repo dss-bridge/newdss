@@ -95,7 +95,7 @@ class Trick
     bool ReduceBoth(
       const Trick& t1);
 
-    CmpDetailType Compare(
+    CmpTrickType Compare(
       const Trick& t1) const;
 
     CmpType CashRankOrder(

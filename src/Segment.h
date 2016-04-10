@@ -97,16 +97,17 @@ class Segment
       Trick& summaryTrick,
       const bool lastFlag = true) const;
 
+    bool CanExpand() const;
+
     bool IsSimpleComplement(
       const Segment& seg2) const;
 
-    CmpDetailType Compare(
-      const Segment& seg2) const;
+    bool IsAA1ATrick() const;
 
-    CmpDetailType Compare(
+    CmpTrickType Compare(
       const Segment& seg2,
-      const unsigned runRankOld,
-      const unsigned runRankNew) const;
+      const unsigned runRankOld = SDS_VOID,
+      const unsigned runRankNew = SDS_VOID) const;
 
     bool EqualsExceptStart(
       const Segment& seg2,

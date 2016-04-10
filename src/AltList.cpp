@@ -250,6 +250,57 @@ CmpDetailType AltList::Compare(
 }
 
 
+CmpDetailType AltList::CompareWithExpand(
+  const AltList& aNew) const
+{
+  CmpDetailType c0 = AltList::Compare(aNew);
+  if (c0 != SDS_HEADER_PLAY_OLD_BETTER &&
+      c0 != SDS_HEADER_PLAY_NEW_BETTER)
+    return c0;
+
+  bool expandList[SDS_MAX_ALT];
+  if (AltList::CanExpand(expandList))
+  {
+    AltList oldExpanded;
+    AltList::ExpandInto(oldExpanded, expandList);
+// AltList::Print(cout, "old");
+// oldExpanded.Print(cout, "old expanded");
+oldExpanded.HardReduce();
+// oldExpanded.Print(cout, "old expanded and reduced");
+
+    if (aNew.CanExpand(expandList))
+    {
+      AltList newExpanded;
+      aNew.ExpandInto(newExpanded, expandList);
+// aNew.Print(cout, "new");
+// newExpanded.Print(cout, "new expanded");
+newExpanded.HardReduce();
+// newExpanded.Print(cout, "new expanded and reduced");
+      return oldExpanded.Compare(newExpanded);
+    }
+    else
+    {
+// aNew.Print(cout, "up against (unchanged)");
+      return oldExpanded.Compare(aNew);
+    }
+  }
+  else if (aNew.CanExpand(expandList))
+  {
+    AltList newExpanded;
+    aNew.ExpandInto(newExpanded, expandList);
+// cout << "Expanded new\n";
+// aNew.Print(cout, "new");
+// newExpanded.Print(cout, "new expanded");
+newExpanded.HardReduce();
+// newExpanded.Print(cout, "new expanded and reduced");
+// AltList::Print(cout, "up against (unchanged)");
+    return AltList::Compare(newExpanded);
+  }
+  else
+    return c0;
+}
+
+
 CmpDetailType AltList::CompareSemiHard(
   const AltList& aNew) const
 {
@@ -305,6 +356,48 @@ CmpDetailType AltList::CompareHard(
       comp.SetValue(lOld, lNew, list[lOld].Compare(aNew.list[lNew]));
 
   return comp.CompareHard();
+}
+
+
+bool AltList::CanExpand(
+  bool expandList[]) const
+{
+  for (unsigned l = 0; l < len; l++)
+  {
+    expandList[l] = list[l].CanExpand();
+    if (expandList[l])
+      return true;
+  }
+
+  return false;
+}
+
+
+void AltList::ExpandInto(
+  AltList& aNew,
+  const bool expandList[]) const
+{
+  // Somewhat duplicative, but at least we only make a new AltList
+  // when we really need one.
+  for (unsigned l = 0; l < len; l++)
+  {
+    if (expandList[l])
+    {
+      assert(aNew.len < SDS_MAX_ALT-1);
+      TrickList tl;
+      list[l].ExpandEnd(QT_ACE, tl);
+      aNew.list[aNew.len++] = tl;
+      list[l].ExpandEnd(QT_PARD, tl);
+      aNew.list[aNew.len++] = tl;
+    }
+    else
+    {
+      assert(aNew.len < SDS_MAX_ALT);
+      aNew.list[aNew.len++] = list[l];
+    }
+  }
+
+  aNew.RegisterSize("EXPALT");
 }
 
 
@@ -783,6 +876,41 @@ void AltList::Reduce()
   if (options.debugAlt)
     AltList::Print(files.debug, "AltList::Reduce after");
 }
+
+
+void AltList::HardReduce()
+{
+  vector<bool> purgeList(len, false);
+
+  for (unsigned a1 = 0; a1 < len-1; a1++)
+  {
+    if (purgeList[a1])
+      continue;
+
+    for (unsigned a2 = a1+1; a2 < len; a2++)
+    {
+      if (purgeList[a2])
+        continue;
+
+      CmpDetailType c = list[a1].Compare(list[a2]);
+
+      if (c == SDS_HEADER_PLAY_OLD_BETTER ||
+          c == SDS_HEADER_RANK_OLD_BETTER ||
+          c == SDS_HEADER_SAME)
+        purgeList[a2] = true;
+      else if (c == SDS_HEADER_PLAY_NEW_BETTER ||
+          c == SDS_HEADER_RANK_NEW_BETTER)
+        purgeList[a1] = true;
+
+      if (purgeList[a1])
+        break;
+    }
+  }
+
+  AltList::PurgeList(purgeList);
+}
+
+
 
 
 void AltList::PurgeMulti()

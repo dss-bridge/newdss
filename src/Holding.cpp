@@ -480,6 +480,17 @@ bool Holding::IsAATrick() const
 {
   return (side == QT_ACE && winSide == QT_ACE);
 }
+ 
+
+bool Holding::IsPA1ACasher() const
+{
+  return (side == QT_PARD && 
+      winSide == QT_ACE && 
+      winRank == suitLength-1 &&
+      (length[QT_RHO] <= 1 || 
+       completeList[QT_RHO][0] < static_cast<unsigned>(leadRank)));
+}
+ 
 
 const unsigned loMask[13] =
 {
@@ -625,9 +636,10 @@ unsigned Holding::PossiblyFixRank(
       fixedRank = Holding::ListToRank(lr);
       return Holding::ListToRank(lr+1);
     }
-    else if (leadCurrIndex > 1 && 
+    else if (// leadCurrIndex > 1 && 
         leadCurrIndex == numLeads &&
-        numLeads == 2 &&
+        // numLeads == 2 &&
+        numLeads >= 2 &&
         leadList[leadCurrIndex-2]+1 != leadRank &&
         leadList[leadCurrIndex-2] < lhoRank)
     {

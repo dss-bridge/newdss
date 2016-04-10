@@ -30,6 +30,13 @@ class AltList
     TrickList list[SDS_MAX_ALT];
     unsigned len;
 
+    bool CanExpand(
+      bool expandList[]) const;
+
+    void ExpandInto(
+      AltList& aNew,
+      const bool expandList[]) const;
+
     bool MergeSoftSpecial12(
       const AltList& aNew) const;
 
@@ -70,6 +77,8 @@ class AltList
       const PosType pstart);
 
     void Reduce();
+
+    void HardReduce();
 
     void PurgeMulti();
 
@@ -169,6 +178,9 @@ class AltList
     unsigned GetLength() const;
 
     CmpDetailType Compare(
+      const AltList& aNew) const;
+
+    CmpDetailType CompareWithExpand(
       const AltList& aNew) const;
 
     CmpDetailType CompareSemiHard(

@@ -206,6 +206,26 @@ void TrickList::GetFirstSummaryTrick(
 }
 
 
+bool TrickList::CanExpand() const
+{
+  if (len == 1)
+    return list[0].CanExpand();
+  else
+    return false;
+}
+
+
+void TrickList::ExpandEnd(
+  PosType endVal,
+  TrickList& tl) const
+{
+  Trick t;
+  TrickList::GetFirstSummaryTrick(t);
+  t.SetEnd(endVal);
+  tl.Set1(t);
+}
+
+
 bool TrickList::IsSimpleComplement(
   const TrickList& lNew) const
 {
@@ -220,11 +240,53 @@ CmpDetailType TrickList::CompareInit(
   const TrickList& lNew,
   CompareStruct cdata) const
 {
-  CmpDetailType cc;
+  CmpDetailType cc, cRun = SDS_HEADER_SAME;
   do
   {
     if (cdata.lenOld == 0 && cdata.lenNew == 0)
-      return cdata.winnerFirst;
+      return cRun;
+    else if (cdata.lenOld == 0)
+      return SDS_HEADER_PLAY_NEW_BETTER;
+    else if (cdata.lenNew == 0)
+      return SDS_HEADER_PLAY_OLD_BETTER;
+
+    cdata.lenOld--;
+    cdata.lenNew--;
+
+    cc = cmpTrickToDetail[ list[cdata.lenOld].Compare(lNew.list[cdata.lenNew],
+      cdata.ranksOld, cdata.ranksNew) ];
+    if (cc == SDS_HEADER_PLAY_DIFFERENT)
+      return SDS_HEADER_PLAY_DIFFERENT;
+
+    cRun = cmpDetailMatrix[cRun][cc];
+    assert(cRun != SDS_HEADER_PLAY_DIFFERENT);
+
+    Trick t1;
+    list[cdata.lenOld].GetSummaryTrick(t1);
+    cdata.tricksOld += t1.GetCashing();
+    cdata.ranksOld = Min(cdata.ranksOld, t1.GetRanks());
+
+    Trick t2;
+    lNew.list[cdata.lenNew].GetSummaryTrick(t2);
+    cdata.tricksNew += t2.GetCashing();
+    cdata.ranksNew = Min(cdata.ranksNew, t2.GetRanks());
+  }
+  while (cc != SDS_HEADER_PLAY_NEW_BETTER &&
+      cc != SDS_HEADER_PLAY_OLD_BETTER);
+
+  return cc;
+}
+
+
+CmpDetailType TrickList::CompareInitNew(
+  const TrickList& lNew,
+  CompareStruct cdata) const
+{
+  CmpTrickType cc, cRun = SDS_TRICK_SAME;
+  do
+  {
+    if (cdata.lenOld == 0 && cdata.lenNew == 0)
+      return cmpTrickToDetail[cRun];
     else if (cdata.lenOld == 0)
       return SDS_HEADER_PLAY_NEW_BETTER;
     else if (cdata.lenNew == 0)
@@ -235,30 +297,27 @@ CmpDetailType TrickList::CompareInit(
 
     cc = list[cdata.lenOld].Compare(lNew.list[cdata.lenNew],
       cdata.ranksOld, cdata.ranksNew);
-    if (cc == SDS_HEADER_PLAY_DIFFERENT)
+    if (cc == SDS_TRICK_PLAY_DIFFERENT)
       return SDS_HEADER_PLAY_DIFFERENT;
 
-    cdata.winnerFirst = cmpDetailMatrix[cdata.winnerFirst][cc];
-    assert(cdata.winnerFirst != SDS_HEADER_PLAY_DIFFERENT);
+    cRun = cmpTrickMatrix[cRun][cc];
+    if (cRun == SDS_TRICK_PLAY_DIFFERENT)
+      return SDS_HEADER_PLAY_DIFFERENT;
 
     Trick t1;
     list[cdata.lenOld].GetSummaryTrick(t1);
     cdata.tricksOld += t1.GetCashing();
-    unsigned r1 = t1.GetRanks();
-    cdata.ranksOld = Min(cdata.ranksOld, r1);
+    cdata.ranksOld = Min(cdata.ranksOld, t1.GetRanks());
 
     Trick t2;
     lNew.list[cdata.lenNew].GetSummaryTrick(t2);
     cdata.tricksNew += t2.GetCashing();
-    unsigned r2 = t2.GetRanks();
-    cdata.ranksNew = Min(cdata.ranksNew, r2);
-  
-    cdata.winnerRunning = TrickList::CompareRunning(cdata);
+    cdata.ranksNew = Min(cdata.ranksNew, t2.GetRanks());
   }
-  while (cc != SDS_HEADER_PLAY_NEW_BETTER &&
-      cc != SDS_HEADER_PLAY_OLD_BETTER);
+  while (cc != SDS_TRICK_PLAY_NEW_BETTER &&
+      cc != SDS_TRICK_PLAY_OLD_BETTER);
 
-  return cc;
+  return cmpTrickToDetail[cc];
 }
 
 
@@ -278,8 +337,22 @@ CmpDetailType TrickList::Compare(
   cdata.winnerFirst = SDS_HEADER_SAME;
   cdata.winnerRunning = SDS_HEADER_SAME;
 
+  CompareStruct cdataNew = cdata;
+
   CmpDetailType cc = TrickList::CompareInit(lNew, cdata);
   cdata.winnerFirst = cc;
+
+  /*
+  CmpDetailType ccNew = TrickList::CompareInitNew(lNew, cdataNew);
+  if (cc != ccNew)
+  {
+    cout << "Old\n";
+    TrickList::Print();
+    cout << "New\n";
+    lNew.Print();
+    cout << CMP_DETAIL_NAMES[cc] << " vs " << CMP_DETAIL_NAMES[ccNew] << "\n";
+  }
+  */
 
   if (cc == SDS_HEADER_PLAY_DIFFERENT)
     return SDS_HEADER_PLAY_DIFFERENT;
@@ -437,6 +510,8 @@ void TrickList::operator += (
   // Add a move in front of the first segment.
 
   assert(len > 0);
+  bool tailIsAA1A = (len == 1 && list[0].IsAA1ATrick());
+
   for (unsigned p = 0; p < len; p++)
     list[p].Localize(holding);
 
@@ -463,10 +538,41 @@ void TrickList::operator += (
           break;
       }
     }
+    return;
   }
-  else if (holding.IsAATrick() &&
-      list[len-1].GetRanks() > holding.GetLHOMaxRank() &&
-      holding.GetMinDeclLength() >= 2)
+
+  if (holding.GetMinDeclLength() < 2)
+    goto PREP_DEFAULT;
+
+  if (tailIsAA1A && holding.IsPA1ACasher())
+  {
+    // PA1A (not as a finesse) + AA1x = PB2x.
+    Trick trick;
+    trick.Set(QT_PARD, QT_BOTH, list[0].GetRanks(), 2);
+    list[0].Set1(trick);
+    return;
+    // goto PREP_DEFAULT;
+  }
+
+  if (! holding.IsAATrick())
+  {
+    // No special case.
+    assert(len < TRICKLIST_MAXSEGS);
+    len++;
+    list[len-1].Set1(holding.GetTrick());
+    return;
+  }
+
+  if (tailIsAA1A)
+  {
+    // AA1A + PP1x, where the second trick is a straight casher.
+    // There must be communication, so this is AB2x!
+    Trick trick;
+    trick.Set(QT_ACE, QT_BOTH, list[0].GetRanks(), 2);
+    list[0].Set1(trick);
+    return;
+  }
+  else if (list[len-1].GetRanks() > holding.GetLHOMaxRank())
   {
     // Rather special case: AA1A + Pxyz, where LHO is either void
     // or is below the first rank to win the next trick.
@@ -474,14 +580,15 @@ void TrickList::operator += (
     // available.  If there isn't, we'll just have to cash from A.
     // So we can always consider this to be AA1A.
     TrickList::Set1(holding.GetTrick());
+    return;
   }
-  else
-  {
-    // Didn't fit, so make a new segment.
-    assert(len < TRICKLIST_MAXSEGS);
-    len++;
-    list[len-1].Set1(holding.GetTrick());
-  }
+
+PREP_DEFAULT:
+
+  // Didn't fit, so make a new segment.
+  assert(len < TRICKLIST_MAXSEGS);
+  len++;
+  list[len-1].Set1(holding.GetTrick());
 }
 
 
@@ -491,7 +598,7 @@ CmpDetailType TrickList::CompareToTrick(
   assert(len > 0);
   Trick ltrick;
   TrickList::GetFirstSummaryTrick(ltrick);
-  return ltrick.Compare(trick);
+  return cmpTrickToDetail[ltrick.Compare(trick)];
 }
 
 

@@ -148,6 +148,15 @@ void Segment::GetSummaryTrick(
 }
 
 
+bool Segment::CanExpand() const
+{
+  if (len == 1)
+    return (list[0].trick.end == QT_BOTH);
+  else
+    return false;
+}
+
+
 bool Segment::IsSimpleComplement(
   const Segment& seg2) const
 {
@@ -158,29 +167,30 @@ bool Segment::IsSimpleComplement(
 }
 
 
-CmpDetailType Segment::Compare(
-  const Segment& seg2) const
+bool Segment::IsAA1ATrick() const
 {
-  Trick t1;
-  Segment::GetSummaryTrick(t1);
-  Trick t2;
-  seg2.GetSummaryTrick(t2);
-  return t1.Compare(t2);
+  if (len != 1)
+    return false;
+
+  return (list[0].trick.start == QT_ACE &&
+      list[0].trick.end == QT_ACE &&
+      list[0].trick.cashing == 1 &&
+      list[0].trick.ranks == SDS_ACE);
 }
 
 
-CmpDetailType Segment::Compare(
+CmpTrickType Segment::Compare(
   const Segment& seg2,
   const unsigned runRankOld,
   const unsigned runRankNew) const
 {
   if (len == 2 && seg2.len == 2)
   {
-    CmpDetailType c1 = list[1].Compare(seg2.list[1]);
-    if (c1 == SDS_HEADER_RANK_NEW_BETTER ||
-        c1 == SDS_HEADER_RANK_OLD_BETTER)
+    CmpTrickType c1 = list[1].Compare(seg2.list[1]);
+    if (c1 == SDS_TRICK_RANK_NEW_BETTER ||
+        c1 == SDS_TRICK_RANK_OLD_BETTER)
     {
-      if (list[0].Compare(seg2.list[0]) == SDS_HEADER_SAME)
+      if (list[0].Compare(seg2.list[0]) == SDS_TRICK_SAME)
         return c1;
     }
   }
@@ -355,21 +365,39 @@ bool Segment::PrependSpecial(
       list[0].trick.ranks = mergingMove.trick.ranks;
     return true;
   }
-  else if (holding.GetMinDeclLength() >= 2 &&
-      mergingMove.trick.start == QT_PARD &&
-      mergingMove.trick.end == QT_PARD &&
-      list[0].trick.start == QT_ACE &&
+  else if (list[0].trick.start == QT_ACE &&
       list[0].trick.end == QT_ACE)
   {
-    // PPnr + AAms = PB(n+m)min(r,s).
-    // It is always also possible to cash the last trick from P.
+    unsigned mdl = holding.GetMinDeclLength();
+    if (mdl >= 2 &&
+        mergingMove.trick.start == QT_PARD &&
+        mergingMove.trick.end == QT_PARD)
+    {
+      // PPnr + AAms = PB(n+m)min(r,s).
+      // It is always also possible to cash the last trick from P.
 
-    list[0].trick.start = QT_PARD;
-    list[0].trick.end = QT_BOTH;
-    list[0].trick.cashing += mergingMove.trick.cashing;
-    if (mergingMove.trick.ranks < list[0].trick.ranks)
-      list[0].trick.ranks = mergingMove.trick.ranks;
-    return true;
+      list[0].trick.start = QT_PARD;
+      list[0].trick.end = QT_BOTH;
+      list[0].trick.cashing += mergingMove.trick.cashing;
+      if (mergingMove.trick.ranks < list[0].trick.ranks)
+        list[0].trick.ranks = mergingMove.trick.ranks;
+      return true;
+    }
+    else if (mdl >= list[0].trick.cashing+1u &&
+        mergingMove.trick.start == QT_ACE &&
+        mergingMove.trick.end == QT_PARD &&
+        mergingMove.trick.cashing == 1)
+    {
+      // AP1top + AAns = AP(n+1)min(r,s).  Can't be a finesse.
+      list[0].trick.start = QT_ACE;
+      list[0].trick.end = QT_PARD;
+      list[0].trick.cashing += mergingMove.trick.cashing;
+      if (mergingMove.trick.ranks < list[0].trick.ranks)
+        list[0].trick.ranks = mergingMove.trick.ranks;
+      return true;
+    }
+    else
+      return false;
   }
   else
     return false;

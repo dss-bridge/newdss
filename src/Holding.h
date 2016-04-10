@@ -122,6 +122,8 @@ class Holding
 
     bool IsAATrick() const;
 
+    bool IsPA1ACasher() const;
+
     bool MakePlay(
       unsigned& slNew,
       unsigned& cNew);
