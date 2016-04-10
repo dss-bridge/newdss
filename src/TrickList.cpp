@@ -337,13 +337,13 @@ CmpDetailType TrickList::Compare(
   cdata.winnerFirst = SDS_HEADER_SAME;
   cdata.winnerRunning = SDS_HEADER_SAME;
 
-  CompareStruct cdataNew = cdata;
+  // CompareStruct cdataNew = cdata;
 
-  CmpDetailType cc = TrickList::CompareInit(lNew, cdata);
-  cdata.winnerFirst = cc;
+  // CmpDetailType cc = TrickList::CompareInit(lNew, cdata);
+  // cdata.winnerFirst = cc;
 
+  CmpDetailType cc = TrickList::CompareInitNew(lNew, cdata);
   /*
-  CmpDetailType ccNew = TrickList::CompareInitNew(lNew, cdataNew);
   if (cc != ccNew)
   {
     cout << "Old\n";
