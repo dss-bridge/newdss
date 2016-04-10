@@ -1,4 +1,7 @@
 Annotate all branches with an example.
+No more "return false" branches.
+Go back to G51.
+Count the complex ones left over of each type (G00 .. G63).
 
 
 Maybe make an input option to control creation of track.txt file.
