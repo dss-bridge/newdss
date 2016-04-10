@@ -43,10 +43,6 @@ class TrickList
       const TrickList& lNew,
       CompareStruct cdata) const;
 
-    CmpDetailType CompareInitNew(
-      const TrickList& lNew,
-      CompareStruct cdata) const;
-
     CmpDetailType CompareRunning(
       const CompareStruct cdata) const;
 

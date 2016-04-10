@@ -485,8 +485,6 @@ CmpTrickType Trick::Compare(
     return SDS_TRICK_PLAY_NEW_ADV;
   else
     return SDS_TRICK_PLAY_OLD_ADV;
-    // return SDS_HEADER_PLAY_DIFFERENT;
-    // return SDS_HEADER_RANK_DIFFERENT;
 
   // SDS_TRICK_PLAY_*_ADV signifies that one move would win
   // on end range, but the other would win on rank.  The one with

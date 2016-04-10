@@ -240,48 +240,6 @@ CmpDetailType TrickList::CompareInit(
   const TrickList& lNew,
   CompareStruct cdata) const
 {
-  CmpDetailType cc, cRun = SDS_HEADER_SAME;
-  do
-  {
-    if (cdata.lenOld == 0 && cdata.lenNew == 0)
-      return cRun;
-    else if (cdata.lenOld == 0)
-      return SDS_HEADER_PLAY_NEW_BETTER;
-    else if (cdata.lenNew == 0)
-      return SDS_HEADER_PLAY_OLD_BETTER;
-
-    cdata.lenOld--;
-    cdata.lenNew--;
-
-    cc = cmpTrickToDetail[ list[cdata.lenOld].Compare(lNew.list[cdata.lenNew],
-      cdata.ranksOld, cdata.ranksNew) ];
-    if (cc == SDS_HEADER_PLAY_DIFFERENT)
-      return SDS_HEADER_PLAY_DIFFERENT;
-
-    cRun = cmpDetailMatrix[cRun][cc];
-    assert(cRun != SDS_HEADER_PLAY_DIFFERENT);
-
-    Trick t1;
-    list[cdata.lenOld].GetSummaryTrick(t1);
-    cdata.tricksOld += t1.GetCashing();
-    cdata.ranksOld = Min(cdata.ranksOld, t1.GetRanks());
-
-    Trick t2;
-    lNew.list[cdata.lenNew].GetSummaryTrick(t2);
-    cdata.tricksNew += t2.GetCashing();
-    cdata.ranksNew = Min(cdata.ranksNew, t2.GetRanks());
-  }
-  while (cc != SDS_HEADER_PLAY_NEW_BETTER &&
-      cc != SDS_HEADER_PLAY_OLD_BETTER);
-
-  return cc;
-}
-
-
-CmpDetailType TrickList::CompareInitNew(
-  const TrickList& lNew,
-  CompareStruct cdata) const
-{
   CmpTrickType cc, cRun = SDS_TRICK_SAME;
   do
   {
@@ -337,22 +295,7 @@ CmpDetailType TrickList::Compare(
   cdata.winnerFirst = SDS_HEADER_SAME;
   cdata.winnerRunning = SDS_HEADER_SAME;
 
-  // CompareStruct cdataNew = cdata;
-
-  // CmpDetailType cc = TrickList::CompareInit(lNew, cdata);
-  // cdata.winnerFirst = cc;
-
-  CmpDetailType cc = TrickList::CompareInitNew(lNew, cdata);
-  /*
-  if (cc != ccNew)
-  {
-    cout << "Old\n";
-    TrickList::Print();
-    cout << "New\n";
-    lNew.Print();
-    cout << CMP_DETAIL_NAMES[cc] << " vs " << CMP_DETAIL_NAMES[ccNew] << "\n";
-  }
-  */
+  CmpDetailType cc = TrickList::CompareInit(lNew, cdata);
 
   if (cc == SDS_HEADER_PLAY_DIFFERENT)
     return SDS_HEADER_PLAY_DIFFERENT;

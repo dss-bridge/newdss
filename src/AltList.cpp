@@ -263,37 +263,23 @@ CmpDetailType AltList::CompareWithExpand(
   {
     AltList oldExpanded;
     AltList::ExpandInto(oldExpanded, expandList);
-// AltList::Print(cout, "old");
-// oldExpanded.Print(cout, "old expanded");
-oldExpanded.HardReduce();
-// oldExpanded.Print(cout, "old expanded and reduced");
+    oldExpanded.HardReduce();
 
     if (aNew.CanExpand(expandList))
     {
       AltList newExpanded;
       aNew.ExpandInto(newExpanded, expandList);
-// aNew.Print(cout, "new");
-// newExpanded.Print(cout, "new expanded");
-newExpanded.HardReduce();
-// newExpanded.Print(cout, "new expanded and reduced");
+    newExpanded.HardReduce();
       return oldExpanded.Compare(newExpanded);
     }
     else
-    {
-// aNew.Print(cout, "up against (unchanged)");
       return oldExpanded.Compare(aNew);
-    }
   }
   else if (aNew.CanExpand(expandList))
   {
     AltList newExpanded;
     aNew.ExpandInto(newExpanded, expandList);
-// cout << "Expanded new\n";
-// aNew.Print(cout, "new");
-// newExpanded.Print(cout, "new expanded");
-newExpanded.HardReduce();
-// newExpanded.Print(cout, "new expanded and reduced");
-// AltList::Print(cout, "up against (unchanged)");
+    newExpanded.HardReduce();
     return AltList::Compare(newExpanded);
   }
   else
