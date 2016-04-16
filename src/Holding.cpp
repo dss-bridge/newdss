@@ -615,13 +615,14 @@ unsigned Holding::PossiblyFixRank(
     if (run >= 3 &&
         leadRank >= l &&
         leadRank <= h-2 &&
+length[lho] >= 3 &&
         (length[pard] < length[lho] ||
           completeList[pard][length[lho]-1] < completeList[lho][1] ||
           (length[side] == 3 && length[pard] > length[side])))
     {
       // At least three in a row at the top.
       fixedRank = Holding::ListToRank(lr);
-      return Holding::ListToRank(static_cast<unsigned>(h-1));
+      return Holding::ListToRank(static_cast<unsigned>(h));
     }
   }
 

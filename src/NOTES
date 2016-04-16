@@ -1,3 +1,24 @@
+11, cca2b vs cca8b
+
+   AQT7            AQT6
+KJ4      -     KJ4      -
+   9865            9875
+
+In latter case, 7-J-Q:
+PA1A +
+(AA1A or PP39 or PA3T)
+There is no branch where the 8 wins a trick.
+But there WOULD HAVE BEEN if he hadn't covered.
+Then it would go PA47.
+
+Same if we lead the 8-J-Q:  Here the later 9 becomes an 8.
+And if we lead the 9-J-Q: Here the 9 becomes an 8 straight away.
+
+PossiblyFixRank in Holding.cpp, line 624:
+Should it be h-1 or h, perhaps?
+
+---
+
 Annotate all branches with an example.
 No more "return false" branches.
 Go back to G51.
