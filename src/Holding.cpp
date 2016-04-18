@@ -590,67 +590,66 @@ void Holding::AdjustWinRank()
 }
 
 
+unsigned Holding::GetSideRun(
+  const unsigned start) const
+{
+  // Requires start to belong to declarer's side.
+  unsigned r = start+1;
+  while (r < SDS_MAX_RANKS && 
+      (rankHolder[r] == QT_ACE || rankHolder[r] == QT_PARD))
+    r++;
+  return r - start;
+}
+
+
 unsigned Holding::PossiblyFixRank(
   unsigned& fixedRank) const
 {
-  // AKQ2 / - / T9 / J876.
-  // Lead 9: 9-J-A-void, then later PA1A + AP1T + AA2-.
-  // But only covers when we have T9.
-  // General rule turns out to be: length >= #tops with leader.
-  // But some small exceptions.
-
+  // Make sure the trick is a cover that was "actively" made.
   unsigned lr = static_cast<unsigned>(leadRank);
+  if (length[side] == 1 ||
+      leadRank > lhoRank ||
+     (length[rho] > 0 && completeList[rho][0] > lr) ||
+      minRank[lho] > leadRank ||
+      minRank[pard] > leadRank)
+    return SDS_VOID;
 
-  if (leadRank < lhoRank &&
-      lhoRank < pardRank &&
-      minRank[lho] < leadRank &&
-      minRank[pard] < leadRank &&
-      (length[rho] == 0 || 
-       completeList[rho][0] < lr))
-  {
-    // Cards are in order for running a top card for a covered finesse.
-    int l = cardListLo[side][0];
-    int h = cardListHi[side][0];
-    int run = h-l+1;
-    if (run >= 3 &&
-        leadRank >= l &&
-        leadRank <= h-2 &&
-length[lho] >= 3 &&
-        (length[pard] < length[lho] ||
-          completeList[pard][length[lho]-1] < completeList[lho][1] ||
-          (length[side] == 3 && length[pard] > length[side])))
-    {
-      // At least three in a row at the top.
-      fixedRank = Holding::ListToRank(lr);
-      return Holding::ListToRank(static_cast<unsigned>(h));
-    }
-  }
+  // Find the number of consecutive higher cards with our side.
+  unsigned run = Holding::GetSideRun(lr);
+  if (run == 1)
+    return SDS_VOID;
+  unsigned h = lr + run - 1;
+  fixedRank = Holding::ListToRank(lr);
 
-  fixedRank = SDS_VOID;
-  if (leadRank < lhoRank && 
-      length[lho] >= Holding::TopsOverRank(side, lr))
+  if (run == 2)
   {
-    if (leadCurrIndex < numLeads && 
-       (rankHolder[leadRank+1] == side ||
-         (rankHolder[leadRank+1] == pard && pardRank == leadRank+1)))
+    // AKQ2 / - / T9 / J876.
+    // Lead 9: 9-J-A-void, then later PA1A + AP1T + AA2-.
+    // But only covers when we have T9.
+    // General rule turns out to be: length >= #tops with leader.
+    if (length[lho] >= Holding::TopsOverRank(side, lr) &&
+        rankHolder[h] == side)
     {
-      fixedRank = Holding::ListToRank(lr);
-      return Holding::ListToRank(lr+1);
-    }
-    else if (// leadCurrIndex > 1 && 
-        leadCurrIndex == numLeads &&
-        // numLeads == 2 &&
-        numLeads >= 2 &&
-        leadList[leadCurrIndex-2]+1 != leadRank &&
-        leadList[leadCurrIndex-2] < lhoRank)
-    {
-      // Bit of a kludge, effectively for AKTx / ? / J9 / Qx.
-      fixedRank = Holding::ListToRank(lr);
-      unsigned lr2 = static_cast<unsigned>(leadList[leadCurrIndex-2]);
-      return Holding::ListToRank(lr2);
+      return Holding::ListToRank(h);
     }
     else
       return SDS_VOID;
+  }
+
+  // At least three in a row at the top, leader with no very high card.
+  unsigned s0 = completeList[side][0];
+  unsigned p1 = completeList[pard][1];
+  if (s0 > h)
+    return SDS_VOID;
+
+  if (length[side] == 2 && p1 > s0 && s0 > lr)
+    return Holding::ListToRank(s0);
+  else if ((length[lho] == 2 && p1 < lr) ||
+      (length[lho] >= 3 &&
+        (length[pard] < length[lho] ||
+         completeList[pard][length[lho]-1] < completeList[lho][0])))
+  {
+    return Holding::ListToRank(h);
   }
   else
     return SDS_VOID;

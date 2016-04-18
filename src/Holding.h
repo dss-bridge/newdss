@@ -119,6 +119,8 @@ class Holding
     unsigned GetNumTops() const;
     unsigned PossiblyFixRank(
       unsigned& fixedRank) const;
+    unsigned GetSideRun(
+      const unsigned start) const;
 
     bool IsAATrick() const;
 
