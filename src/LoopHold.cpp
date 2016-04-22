@@ -7380,7 +7380,6 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         {
           // The way it comes out, should not be necessary.
           unsigned pLast = completeList[QT_PARD][2];
-          // The way is comes out, should not be necessary.
           if (pLast > completeList[QT_ACE][3] &&
               pLast > completeList[QT_RHO][2] &&
               (length[QT_LHO] == 0 || pLast > completeList[QT_LHO][0] ||
@@ -7404,27 +7403,84 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
             return def.Set114(trick);
           }
         }
-        else
+        // The way it comes out.
+        else if (completeList[QT_PARD][2] <
+            completeList[QT_ACE][length[QT_ACE]-1] ||
+            completeList[QT_PARD][2] < completeList[QT_RHO][2] ||
+            (length[QT_LHO] >= 1 &&
+              completeList[QT_LHO][0] > completeList[QT_PARD][2] &&
+               (length[QT_LHO] > 1 ||
+                 completeList[QT_PARD][0] < completeList[QT_LHO][0])))
         {
-// Where we got to:
-// cout << "POS 11aa\n";
-// trick[0].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-// return def.Set1(trick[0]);
-return false;
           if (pickFlag) holdCtr[0x11aa]++;
-          rank = HR(QT_ACE, 3);
           unsigned r = HR(QT_PARD, 0);
-          trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
-          trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
+          unsigned r1, r2;
+          if (htop.N == QT_ACE)
+          {
+            r1 = HR(QT_ACE, 2);
+            r2 = HR(QT_ACE, 3);
+          }
+          else if (completeList[QT_PARD][1] < 
+              completeList[QT_ACE][length[QT_ACE]-1])
+          {
+            r1 = HR(QT_ACE, 2);
+            r2 = HR(QT_ACE, 3);
+          }
+          else
+          {
+            r1 = SDS_QUEEN;
+            r2 = HR(QT_ACE, 3);
+          }
+          rank = r2;
+          trick[2].Set(QT_PARD, QT_ACE, r1, 1);
+          trick[3].Set(QT_PARD, QT_ACE, r2, length[QT_ACE]-1);
           trick[4].Set(QT_PARD, QT_ACE, SDS_TEN, 1);
           trick[5].Set(QT_PARD, QT_PARD, r, length[QT_PARD]-1);
           trick[6].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-4);
           return def.Set1123(trick);
         }
+        else if (completeList[QT_PARD][2] > completeList[QT_ACE][3])
+        {
+          if (pickFlag) holdCtr[0x11ab]++;
+          rank = HR(QT_PARD, 2);
+          trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+          trick[3].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]-1);
+          return def.Set112(trick);
+        }
+        else
+        {
+          if (pickFlag) holdCtr[0x11ac]++;
+          rank = HR(QT_PARD, 2);
+          unsigned r1, r2;
+          unsigned pLast = completeList[QT_PARD][3];
+          if (htop.N == QT_ACE &&
+              completeList[QT_PARD][2] > completeList[QT_RHO][2] &&
+              (pLast < completeList[QT_RHO][2] ||
+               pLast < completeList[QT_ACE][length[QT_ACE]-1] ||
+               (length[QT_LHO] > 0 &&
+               pLast < completeList[QT_LHO][0])))
+          {
+            r1 = SDS_TEN;
+            r2 = SDS_NINE;
+          }
+          else
+          {
+            r1 = SDS_QUEEN;
+            unsigned ra = HR(QT_ACE, 3);
+            unsigned rb = HR(QT_PARD, 0);
+            r2 = Min(ra, rb);
+          }
+
+          trick[2].Set(QT_PARD, QT_ACE, r1, 1);
+          trick[3].Set(QT_PARD, QT_ACE, r2, length[QT_ACE]-1);
+          trick[4].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+          trick[5].Set(QT_PARD, QT_PARD, rank, length[QT_ACE]-1);
+          return def.Set1122(trick);
+        }
       }
       else if (length[QT_PARD] == 3)
       {
-        if (pickFlag) holdCtr[0x1231]++;
+        if (pickFlag) holdCtr[0x11ad]++;
         rank = SDS_TEN;
         trick[2].Set(QT_PARD, QT_ACE, rank, 1);
         trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, length[QT_ACE]-1);
@@ -7435,7 +7491,7 @@ return false;
       {
         if (length[QT_PARD] > length[QT_ACE])
         {
-          if (pickFlag) holdCtr[0x1234]++;
+          if (pickFlag) holdCtr[0x11ae]++;
           rank = HR(QT_ACE, 3);
           trick[2].Set(QT_PARD, QT_ACE, SDS_TEN, 1);
           trick[3].Set(QT_PARD, QT_ACE, rank, 3);
@@ -7444,7 +7500,7 @@ return false;
         }
         else
         {
-          if (pickFlag) holdCtr[0x1235]++;
+          if (pickFlag) holdCtr[0x11af]++;
           unsigned r;
           if (length[QT_PARD] == length[QT_ACE])
             r = SDS_VOID;
@@ -7458,7 +7514,7 @@ return false;
       }
       else if (length[QT_PARD] > length[QT_ACE])
       {
-        if (pickFlag) holdCtr[0x1236]++;
+        if (pickFlag) holdCtr[0x11b0]++;
         rank = HR(QT_PARD, 0);
         trick[2].Set(QT_PARD, QT_ACE, SDS_TEN, 1);
         trick[3].Set(QT_PARD, QT_BOTH, rank, length[QT_PARD]-1);
@@ -7466,7 +7522,7 @@ return false;
       }
       else if (length[QT_PARD] == length[QT_ACE])
       {
-        if (pickFlag) holdCtr[0x1237]++;
+        if (pickFlag) holdCtr[0x11b1]++;
         rank = HR(QT_PARD, 0);
         trick[2].Set(QT_PARD, QT_ACE, SDS_TEN, 1);
         trick[3].Set(QT_PARD, QT_PARD, rank, length[QT_PARD]-1);
@@ -7477,6 +7533,7 @@ return false;
       else if (completeList[QT_PARD][length[QT_PARD]-1] >
           completeList[QT_ACE][3])
       {
+        if (pickFlag) holdCtr[0x11b2]++;
         rank = HR(QT_PARD, 0);
         trick[2].Set(QT_PARD, QT_ACE, SDS_TEN, 1);
         trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 2);
@@ -7486,7 +7543,7 @@ return false;
       }
       else
       {
-        if (pickFlag) holdCtr[0x1239]++;
+        if (pickFlag) holdCtr[0x11b3]++;
         unsigned r = HR(QT_ACE, 3);
         rank = HR(QT_PARD, 0);
         trick[2].Set(QT_PARD, QT_ACE, SDS_TEN, 1);
@@ -7510,7 +7567,7 @@ return false;
     {
       if (length[QT_ACE] <= length[QT_PARD])
       {
-        if (pickFlag) holdCtr[0x1210]++;
+        if (pickFlag) holdCtr[0x11b4]++;
         if (length[QT_ACE] == 3 || length[QT_ACE] == length[QT_PARD])
           rank = HR(QT_PARD, 2);
         else
@@ -7521,7 +7578,7 @@ return false;
       }
       else if (length[QT_PARD] == 3)
       {
-        if (pickFlag) holdCtr[0x1210]++;
+        if (pickFlag) holdCtr[0x11b5]++;
         rank = HR(QT_PARD, 2);
         trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
         trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 1);
@@ -7531,13 +7588,11 @@ return false;
       }
       else
       {
-        if (pickFlag) holdCtr[0x1210]++;
+        if (pickFlag) holdCtr[0x11b6]++;
         rank = HR(QT_PARD, length[QT_PARD]-1);
         trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
         trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 1);
         trick[4].Set(QT_BOTH, QT_PARD, rank, 2);
-        // trick[3].Set(QT_PARD, QT_ACE, rank, 2);
-        // trick[4].Set(QT_BOTH, QT_PARD, SDS_VOID, 1);
         trick[5].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-4);
         return def.Set114(trick);
       }
@@ -7550,29 +7605,76 @@ return false;
       unsigned p1 = completeList[QT_PARD][1];
       unsigned p2 = completeList[QT_PARD][2];
       unsigned r2 = completeList[QT_RHO][2];
-      unsigned l0 = (length[QT_LHO] <= 1 ? 0 : completeList[QT_LHO][0]);
+      unsigned l0 = (length[QT_LHO] == 0 ? 0 : completeList[QT_LHO][0]);
+      unsigned l0p = (length[QT_LHO] <= 1 ? 0 : completeList[QT_LHO][0]);
+      unsigned aLast = completeList[QT_ACE][length[QT_ACE]-1];
+      unsigned pLast = completeList[QT_PARD][length[QT_PARD]-1];
 
       if (length[QT_ACE] == length[QT_PARD])
       {
-        if ((p2 > a2 && p2 > r2 && p2 > l0) ||
-            (p1 > a2 && p1 > r2 && p1 > l0 && a2 > r2 && a2 > l0))
+        // The way it comes out.
+        if ((p2 > a2 && p2 > r2 && p2 > l0p) ||
+            (p1 > a2 && p1 > r2 && p1 > l0p && a2 > r2 && a2 > l0p))
         {
-          // PROBLEM: Rank errors, but probably then OK.
-// Holding::Print();
-          return false;
-
-          if (pickFlag) holdCtr[0x121f]++;
+          if (pickFlag) holdCtr[0x11b7]++;
           rank = Holding::ListToRank(Max(p2, a2));
           trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
           trick[3].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]-1);
           return def.Set112(trick);
         }
+        else if (distHex == 0x4243 && 
+          htop.T == QT_PARD && htop.N == QT_PARD && htop.E == QT_LHO)
+        {
+          if (aLast > p2)
+          {
+            if (pickFlag) holdCtr[0x11b8]++;
+            rank = HR(QT_ACE, 2);
+            trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+            trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
+            return def.Set112(trick);
+          }
+          else if (p2 > a2)
+          {
+            if (pickFlag) holdCtr[0x11b9]++;
+            rank = HR(QT_PARD, 2);
+            trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+            trick[3].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]-1);
+            return def.Set112(trick);
+          }
+          else
+          {
+            if (pickFlag) holdCtr[0x11ba]++;
+            rank = Holding::ListToRank(Min(p2, a2));
+            trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+            trick[3].Set(QT_PARD, QT_ACE, HR(QT_ACE, 2), 3);
+            trick[4].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+            trick[5].Set(QT_PARD, QT_PARD, HR(QT_PARD, 2), 3);
+            return def.Set1122(trick);
+          }
+        }
+        // else if (pLast > aLast && pLast > r2 && pLast > l0 && p1 > a2)
+        else if (pLast > aLast && pLast > r2 && pLast > l0)
+        // else if (pLast > aLast && pLast > r2)
+        {
+          // Should this be necessary?  Probably yes.
+          if (pickFlag) holdCtr[0x11bb]++;
+          rank = HR(QT_PARD, 1);
+          trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+          trick[3].Set(QT_PARD, QT_ACE, HR(QT_ACE, 2), length[QT_ACE]-1);
+          trick[4].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+          trick[5].Set(QT_PARD, QT_PARD, rank, length[QT_ACE]-1);
+          return def.Set1122(trick);
+        }
         else
         {
           // PROBLEM: Rank errors, but probably then OK.
-          return false;
+// cout << "POS 11b7\n";
+// trick[0].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
+// return def.Set1(trick[0]);
+// Holding::Print();
+          // return false;
 
-          if (pickFlag) holdCtr[0x121f]++;
+          if (pickFlag) holdCtr[0x11bc]++;
           rank = HR(QT_ACE, 2);
           trick[2].Set(QT_PARD, QT_ACE, rank, 1);
           trick[3].Set(QT_PARD, QT_BOTH, SDS_VOID, length[QT_ACE]-1);
