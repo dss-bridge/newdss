@@ -1,3 +1,5 @@
+Write selector (perl) for "Actually solved" length (4, 6 etc)
+
 Split LoopHold to make it faster to compile (derived).
 
 Output examples.txt for each holdCtr value.

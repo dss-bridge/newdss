@@ -8279,10 +8279,8 @@ return false;
   }
   else
   {
-cout << "POS 11e7\n";
-trick[0].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-return def.Set1(trick[0]);
     if (pickFlag) holdCtr[0x11ef]++;
+return false;
   }
 
   return false;
