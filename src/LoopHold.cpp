@@ -8177,7 +8177,68 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
   }
   else if (length[QT_PARD] == 3)
   {
+    unsigned a2 = completeList[QT_ACE][2];
+    unsigned a3 = completeList[QT_ACE][3];
+    unsigned p0 = completeList[QT_PARD][0];
+    unsigned p1 = completeList[QT_PARD][1];
+    unsigned p2 = completeList[QT_PARD][2];
+    unsigned p3 = completeList[QT_PARD][3];
+    unsigned r2 = completeList[QT_RHO][2];
+    unsigned aLast = completeList[QT_ACE][length[QT_ACE]-1];
+    bool lhoDown = (length[QT_LHO] == 0 ||
+        completeList[QT_LHO][0] < completeList[QT_PARD][0]);
+
+    if (LoopHold::StopFinesse(3, 3, 0, false, QT_ACE))
+    {
+      if (htop.N == QT_RHO || (htop.N == QT_LHO && htop.T == QT_ACE))
+      {
+        if (pickFlag) holdCtr[0x11de]++;
+        rank = HR(QT_ACE, 2);
+        trick[2].Set(QT_PARD, QT_ACE, rank, 1);
+        trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 2);
+        return def.Set112(trick);
+      }
+      else
+      {
+        if (pickFlag) holdCtr[0x11df]++;
+        rank = HR(QT_ACE, 2);
+        trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+        trick[3].Set(QT_PARD, QT_ACE, rank, 2);
+        return def.Set112(trick);
+      }
+    }
+    else if (p2 > r2 && r2 > a2 && lhoDown)
+    {
+      if (pickFlag) holdCtr[0x11e0]++;
+      rank = HR(QT_PARD, 2);
+      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+      trick[3].Set(QT_PARD, QT_BOTH, rank, 2);
+      return def.Set112(trick);
+    }
+    else if (length[QT_ACE] >= 5 && lhoDown &&
+        p1 > r2 && a3 > r2 && a3 > p1 &&
+        p1 > aLast && p2 < aLast)
+    {
+return false;
+      if (pickFlag) holdCtr[0x11de]++;
+      rank = HR(QT_PARD, 1);
+      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+      trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
+      return def.Set112(trick);
+    }
+    else if (p1 > a3 && a3 > r2 && lhoDown && p2 < aLast)
+    {
+return false;
+      if (pickFlag) holdCtr[0x11e1]++;
+      rank = HR(QT_ACE, 3);
+      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+      trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
+      return def.Set112(trick);
+    }
+
+
     // RHO > 3
+return false;
     if (pickFlag) holdCtr[0x11de]++;
 cout << "POS 11de\n";
 trick[0].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
@@ -8432,7 +8493,7 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
         else
         {
           // A94 / 8765 / KQ32 / JT.
-          if (pickFlag) holdCtr[0x11e1]++;
+          if (pickFlag) holdCtr[0x11f1]++;
           unsigned r1 = HR(pa, 0);
           unsigned r2 = HR(pp, 0);
           rank = HR(pp, 1);
@@ -8448,7 +8509,7 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
       {
         // Will have to unblock.
         // AK9x / Jx / QT8 / 65xx.
-        if (pickFlag) holdCtr[0x11e2]++;
+        if (pickFlag) holdCtr[0x11f2]++;
         unsigned r1 = HR(pp, 1);
         rank = HR(pa, 2);
         trick[0].Set(pa, QT_BOTH, r1, 4);
@@ -8462,7 +8523,7 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
           if (completeList[pp][1] > completeList[pl][1])
           {
             // AK65 / J9 / QT8 / 7432.
-            if (pickFlag) holdCtr[0x11e3]++;
+            if (pickFlag) holdCtr[0x11f3]++;
             unsigned r1 = HR(pp, 0);
             unsigned r2 = HR(pa, 0);
             rank = HR(pp, 1);
@@ -8479,7 +8540,7 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
             if (length[QT_ACE] == 4)
             {
               // AK65 / JT / Q98 / 7432.
-              if (pickFlag) holdCtr[0x11e4]++;
+              if (pickFlag) holdCtr[0x11f4]++;
               rank = HR(pp, 1);
               trick[0].Set(QT_BOTH, pa, SDS_ACE, 1);
               trick[1].Set(QT_BOTH, pp, rank, 2);
@@ -8489,7 +8550,7 @@ bool LoopHold::SolveComplex18(DefList& def, unsigned& rank) const
             else
             {
               // A98 / 7432 / KQ65 / JT.
-              if (pickFlag) holdCtr[0x11e5]++;
+              if (pickFlag) holdCtr[0x11f5]++;
               unsigned r1 = HR(pp, 0);
               unsigned r2 = HR(pa, 0);
               rank = HR(pp, 1);
