@@ -8184,6 +8184,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
     unsigned p2 = completeList[QT_PARD][2];
     unsigned p3 = completeList[QT_PARD][3];
     unsigned r2 = completeList[QT_RHO][2];
+    unsigned r3 = completeList[QT_RHO][3];
     unsigned aLast = completeList[QT_ACE][length[QT_ACE]-1];
     bool lhoDown = (length[QT_LHO] == 0 ||
         completeList[QT_LHO][0] < completeList[QT_PARD][0]);
@@ -8216,20 +8217,21 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       return def.Set112(trick);
     }
     else if (length[QT_ACE] >= 5 && lhoDown &&
-        p1 > r2 && a3 > r2 && a3 > p1 &&
-        p1 > aLast && p2 < aLast)
+        a3 > p1 && p1 > r2 && p1 > aLast && p2 < aLast &&
+        (length[QT_RHO] == 4 || (r2 > p2 && r3 > aLast)))
     {
-return false;
-      if (pickFlag) holdCtr[0x11de]++;
+      if (pickFlag) holdCtr[0x11e1]++;
       rank = HR(QT_PARD, 1);
+      unsigned l = (length[QT_RHO] == 4 ? length[QT_ACE] : 4);
       trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
-      trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
+      trick[3].Set(QT_PARD, QT_ACE, rank, l-1);
       return def.Set112(trick);
     }
-    else if (p1 > a3 && a3 > r2 && lhoDown && p2 < aLast)
+    else if (p1 > a3 && a3 > r2 && lhoDown && p2 < aLast &&
+      (length[QT_LHO] <= 1 || htop.E != QT_LHO) &&
+      (length[QT_RHO] != 5 || length[QT_ACE] != 5))
     {
-return false;
-      if (pickFlag) holdCtr[0x11e1]++;
+      if (pickFlag) holdCtr[0x11e2]++;
       rank = HR(QT_ACE, 3);
       trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
       trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
