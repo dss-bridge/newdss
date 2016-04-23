@@ -8227,28 +8227,52 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       trick[3].Set(QT_PARD, QT_ACE, rank, l-1);
       return def.Set112(trick);
     }
-    else if (p1 > a3 && a3 > r2 && lhoDown && p2 < Max(aLast, r2) &&
-      (length[QT_LHO] <= 1 || htop.E != QT_LHO) &&
-      (length[QT_RHO] != 5 || length[QT_ACE] != 5))
+    else if (p1 > a3 && a3 > r2 && lhoDown && p2 < Max(aLast, r2))
     {
-      if (pickFlag) holdCtr[0x11e2]++;
-      rank = HR(QT_ACE, 3);
-      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
-      trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
-      return def.Set112(trick);
+      if (distHex == 0x5035)
+      {
+        if (r2 > p2 && r3 > aLast)
+        {
+          if (pickFlag) holdCtr[0x11e2]++;
+          rank = HR(QT_ACE, 3);
+          trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+          trick[3].Set(QT_PARD, QT_ACE, rank, 3);
+          return def.Set112(trick);
+        }
+      }
+      else if (distHex == 0x4234 && htop.E == QT_LHO)
+      {
+        if (htop.T == QT_PARD && htop.N == QT_PARD && a3 > p2 && a3 > r2)
+        {
+          if (pickFlag) holdCtr[0x11e3]++;
+          rank = HR(QT_ACE, 3);
+          trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+          trick[3].Set(QT_PARD, QT_ACE, rank, 3);
+          return def.Set112(trick);
+        }
+      }
+      else
+      {
+        if (pickFlag) holdCtr[0x11e4]++;
+        rank = HR(QT_ACE, 3);
+        trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+        trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
+        return def.Set112(trick);
+      }
     }
-    else if (a3 > r2 && p2 > r2 && p2 < a2 && p2 > aLast && lhoDown &&
+
+    if (a3 > r2 && p2 > r2 && p2 < a2 && p2 > aLast && lhoDown &&
       (length[QT_LHO] <= 1 || htop.E != QT_LHO || 
        p1 > completeList[QT_LHO][0]))
     {
-      if (pickFlag) holdCtr[0x11e3]++;
+      if (pickFlag) holdCtr[0x11e5]++;
       // PA1Q + PP2x, PA1Q + PA(l-1)x.
       // PROBLEM: There are too many versions here.
       // So we won't spell them out for now.
 return false;
     }
 
-    if (pickFlag) holdCtr[0x11e4]++;
+    if (pickFlag) holdCtr[0x11e6]++;
     // PROBLEM:  Too much going on here for now.
 return false;
   }
