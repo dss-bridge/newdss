@@ -8175,6 +8175,25 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       return def.Set112(trick);
     }
   }
+  else if (LoopHold::StopFinesse(3, 3, 0, false, QT_ACE))
+  {
+    if (htop.N == QT_RHO || (htop.N == QT_LHO && htop.T == QT_ACE))
+    {
+      if (pickFlag) holdCtr[0x11de]++;
+      rank = HR(QT_ACE, 2);
+      trick[2].Set(QT_PARD, QT_ACE, rank, 1);
+      trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 2);
+      return def.Set112(trick);
+    }
+    else
+    {
+      if (pickFlag) holdCtr[0x11df]++;
+      rank = HR(QT_ACE, 2);
+      trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
+      trick[3].Set(QT_PARD, QT_ACE, rank, 2);
+      return def.Set112(trick);
+    }
+  }
   else if (length[QT_PARD] == 3)
   {
     unsigned a2 = completeList[QT_ACE][2];
@@ -8189,26 +8208,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
     bool lhoDown = (length[QT_LHO] == 0 ||
         completeList[QT_LHO][0] < completeList[QT_PARD][0]);
 
-    if (LoopHold::StopFinesse(3, 3, 0, false, QT_ACE))
-    {
-      if (htop.N == QT_RHO || (htop.N == QT_LHO && htop.T == QT_ACE))
-      {
-        if (pickFlag) holdCtr[0x11de]++;
-        rank = HR(QT_ACE, 2);
-        trick[2].Set(QT_PARD, QT_ACE, rank, 1);
-        trick[3].Set(QT_PARD, QT_ACE, SDS_VOID, 2);
-        return def.Set112(trick);
-      }
-      else
-      {
-        if (pickFlag) holdCtr[0x11df]++;
-        rank = HR(QT_ACE, 2);
-        trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
-        trick[3].Set(QT_PARD, QT_ACE, rank, 2);
-        return def.Set112(trick);
-      }
-    }
-    else if (p2 > r2 && r2 > a2 && lhoDown)
+    if (p2 > r2 && r2 > a2 && lhoDown)
     {
       if (pickFlag) holdCtr[0x11e0]++;
       rank = HR(QT_PARD, 2);
@@ -8274,11 +8274,15 @@ return false;
 
     if (pickFlag) holdCtr[0x11e6]++;
     // PROBLEM:  Too much going on here for now.
+    // At least there are probably no 4's and 6's anymore.
 return false;
   }
   else
   {
-    if (pickFlag) holdCtr[0x1216]++;
+cout << "POS 11e7\n";
+trick[0].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
+return def.Set1(trick[0]);
+    if (pickFlag) holdCtr[0x11ef]++;
   }
 
   return false;
