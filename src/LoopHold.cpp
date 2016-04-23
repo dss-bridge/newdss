@@ -8217,7 +8217,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       return def.Set112(trick);
     }
     else if (length[QT_ACE] >= 5 && lhoDown &&
-        a3 > p1 && p1 > r2 && p1 > aLast && p2 < aLast &&
+        a3 > p1 && p1 > r2 && p1 > aLast && p2 < Max(aLast, r2) &&
         (length[QT_RHO] == 4 || (r2 > p2 && r3 > aLast)))
     {
       if (pickFlag) holdCtr[0x11e1]++;
@@ -8227,7 +8227,7 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       trick[3].Set(QT_PARD, QT_ACE, rank, l-1);
       return def.Set112(trick);
     }
-    else if (p1 > a3 && a3 > r2 && lhoDown && p2 < aLast &&
+    else if (p1 > a3 && a3 > r2 && lhoDown && p2 < Max(aLast, r2) &&
       (length[QT_LHO] <= 1 || htop.E != QT_LHO) &&
       (length[QT_RHO] != 5 || length[QT_ACE] != 5))
     {
@@ -8237,14 +8237,20 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
       trick[3].Set(QT_PARD, QT_ACE, rank, length[QT_ACE]-1);
       return def.Set112(trick);
     }
-
-
-    // RHO > 3
+    else if (a3 > r2 && p2 > r2 && p2 < a2 && p2 > aLast && lhoDown &&
+      (length[QT_LHO] <= 1 || htop.E != QT_LHO || 
+       p1 > completeList[QT_LHO][0]))
+    {
+      if (pickFlag) holdCtr[0x11e3]++;
+      // PA1Q + PP2x, PA1Q + PA(l-1)x.
+      // PROBLEM: There are too many versions here.
+      // So we won't spell them out for now.
 return false;
-    if (pickFlag) holdCtr[0x11de]++;
-cout << "POS 11de\n";
-trick[0].Set(QT_ACE, QT_ACE, SDS_VOID, 1);
-return def.Set1(trick[0]);
+    }
+
+    if (pickFlag) holdCtr[0x11e4]++;
+    // PROBLEM:  Too much going on here for now.
+return false;
   }
   else
   {
