@@ -248,7 +248,7 @@ sub printProfile
   for my $cno (0 .. $#cardNames)
   {
     my $a = 'has' . $cardNames[$cno];
-    if (defined $entryref->{$a})
+    if (defined $entryref->{$a} && ! defined $comref->{$a})
     {
       my $entry .= 'htop.' . $htopNames[$cno] . ' = ' .  
         $fullPlayer{$entryref->{$a}};
@@ -256,9 +256,23 @@ sub printProfile
     }
   }
 
+  for my $cno (0 .. $#cardNames)
+  {
+    my $a = 'opp' . $cardNames[$cno];
+    if (defined $entryref->{$a} && ! defined $comref->{$a})
+    {
+      my $entry = '';
+      $entry = '! ' if ($entryref->{$a} == 0);
+      $entry .= 'hopp.' . $htopNames[$cno];
+      addProfileEntry(\$first, \$str, \$strcum, $entry);
+    }
+  }
+
   for my $k (sort keys %$entryref)
   {
     next if ($k =~ /has/);
+    next if ($k =~ /opp/);
+    next if (defined $comref->{$k});
 
     $k =~ /(.)(\d)(.)(\d)/;
     my ($a, $b, $c, $d) = ($1, $2, $3, $4);
@@ -353,7 +367,7 @@ sub accumulateProfile
   for my $k (keys %$profileref)
   {
     next if (defined $ignoreref->{$k});
-    next if ($k !~ /has/ && $k =~ /$skipOpp/);
+    next if ($k !~ /has/ && $k !~ /opp/ && $k =~ /$skipOpp/);
     $accumref->{$k}{$profileref->{$k}}++;
   }
 }
@@ -375,6 +389,23 @@ sub extractProfile
     if ($num == 1 && $accumref->{$k}{$s0} >= $targetCount)
     {
       $profileref->{$k} = $s0;
+    }
+    elsif ($num == 2 && $k =~ /has/)
+    {
+      if (defined $accumref->{$k}{a} && defined $accumref->{$k}{p} &&
+          $accumref->{$k}{a} + $accumref->{$k}{p} >= $targetCount)
+      {
+        my $knew = $k;
+        $knew =~ s/has/opp/;
+        $profileref->{$knew} = 0;
+      }
+      elsif (defined $accumref->{$k}{l} && defined $accumref->{$k}{r} &&
+          $accumref->{$k}{r} + $accumref->{$k}{r} >= $targetCount)
+      {
+        my $knew = $k;
+        $knew =~ s/has/opp/;
+        $profileref->{$knew} = 1;
+      }
     }
   }
 }
