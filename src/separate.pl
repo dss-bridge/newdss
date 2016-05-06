@@ -5,9 +5,9 @@ use warnings;
 # PLAN, in order:
 
 # Can perhaps simplify a2>p2 p2>r2 a2>r2 (lose a2>r2)
+# Solution is to punch out.
 
 # Add good C comments:
-#     // AQT9 / - / 8765 / KJ43 (12 / 0x330aaf), 200 cases.
 #     // PROBLEM: Uses a2 where only a1 should be relevant.
 
 # Check that profile never triggers in other branches for that
@@ -85,16 +85,17 @@ $posName{Pard} = 'QT_PARD';
 $posName{Both} = 'QT_BOTH';
 
 
-my (@entries, @profiles, @examples);
+# Global variables.
+my (@entries, @profiles, %common);
+my (@examples, @exampleCount, @exampleEntryNo, @exampleDistNo);
 my $numExamples = 0;
 
 parse(pop);
 printExamples();
 
-my (%common, %empty);
+my %empty;
 getCommonProfile(\%common);
 print "Common profile:\n";
-# printEntry(\%common);
 printProfile(\%common, \%empty);
 print "\n";
 
@@ -159,12 +160,16 @@ sub parse
     until ($l =~ /^\s*$/);
     pop @solText;
 
-    # printEntry(\%{$entries[$eno]});
-    # print "\n";
-    # printEntry(\%{$profiles[$eno]});
     my $exno = getExampleNumber(\@solText);
-    # print "Example number $exno\n\n";
     $entries[$eno]{example} = $exno;
+
+    my $lkey = getLengthKey(\%{$entries[$eno]});
+    if (! defined $exampleEntryNo[$exno]{$lkey})
+    {
+      $exampleEntryNo[$exno]{$lkey} = $eno;
+      $exampleDistNo[$exno]++;
+    }
+    $exampleCount[$exno]{$lkey}++;
 
     $eno++;
   }
@@ -383,9 +388,26 @@ sub printExample
 }
 
 
+sub printExampleComment
+{
+  my ($exno, $lkey) = @_;
+
+  my $eref = \%{$entries[$exampleEntryNo[$exno]{$lkey}]};
+  print "$indent  // ",
+    $eref->{cardsAce}, " / ",
+    $eref->{cardsLHO} || '-', " / ",
+    $eref->{cardsPard}, " / ",
+    $eref->{cardsRHO}, " (",
+    $eref->{length}, ", ",
+    "0x", $eref->{count}, "), ",
+    $exampleCount[$exno]{$lkey},
+    " cases.\n";
+}
+
+
 sub printExampleAsCode
 {
-  my ($exno, $comref, $specref) = @_;
+  my ($exno, $comref, $specref, $lkey) = @_;
 
   # Make a list of known top cards in order to avoid some comps.
   my %countTop;
@@ -430,6 +452,7 @@ sub printExampleAsCode
     if ($list[0] != 0)
     {
       print "$indent\{\n";
+      printExampleComment($exno, $lkey);
       print "$indent  // DEFENSE: Multiple cases.\n";
       printf "%s  REGISTER(0x%x);\n", $indent, $runIndex;
       $runIndex++;
@@ -546,6 +569,7 @@ sub printExampleAsCode
   }
 
   print "$indent\{\n";
+  printExampleComment($exno, $lkey);
   printf "%s  REGISTER(0x%x);\n", $indent, $runIndex;
   $runIndex++;
   print "$indent  rank = $rank;\n";
@@ -574,9 +598,12 @@ sub getExampleNumber
     {
       next if ($solref->[$i] ne $examples[$e][$i]);
     }
+
+    # Found it.
     return $e;
   }
   
+  # Didn't find it.
   for my $i (0 .. $ls)
   {
     $examples[$numExamples][$i] = $solref->[$i];
@@ -649,14 +676,21 @@ sub extractProfile
 }
 
 
+sub getLengthKey
+{
+  my ($eref) = @_;
+  return $eref->{lenAce} . $eref->{lenLHO} . 
+    $eref->{lenPard} . $eref->{lenRHO};
+}
+
+
 sub getAllProfiles
 {
   my ($commonref) = @_;
   for my $n (0 .. $#entries)
   {
     my $e = \%{$entries[$n]};
-    my $lkey = $e->{lenAce} . $e->{lenLHO} . 
-      $e->{lenPard} . $e->{lenRHO};
+    my $lkey = getLengthKey($e);
     my $skipOpp = 'x';
     $skipOpp = 'l' if ($e->{lenLHO} == 0);
     $skipOpp = 'r' if ($e->{lenRHO} == 0);
@@ -676,7 +710,7 @@ sub getAllProfiles
       extractProfile(\%{$branchProfiles[$k]{$l}}, \%bprof, 1);
       printProfile(\%bprof, $commonref);
       # printEntry(\%bprof);
-      printExampleAsCode($k, $commonref, \%bprof);
+      printExampleAsCode($k, $commonref, \%bprof, $l);
       print "\n";
     }
   }
