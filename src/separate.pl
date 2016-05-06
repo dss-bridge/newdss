@@ -3,7 +3,6 @@ use strict;
 use warnings;
 
 # PLAN
-# Introduce hopp as well?
 # Print out in C syntax
 # Check that profile never triggers in other branches for that
 # length pattern.  Have to check each entry, not just the accum.
@@ -268,6 +267,30 @@ sub printProfile
     }
   }
 
+  # Make a list of known top cards in order to avoid some comps.
+  my %seenTop;
+  $seenTop{a} = 0;
+  $seenTop{l} = 0;
+  $seenTop{p} = 0;
+  $seenTop{r} = 0;
+  for my $cno (0 .. $#cardNames)
+  {
+    my $a = 'has' . $cardNames[$cno];
+    if (defined $entryref->{$a})
+    {
+      $seenTop{$entryref->{$a}}++;
+    }
+    elsif (defined $comref->{$a})
+    {
+      $seenTop{$comref->{$a}}++;
+    }
+    else
+    {
+      last;
+    }
+  }
+
+
   for my $k (sort keys %$entryref)
   {
     next if ($k =~ /has/);
@@ -276,6 +299,17 @@ sub printProfile
 
     $k =~ /(.)(\d)(.)(\d)/;
     my ($a, $b, $c, $d) = ($1, $2, $3, $4);
+
+    # Skip comparisons against specifically known tops.
+    if ($seenTop{$a} > $b)
+    {
+      next;
+    }
+    if ($seenTop{$c} > $d)
+    {
+      next;
+    }
+
     my ($k1, $k2);
     if ($entryref->{$k} == 1)
     {
