@@ -365,13 +365,17 @@ sub printProfile
   my $str = $indent . "if (";
   my $len;
   my $first = 1;
+
+  my %reducedProfile;
+  extractReducedProfile($entryref, $comref, \%reducedProfile);
+
   for my $cno (0 .. $#cardNames)
   {
     my $a = 'has' . $cardNames[$cno];
-    if (defined $entryref->{$a} && ! defined $comref->{$a})
+    if (defined $reducedProfile{$a})
     {
       my $entry .= 'htop.' . $htopNames[$cno] . ' = ' .  
-        $fullPlayer{$entryref->{$a}};
+        $fullPlayer{$reducedProfile{$a}};
       addProfileEntry(\$first, \$str, \$strcum, $entry);
     }
   }
@@ -379,79 +383,22 @@ sub printProfile
   for my $cno (0 .. $#cardNames)
   {
     my $a = 'opp' . $cardNames[$cno];
-    if (defined $entryref->{$a} && ! defined $comref->{$a})
+    if (defined $reducedProfile{$a})
     {
       my $entry = '';
-      $entry = '! ' if ($entryref->{$a} == 0);
+      $entry = '! ' if ($reducedProfile{$a} == 0);
       $entry .= 'hopp.' . $htopNames[$cno];
       addProfileEntry(\$first, \$str, \$strcum, $entry);
     }
   }
 
-  # Make a list of known top cards in order to avoid some comps.
-  my %seenTop;
-  $seenTop{a} = 0;
-  $seenTop{l} = 0;
-  $seenTop{p} = 0;
-  $seenTop{r} = 0;
-  for my $cno (0 .. $#cardNames)
-  {
-    my $a = 'has' . $cardNames[$cno];
-    if (defined $entryref->{$a})
-    {
-      $seenTop{$entryref->{$a}}++;
-    }
-    elsif (defined $comref->{$a})
-    {
-      $seenTop{$comref->{$a}}++;
-    }
-    else
-    {
-      last;
-    }
-  }
-
-
-  for my $k (sort keys %$entryref)
+  for my $k (sort keys %reducedProfile)
   {
     next if ($k =~ /has/);
     next if ($k =~ /opp/);
-    next if (defined $comref->{$k});
 
     $k =~ /(.)(\d)(.)(\d)/;
     my ($a, $b, $c, $d) = ($1, $2, $3, $4);
-
-    # Skip comparisons against specifically known tops.
-    if ($seenTop{$a} > $b)
-    {
-      next;
-    }
-    if ($seenTop{$c} > $d)
-    {
-      next;
-    }
-
-    my ($k1, $k2);
-    if ($entryref->{$k} == 1)
-    {
-      $k1 = $a . ($b+1) . $c . $d;
-      $k2 = $a . $b . $c . ($d-1);
-    }
-    else
-    {
-      $k1 = $a . ($b-1) . $c . $d;
-      $k2 = $a . $b . $c . ($d+1);
-    }
-    if ((defined $entryref->{$k1} && $entryref->{$k} == $entryref->{$k1}) ||
-        (defined $entryref->{$k2} && $entryref->{$k} == $entryref->{$k2}))
-    {
-      next;
-    }
-    if ((defined $comref->{$k1} && $entryref->{$k} == $comref->{$k1}) ||
-        (defined $comref->{$k2} && $entryref->{$k} == $comref->{$k2}))
-    {
-      next;
-    }
 
     my $entry .= ($entryref->{$k} == 1 ?  "$a$b > $c$d" : "$c$d > $a$b");
     addProfileEntry(\$first, \$str, \$strcum, $entry);
