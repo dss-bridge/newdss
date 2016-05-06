@@ -2,8 +2,20 @@
 use strict;
 use warnings;
 
-# PLAN
-# Print out in C syntax
+# PLAN, in order:
+
+# For rank (in C), check comparisons to eliminate options such as a2 p2
+# when we know a2 > p2.  Also eliminate hard ranks when there is a soft one.
+
+# Can perhaps simplify a2>p2 p2>r2 a2>r2 (lose a2>r2)
+
+# Add good C comments:
+#     // AQT9 / - / 8765 / KJ43 (12 / 0x330aaf), 200 cases.
+#     // PROBLEM: Uses a2 where only a1 should be relevant.
+#     // DEFENSE: Multiple cases.
+#     REGISTER(0x11f1);
+#     return false;
+
 # Check that profile never triggers in other branches for that
 # length pattern.  Have to check each entry, not just the accum.
 #
@@ -17,12 +29,15 @@ use warnings;
 # 
 # Can leave the reduction to the end, after finding patterns.
 #
-# Add good C comments:
-#     // AQT9 / - / 8765 / KJ43 (12 / 0x330aaf), 200 cases.
-#     // PROBLEM: Uses a2 where only a1 should be relevant.
-#     // DEFENSE: Multiple cases.
-#     REGISTER(0x11f1);
-#     return false;
+# Reduction idea:
+# We really want to get all patterns within a branch, to make simple code.
+# Find a branch with one pattern, or where all patterns have same
+# example (here branches 4-7).
+# Can output distHex masks + the simple code.
+# That leaves branches 0-3.
+# Actually take one such branch, then somehow rerun as the global/local
+# split may have simplified.
+#
 
 my %cardsToShort;
 $cardsToShort{cardsAce} = 'a';
@@ -49,12 +64,20 @@ $ranks{0} = 0;
 
 my @cardNames = (qw(A K Q J T 9 8 7 6 5 4 3 2));
 my @htopNames = (qw(A K Q J T N E S X F O H W));
+my @hfulltopNames = (qw(SDS_ACE SDS_KING SDS_QUEEN SDS_JACK SDS_TEN 
+  SDS_NINE SDS_EIGHT SDS_SEVEN SDS_SIX SDS_FIVE 
+  SDS_FOUR SDS_THREE SDS_TWO));
 
 my %fullPlayer;
 $fullPlayer{a} = 'QT_ACE';
 $fullPlayer{p} = 'QT_PARD';
 $fullPlayer{l} = 'QT_LHO';
 $fullPlayer{r} = 'QT_RHO';
+
+my %posName;
+$posName{Ace} = 'QT_ACE';
+$posName{Pard} = 'QT_PARD';
+$posName{Both} = 'QT_BOTH';
 
 
 my (@entries, @profiles, @examples);
@@ -358,6 +381,113 @@ sub printExample
 }
 
 
+sub printExampleAsCode
+{
+  my ($exno, $comref, $specref) = @_;
+
+  # Make a list of known top cards in order to avoid some comps.
+  my %countTop;
+  $countTop{a} = 0;
+  $countTop{l} = 0;
+  $countTop{p} = 0;
+  $countTop{r} = 0;
+  my %seenTop;
+  for my $cno (0 .. $#cardNames)
+  {
+    my $cname = $cardNames[$cno];
+    my $a = 'has' . $cname;
+    my $h;
+    if (defined $specref->{$a})
+    {
+      $h = $specref->{$a};
+    }
+    elsif (defined $comref->{$a})
+    {
+      $h = $comref->{$a};
+    }
+    else
+    {
+      last;
+    }
+    $seenTop{$h . $countTop{$h}++} = $hfulltopNames[$cno];
+  }
+
+  my @result;
+  my @groupCount;
+  my $trickCount = 0;
+  my %ranksSeen;
+  $ranksSeen{a} = -1;
+  $ranksSeen{l} = -1;
+  $ranksSeen{p} = -1;
+  $ranksSeen{r} = -1;
+  for my $line (@{$examples[$exno]})
+  {
+    $line =~ s/^\s+//;
+    my @list = split /\s+/, $line;
+
+    if ($list[0] != 0)
+    {
+      print "\n";
+      print "$indent  // Multiple defenses are skipped.\n";
+      print "\n\n";
+      return;
+    }
+
+    $groupCount[$list[1]]++;
+    my $str = "trick[$trickCount].Set(" .
+      $posName{$list[3]} . ", " .
+      $posName{$list[4]} . ", ";
+
+    my $rank = $list[6];
+    if ($rank eq '-')
+    {
+      $str .= 'SDS_VOID, ';
+    }
+    else
+    {
+      my $h = substr $rank, 0, 1;
+      my $n = substr $rank, 1, 1;
+      if ($n > $ranksSeen{$h})
+      {
+        $ranksSeen{$h} = $n;
+      }
+  
+      if (defined $seenTop{$rank})
+      {
+        $str .= $seenTop{$rank} . ", ";
+      }
+      else
+      {
+        $str .= $rank . ", ";
+      }
+    }
+    $str .= $list[5] . ");";
+    push @result, $str;
+  }
+
+  print "$indent\{\n";
+  print "$indent  // Lowest ranks seen: ";
+  for my $h (qw(a p l r))
+  {
+    next if ($ranksSeen{$h} == -1);
+    my $relRank = $h . $ranksSeen{$h};
+    print "$relRank ";
+    print "($seenTop{$relRank}) " if (defined $seenTop{$relRank});
+  }
+  print "\n";
+
+  for my $line (@result)
+  {
+    print "$indent  $line\n";
+  }
+
+  print "$indent  return def.Set";
+  print join '', @groupCount;
+  print "(trick);\n";
+  print "$indent\}\n";
+}
+
+
 sub getExampleNumber
 {
   my ($solref) = @_;
@@ -472,6 +602,7 @@ sub getAllProfiles
       extractProfile(\%{$branchProfiles[$k]{$l}}, \%bprof, 1);
       printProfile(\%bprof, $commonref);
       # printEntry(\%bprof);
+      printExampleAsCode($k, $commonref, \%bprof);
       print "\n";
     }
   }
