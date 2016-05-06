@@ -4,17 +4,11 @@ use warnings;
 
 # PLAN, in order:
 
-# For rank (in C), check comparisons to eliminate options such as a2 p2
-# when we know a2 > p2.  Also eliminate hard ranks when there is a soft one.
-
 # Can perhaps simplify a2>p2 p2>r2 a2>r2 (lose a2>r2)
 
 # Add good C comments:
 #     // AQT9 / - / 8765 / KJ43 (12 / 0x330aaf), 200 cases.
 #     // PROBLEM: Uses a2 where only a1 should be relevant.
-#     // DEFENSE: Multiple cases.
-#     REGISTER(0x11f1);
-#     return false;
 
 # Check that profile never triggers in other branches for that
 # length pattern.  Have to check each entry, not just the accum.
@@ -38,6 +32,11 @@ use warnings;
 # Actually take one such branch, then somehow rerun as the global/local
 # split may have simplified.
 #
+
+
+my $indent = ' ' x 2;
+my $runIndex = 0x1000;
+
 
 my %cardsToShort;
 $cardsToShort{cardsAce} = 'a';
@@ -68,6 +67,12 @@ my @hfulltopNames = (qw(SDS_ACE SDS_KING SDS_QUEEN SDS_JACK SDS_TEN
   SDS_NINE SDS_EIGHT SDS_SEVEN SDS_SIX SDS_FIVE 
   SDS_FOUR SDS_THREE SDS_TWO));
 
+my %hfulltopNumber;
+for my $hno (0 .. $#hfulltopNames)
+{
+  $hfulltopNumber{$hfulltopNames[$hno]} = $hno;
+}
+
 my %fullPlayer;
 $fullPlayer{a} = 'QT_ACE';
 $fullPlayer{p} = 'QT_PARD';
@@ -82,8 +87,6 @@ $posName{Both} = 'QT_BOTH';
 
 my (@entries, @profiles, @examples);
 my $numExamples = 0;
-
-my $indent = ' ' x 2;
 
 parse(pop);
 printExamples();
@@ -358,8 +361,7 @@ sub printProfile
     my $entry .= ($entryref->{$k} == 1 ?  "$a$b > $c$d" : "$c$d > $a$b");
     addProfileEntry(\$first, \$str, \$strcum, $entry);
   }
-  $str .= ")\n";
-  print "$strcum$str\n";
+  print "$strcum$str)\n";
 }
 
 
@@ -427,9 +429,12 @@ sub printExampleAsCode
 
     if ($list[0] != 0)
     {
-      print "\n";
-      print "$indent  // Multiple defenses are skipped.\n";
-      print "\n\n";
+      print "$indent\{\n";
+      print "$indent  // DEFENSE: Multiple cases.\n";
+      printf "%s  REGISTER(0x%x);\n", $indent, $runIndex;
+      $runIndex++;
+      print "$indent  return false;\n";
+      print "$indent\}\n\n";
       return;
     }
 
@@ -437,6 +442,7 @@ sub printExampleAsCode
     my $str = "trick[$trickCount].Set(" .
       $posName{$list[3]} . ", " .
       $posName{$list[4]} . ", ";
+    $trickCount++;
 
     my $rank = $list[6];
     if ($rank eq '-')
@@ -465,16 +471,84 @@ sub printExampleAsCode
     push @result, $str;
   }
 
-  print "$indent\{\n";
-  print "$indent  // Lowest ranks seen: ";
+  # Determine the lowest rank overall.  Specific ranks are not needed
+  # if there is at least one relative rank.
+  my $numRel = 0;
+  my $numAbs = 0;
+  my ($exAbs, $exRel);
   for my $h (qw(a p l r))
   {
     next if ($ranksSeen{$h} == -1);
     my $relRank = $h . $ranksSeen{$h};
-    print "$relRank ";
-    print "($seenTop{$relRank}) " if (defined $seenTop{$relRank});
+    if (defined $seenTop{$relRank})
+    {
+      $numAbs++;
+      $exAbs = $seenTop{$relRank};
+    }
+    else
+    {
+      $numRel++;
+      $exRel = $relRank;
+    }
   }
-  print "\n";
+
+  my $rank = '';
+  if ($numRel == 0)
+  {
+    die "No ranks at all?" if $numAbs == 0;
+    if ($numAbs == 1)
+    {
+      $rank = $exAbs;
+    }
+    else
+    {
+      # Need to pick the lowest.
+      my $highestNo = -1;
+      for my $h (qw(a p l r))
+      {
+        next if ($ranksSeen{$h} == -1);
+        my $relRank = $h . $ranksSeen{$h};
+        next unless defined $seenTop{$relRank};
+        my $tag = $seenTop{$relRank};
+        $highestNo = $hfulltopNumber{$tag} 
+          if $hfulltopNumber{$tag} > $highestNo;
+      }
+      $rank = $hfulltopNames[$highestNo];
+    }
+  }
+  elsif ($numRel == 1)
+  {
+    $rank = $exRel;
+  }
+  elsif ($numRel == 2)
+  {
+    $rank = 'Min(';
+    my $first = 1;
+    for my $h (qw(a p l r))
+    {
+      next if ($ranksSeen{$h} == -1);
+      my $relRank = $h . $ranksSeen{$h};
+      next if defined $seenTop{$relRank};
+      if ($first)
+      {
+        $rank .= "$relRank, ";
+        $first = 0;
+      }
+      else
+      {
+        $rank .= "$relRank)";
+      }
+    }
+  }
+  else
+  {
+    die "Minimum of more than two -- can be done";
+  }
+
+  print "$indent\{\n";
+  printf "%s  REGISTER(0x%x);\n", $indent, $runIndex;
+  $runIndex++;
+  print "$indent  rank = $rank;\n";
 
   for my $line (@result)
   {
