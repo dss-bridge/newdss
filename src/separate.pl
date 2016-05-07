@@ -51,7 +51,7 @@ my (@htopNames, @hfulltopNames, %hfulltopNumber);
 setConstants();
 
 # Global variables.
-my (@entries, @profiles, %common);
+my (@entries, @profiles, %common, @branchProfiles);
 my (@examples, @exampleCount, @exampleEntryNo, @exampleDistNo);
 my $numExamples = 0;
 
@@ -66,8 +66,8 @@ print "Common profile:\n";
 printProfile(\%reducedProfile);
 print "\n";
 
-my @branchProfiles;
-getAllProfiles(\%common);
+getAllProfiles(); # Uses %profiles, %common, updates %branchProfiles
+printAllProfiles(); # Uses %common, %branchProfiles
 
 
 sub setConstants
@@ -722,7 +722,6 @@ sub getLengthKey
 
 sub getAllProfiles
 {
-  my ($commonref) = @_;
   for my $n (0 .. $#entries)
   {
     my $e = \%{$entries[$n]};
@@ -733,9 +732,13 @@ sub getAllProfiles
 
     accumulateProfile($profiles[$n],
       \%{$branchProfiles[$e->{example}]{$lkey}},
-      $commonref, $skipOpp);
+      \%common, $skipOpp);
   }
+}
 
+
+sub printAllProfiles
+{
   for my $k (0 .. $#branchProfiles)
   {
     print "Branch $k common:\n";
@@ -744,14 +747,12 @@ sub getAllProfiles
       print "Pattern $l\n";
       my (%bprof, %reducedProfile, %knownTops);
       extractProfile(\%{$branchProfiles[$k]{$l}}, \%bprof, 1);
-      extractReducedProfile(\%bprof, $commonref, \%reducedProfile);
+      extractReducedProfile(\%bprof, \%common, \%reducedProfile);
       printProfile(\%reducedProfile);
-      extractKnownTops(\%bprof, $commonref, \%knownTops);
+      extractKnownTops(\%bprof, \%common, \%knownTops);
       # printEntry(\%bprof);
       printExampleAsCode($k, \%knownTops, $l);
       print "\n";
     }
   }
 }
-
-
