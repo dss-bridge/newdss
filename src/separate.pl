@@ -16,29 +16,19 @@ use warnings;
 # Can perhaps simplify a2>p2 p2>r2 a2>r2 (lose a2>r2)
 # Solution is to punch out.
 
+# Current status: Can make tableau of each branch profile.
+# Not that many cases can be singled out.  The general pattern might be:
+# Try the 1-dist exnos.
+# Try other exnos and try to cover multiple distributions at once.
+# Try individual exno-lkey combinations.
+# Once we have a winner, try to punch out each term in turn.
+# Output. (Multiple lkeys in a branch: Careful with trick code).
+# Regenerate global.
+# Start to skip over used entries and profiles next time (ignore list).
 
-# Check that profile never triggers in other branches for that
-# length pattern.  Have to check each entry, not just the accum.
-#
-# Go through to find any branch at all with this property.
-# Output it.
-# Once these are gone, perhaps the ignore list should expand.
-# Then we do the same again, until hopefully we're done.
-# If there is more than one option, take the one with the smallest
-# example "weight", then the lowest distribution number.
-# Or the highest weight (most specific)?
-# 
-# Can leave the reduction to the end, after finding patterns.
-#
-# Reduction idea:
-# We really want to get all patterns within a branch, to make simple code.
-# Find a branch with one pattern, or where all patterns have same
-# example (here branches 4-7).
-# Can output distHex masks + the simple code.
-# That leaves branches 0-3.
-# Actually take one such branch, then somehow rerun as the global/local
-# split may have simplified.
-#
+# There might be too many ranks in play now, leading to too much
+# complexity.  Probably need to go back and fix rank issues in
+# Loophold.cpp first.
 
 
 # Formats.
@@ -51,21 +41,21 @@ my (@htopNames, @hfulltopNames, %hfulltopNumber);
 setConstants();
 
 # Global variables.
-my (@entries, @profiles, %common, @branchProfiles);
+my (@entries, @profiles);
 my (@examples, @exampleCount, @exampleEntryNo, @exampleDistNo);
 my $numExamples = 0;
-
 parse(pop);
 printExamples();
 
-my (%empty, %reducedProfile);
-getCommonProfile(\%common);
+my (%common, %empty, %reducedProfile);
+getCommonProfile(); # Sets %common
 extractReducedProfile(\%common, \%empty, \%reducedProfile);
 
 print "Common profile:\n";
 printProfile(\%reducedProfile);
 print "\n";
 
+my @branchProfiles;
 getAllProfiles(); # Uses %profiles, %common, updates %branchProfiles
 printAllProfiles(); # Uses %common, %branchProfiles
 
@@ -112,33 +102,35 @@ sub parse
   while (my $line = shift @lines)
   {
     next unless $line =~ /^sl (\d+) c (\w+)/;
-    $entries[$eno]{length} = $1;
-    $entries[$eno]{count} = $2;
+    my $eref = \%{$entries[$eno]};
+    $eref->{length} = $1;
+    $eref->{count} = $2;
 
     $line = shift @lines;
     $line =~ /(\w+)/;
-    $entries[$eno]{cardsAce} = $1;
-    $entries[$eno]{lenAce} = length $1;
+    $eref->{cardsAce} = $1;
+    $eref->{lenAce} = length $1;
     $line = shift @lines;
     $line =~ /(\S+)\s+(\S+)/;
-    $entries[$eno]{cardsRHO} = ($1 eq '-' ? '' : $1);
-    $entries[$eno]{lenRHO} = length $entries[$eno]{cardsRHO};
-    $entries[$eno]{cardsLHO} = ($2 eq '-' ? '' : $2);
-    $entries[$eno]{lenLHO} = length $entries[$eno]{cardsLHO};
+    $eref->{cardsRHO} = ($1 eq '-' ? '' : $1);
+    $eref->{lenRHO} = length $eref->{cardsRHO};
+    $eref->{cardsLHO} = ($2 eq '-' ? '' : $2);
+    $eref->{lenLHO} = length $eref->{cardsLHO};
     $line = shift @lines;
     $line =~ /(\w+)/;
-    $entries[$eno]{cardsPard} = $1;
-    $entries[$eno]{lenPard} = length $1;
+    $eref->{cardsPard} = $1;
+    $eref->{lenPard} = length $1;
+    $eref->{lkey} = getLengthKey($eref);
 
     my %relMap;
     $relMap{'-'} = '-';
-    addMap(\%relMap, $entries[$eno]{cardsAce}, 'a');
-    addMap(\%relMap, $entries[$eno]{cardsLHO}, 'l');
-    addMap(\%relMap, $entries[$eno]{cardsPard}, 'p');
-    addMap(\%relMap, $entries[$eno]{cardsRHO}, 'r');
+    addMap(\%relMap, $eref->{cardsAce}, 'a');
+    addMap(\%relMap, $eref->{cardsLHO}, 'l');
+    addMap(\%relMap, $eref->{cardsPard}, 'p');
+    addMap(\%relMap, $eref->{cardsRHO}, 'r');
 
-    enterTops(\%{$entries[$eno]}, \%{$profiles[$eno]});
-    enterComps(\%{$entries[$eno]}, \%{$profiles[$eno]});
+    enterTops($eref, \%{$profiles[$eno]});
+    enterComps($eref, \%{$profiles[$eno]});
 
     do
     {
@@ -159,9 +151,9 @@ sub parse
     pop @solText;
 
     my $exno = getExampleNumber(\@solText);
-    $entries[$eno]{example} = $exno;
+    $eref->{example} = $exno;
 
-    my $lkey = getLengthKey(\%{$entries[$eno]});
+    my $lkey = getLengthKey($eref);
     if (! defined $exampleEntryNo[$exno]{$lkey})
     {
       $exampleEntryNo[$exno]{$lkey} = $eno;
@@ -650,14 +642,12 @@ sub getExampleNumber
 
 sub getCommonProfile
 {
-  my ($profileref) = @_;
-  my %accum;
-  my %empty;
+  my (%accum, %empty);
   for my $e (@profiles)
   {
     accumulateProfile($e, \%accum, \%empty, 'x');
   }
-  extractProfile(\%accum, $profileref, $#profiles+1);
+  extractProfile(\%accum, \%common, $#profiles+1);
 }
 
 
@@ -693,6 +683,7 @@ sub extractProfile
     }
     elsif ($num == 2 && $k =~ /has/)
     {
+      # Special case: Recognize 'opp' out of 'has' on one side.
       if (defined $accumref->{$k}{a} && defined $accumref->{$k}{p} &&
           $accumref->{$k}{a} + $accumref->{$k}{p} >= $targetCount)
       {
@@ -753,6 +744,123 @@ sub printAllProfiles
       # printEntry(\%bprof);
       printExampleAsCode($k, \%knownTops, $l);
       print "\n";
+
+      my @scoreTable;
+      scoreProfileTable(\%reducedProfile, \@scoreTable);
+      printProfileTable(\@scoreTable);
+      print "\n";
     }
+  }
+}
+
+
+sub scoreSingleProfile
+{
+  my ($candidateref, $baseref) = @_;
+
+  for my $k (keys %$candidateref)
+  {
+    if ($k =~ /opp/)
+    {
+      # Special case.
+      if (defined $baseref->{$k})
+      {
+        return 'fail' unless ($candidateref->{$k} eq $baseref->{$k});
+      }
+      else
+      {
+        my $kspec = $k;
+        $kspec =~ s/opp/has/;
+        return 'fail' unless (defined $baseref->{$kspec});
+
+        if ($candidateref->{$k} == 1)
+        {
+          return 'fail' if 
+            ($baseref->{$kspec} eq 'a' || $baseref->{$kspec} eq 'p');
+        }
+        else
+        {
+          return 'fail' if 
+            ($baseref->{$kspec} eq 'l' || $baseref->{$kspec} eq 'r');
+        }
+      }
+    }
+    else
+    {
+      return 'fail' unless 
+        (defined $baseref->{$k} && $candidateref->{$k} eq $baseref->{$k});
+    }
+  }
+  return 'pass';
+}
+
+
+sub scoreProfileTable
+{
+  my ($profileref, $resref) = @_;
+
+  for my $eno (0 .. $#entries)
+  {
+    my $lkey = $entries[$eno]{lkey};
+    my $exno = $entries[$eno]{example};
+    my $r = scoreSingleProfile($profileref, $profiles[$eno]);
+    $resref->[$exno]{all}{$r}++;
+    $resref->[$exno]{$lkey}{$r}++;
+  }
+}
+
+
+sub printProfileTable
+{
+  my ($resref) = @_;
+
+  my %lenHash;
+  for my $exno (0 .. $#$resref)
+  {
+    for my $k (keys %{$resref->[$exno]})
+    {
+      $lenHash{$k} = 1;
+    }
+  }
+
+  printf "%2s", 'no';
+  for my $k (sort keys %lenHash)
+  {
+    printf "%15s", $k;
+  }
+  print "\n";
+
+  for my $exno (0 .. $#$resref)
+  {
+    printf "%2d", $exno;
+    my $rref = $resref->[$exno];
+    for my $k (sort keys %lenHash)
+    {
+      if (defined $rref->{$k})
+      {
+        if (defined $rref->{$k}{pass})
+        {
+          printf "  %5d / ", $rref->{$k}{pass};
+        }
+        else
+        {
+          printf "  %5s / ", '-';
+        }
+        
+        if (defined $rref->{$k}{fail})
+        {
+          printf "%5d", $rref->{$k}{fail};
+        }
+        else
+        {
+          printf "%5s", '-';
+        }
+      }
+      else
+      {
+        printf "  %5s / %5s", '-', '-';
+      }
+    }
+    print "\n";
   }
 }
