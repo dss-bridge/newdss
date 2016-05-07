@@ -4,11 +4,18 @@ use warnings;
 
 # PLAN, in order:
 
+# Rank problem detection: Say we have p2.
+# All p2 > x, p1 > x, p0 > x are OK.
+# All p2 < x, p1 < x, p0 < x too (remember the x'es).
+#   All involving x'es (and if p2 > a3, then also p1 OK) are OK.
+# In a Min(), do it for both.
+# In an absolute, no relative comparisons.
+# Add good C comment for this:
+#     // PROBLEM: p3 > a4, p3 > r3.
+
 # Can perhaps simplify a2>p2 p2>r2 a2>r2 (lose a2>r2)
 # Solution is to punch out.
 
-# Add good C comments:
-#     // PROBLEM: Uses a2 where only a1 should be relevant.
 
 # Check that profile never triggers in other branches for that
 # length pattern.  Have to check each entry, not just the accum.
@@ -93,10 +100,11 @@ my $numExamples = 0;
 parse(pop);
 printExamples();
 
-my %empty;
+my (%empty, %reducedProfile);
 getCommonProfile(\%common);
 print "Common profile:\n";
-printProfile(\%common, \%empty);
+extractReducedProfile(\%common, \%empty, \%reducedProfile);
+printProfile(\%reducedProfile);
 print "\n";
 
 my @branchProfiles;
@@ -360,22 +368,19 @@ sub extractReducedProfile
 
 sub printProfile
 {
-  my ($entryref, $comref) = @_;
+  my ($reducedref) = @_;
   my $strcum = '';
   my $str = $indent . "if (";
   my $len;
   my $first = 1;
 
-  my %reducedProfile;
-  extractReducedProfile($entryref, $comref, \%reducedProfile);
-
   for my $cno (0 .. $#cardNames)
   {
     my $a = 'has' . $cardNames[$cno];
-    if (defined $reducedProfile{$a})
+    if (defined $reducedref->{$a})
     {
       my $entry .= 'htop.' . $htopNames[$cno] . ' = ' .  
-        $fullPlayer{$reducedProfile{$a}};
+        $fullPlayer{$reducedref->{$a}};
       addProfileEntry(\$first, \$str, \$strcum, $entry);
     }
   }
@@ -383,16 +388,16 @@ sub printProfile
   for my $cno (0 .. $#cardNames)
   {
     my $a = 'opp' . $cardNames[$cno];
-    if (defined $reducedProfile{$a})
+    if (defined $reducedref->{$a})
     {
       my $entry = '';
-      $entry = '! ' if ($reducedProfile{$a} == 0);
+      $entry = '! ' if ($reducedref->{$a} == 0);
       $entry .= 'hopp.' . $htopNames[$cno];
       addProfileEntry(\$first, \$str, \$strcum, $entry);
     }
   }
 
-  for my $k (sort keys %reducedProfile)
+  for my $k (sort keys %$reducedref)
   {
     next if ($k =~ /has/);
     next if ($k =~ /opp/);
@@ -400,7 +405,7 @@ sub printProfile
     $k =~ /(.)(\d)(.)(\d)/;
     my ($a, $b, $c, $d) = ($1, $2, $3, $4);
 
-    my $entry .= ($entryref->{$k} == 1 ?  "$a$b > $c$d" : "$c$d > $a$b");
+    my $entry .= ($reducedref->{$k} == 1 ?  "$a$b > $c$d" : "$c$d > $a$b");
     addProfileEntry(\$first, \$str, \$strcum, $entry);
   }
   print "$strcum$str)\n";
@@ -442,9 +447,25 @@ sub printExampleComment
 }
 
 
+sub extractKnownTops
+{
+  my ($entryref, $comref, $resref) = @_;
+
+  for my $k (keys %$entryref)
+  {
+    $resref->{$k} = $entryref->{$k} if $k =~ /has/;
+  }
+
+  for my $k (keys %$comref)
+  {
+    $resref->{$k} = $comref->{$k} if $k =~ /has/;
+  }
+}
+
+
 sub printExampleAsCode
 {
-  my ($exno, $comref, $specref, $lkey) = @_;
+  my ($exno, $knowntopref, $lkey) = @_;
 
   # Make a list of known top cards in order to avoid some comps.
   my %countTop;
@@ -455,21 +476,9 @@ sub printExampleAsCode
   my %seenTop;
   for my $cno (0 .. $#cardNames)
   {
-    my $cname = $cardNames[$cno];
-    my $a = 'has' . $cname;
-    my $h;
-    if (defined $specref->{$a})
-    {
-      $h = $specref->{$a};
-    }
-    elsif (defined $comref->{$a})
-    {
-      $h = $comref->{$a};
-    }
-    else
-    {
-      last;
-    }
+    my $a = 'has' . $cardNames[$cno];
+    last unless defined $knowntopref->{$a};
+    my $h = $knowntopref->{$a};
     $seenTop{$h . $countTop{$h}++} = $hfulltopNames[$cno];
   }
 
@@ -743,11 +752,13 @@ sub getAllProfiles
     for my $l (sort keys %{$branchProfiles[$k]})
     {
       print "Pattern $l\n";
-      my %bprof;
+      my (%bprof, %reducedProfile, %knownTops);
       extractProfile(\%{$branchProfiles[$k]{$l}}, \%bprof, 1);
-      printProfile(\%bprof, $commonref);
+      extractReducedProfile(\%bprof, $commonref, \%reducedProfile);
+      printProfile(\%reducedProfile);
+      extractKnownTops(\%bprof, $commonref, \%knownTops);
       # printEntry(\%bprof);
-      printExampleAsCode($k, $commonref, \%bprof, $l);
+      printExampleAsCode($k, \%knownTops, $l);
       print "\n";
     }
   }
