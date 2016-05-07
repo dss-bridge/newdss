@@ -1,21 +1,8 @@
 07.05.2016
 ----------
+* Debug the rank-problem detector in single.cpp (it compiles).
+
 * Not happy with Holding.cpp, run >= 3, but hard...
-
-* Check inconsistencies in returned rank vs actual rank.
-
-* Write algorithm to check rank in binary trees
-  - mark all sl,c combos as unseen
-  - enter recursion (initial call has start rank SDS_VOID)
-  - maybe also pass in a depth = 0
-  - loop sl, c where c is given by entry rank
-    . skip if seen
-    . go up to mask given by stored rank
-    . if rank at root is >= rank passed in, print error
-    . find dist (NESW)
-    . if mask + dist (hash lookup) already seen, don't recurse
-    . otherwise recurse with the new, lower rank
-
 
 Split LoopHold to make it faster to compile (derived).
 

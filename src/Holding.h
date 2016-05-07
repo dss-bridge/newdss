@@ -112,6 +112,7 @@ class Holding
     PosType GetWinSide() const;
     unsigned GetLength(const int player) const;
     unsigned GetMinDeclLength() const;
+    unsigned GetDistHex() const;
     unsigned GetPrependRank() const;
     unsigned GetLHOMaxRank() const;
     unsigned GetMaxOppRank() const;

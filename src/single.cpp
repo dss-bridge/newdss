@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <string>
 #include <assert.h>
@@ -48,6 +49,17 @@ void MainIdentify();
 void InitSingles();
 
 void FreeSingles();
+
+void CheckSinglesRanks();
+
+void CheckSinglesRecurse(
+  const unsigned sl,
+  const unsigned mask,
+  const unsigned step,
+  const unsigned distHex,
+  const unsigned rank,
+  const unsigned mno,
+  const unsigned depth);
 
 
 int main(int argc, char * argv[])
@@ -257,5 +269,102 @@ void FreeSingles()
 {
   for (unsigned l = 1; l <= 13; l++)
     free(singles[l]);
+}
+
+
+map<string, unsigned> nodeMap;
+
+void CheckSinglesRanks()
+{
+  for (unsigned sl = 1; sl <= 8; sl++)
+  {
+    cout << "\nChecking ranks for length " << sl << "\n";
+
+    for (unsigned c = 0; c < SDS_NUM_SINGLES[sl]; c++)
+      singles[sl][c].oppLen = 0; // Misuse...
+
+    CheckSinglesRecurse(sl, 0x0, SDS_NUM_SINGLES[sl], 0x0, SDS_VOID, 0, 0);
+
+    for (unsigned c = 0; c < SDS_NUM_SINGLES[sl]; c++)
+    {
+      if (singles[sl][c].oppLen == 0)
+      {
+        cout << "Missed one, " << sl << ", " << c << endl;
+        assert(false);
+      }
+    }
+  }
+}
+
+
+void CheckSinglesRecurse(
+  const unsigned sl,
+  const unsigned mask,
+  const unsigned step,
+  const unsigned distHex,
+  const unsigned rank,
+  const unsigned mno,
+  const unsigned depth)
+{
+  Holding holding;
+  string tag;
+
+  for (unsigned c = mask; c < mask+step; c++)
+  {
+    if (singles[sl][c].oppLen)
+      continue;
+
+    holding.Set(sl, c);
+    unsigned newDistHex = holding.GetDistHex();
+    if (distHex != 0 && newDistHex != distHex)
+      continue;
+
+    unsigned newMno = singles[sl][c].moveNo;
+    if (newMno == 0)
+    {
+      cout << "Should this be happening?  " << sl << ", " << c << endl;
+      assert(false);
+    }
+
+    singles[sl][c].oppLen = 1;
+    unsigned newRank = moveList.GetMaxRank(newMno);
+
+    if (distHex != 0 && newMno != mno && newRank >= rank)
+    {
+      cout << "RANK ERROR from newRank " << newRank <<
+        " newMno " << newMno << " depth " << depth << ":\n";
+      holding.Print();
+    }
+
+    if (newMno == mno || newRank == SDS_VOID)
+      continue;
+
+    // Make new mask, new step.
+    unsigned numBits = 2*(newRank - (13 - sl));
+    unsigned newStep = static_cast<unsigned>(2 << numBits);
+    unsigned newMask = ((static_cast<unsigned>(2 << 2*(sl-1u)) - 1u) 
+      ^ (newStep - 1u)) & c;
+    unsigned newMaskBase = newMask >> numBits;
+
+    // Look up new mask, new dist in hash.
+    stringstream ss;
+    ss << newMaskBase << "." << newDistHex;
+    tag = ss.str();
+    map<string, unsigned>::iterator it = nodeMap.find(tag);
+    if (it == nodeMap.end())
+      continue;
+
+    nodeMap[tag] = newMno;
+
+    cout << "Recursing from rank " << rank << 
+      " mno " << mno << " depth " << depth << ":\n";
+    holding.Print();
+
+    CheckSinglesRecurse(sl, newMask, newStep, newDistHex, 
+      newRank, newMno, depth+1);
+
+    cout << "Done recursing from rank " << rank << 
+      " mno " << mno << " depth " << depth << "\n";
+  }
 }
 

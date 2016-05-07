@@ -411,6 +411,13 @@ unsigned Holding::GetMinDeclLength() const
 }
 
 
+unsigned Holding::GetDistHex() const
+{
+  return (length[QT_ACE] << 12) | (length[QT_LHO] << 8) |
+    (length[QT_PARD] << 4) | length[QT_RHO];
+}
+
+
 unsigned Holding::GetPrependRank() const
 {
   return Holding::ListToRank(winRank);
