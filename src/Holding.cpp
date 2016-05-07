@@ -645,7 +645,11 @@ unsigned Holding::PossiblyFixRank(
   if (length[side] == 2 && p1 > s0 && s0 > lr)
     return Holding::ListToRank(s0);
   else if ((length[lho] == 2 && p1 < lr) ||
-      (length[lho] >= 3 &&
+      (length[lho] == 3 &&
+        (length[pard] < length[lho] ||
+         completeList[pard][2] < completeList[lho][0])) ||
+         // completeList[pard][2] < lr)) ||
+      (length[lho] >= 4 &&
         (length[pard] < length[lho] ||
          completeList[pard][length[lho]-1] < completeList[lho][0])))
   {
