@@ -41,56 +41,14 @@ use warnings;
 #
 
 
+# Formats.
 my $indent = ' ' x 2;
 my $runIndex = 0x1000;
 
-
-my %cardsToShort;
-$cardsToShort{cardsAce} = 'a';
-$cardsToShort{cardsLHO} = 'l';
-$cardsToShort{cardsPard} = 'p';
-$cardsToShort{cardsRHO} = 'r';
-
-my @hands = (qw(cardsAce cardsLHO cardsPard cardsRHO));
-my %ranks;
-$ranks{A} = 14;
-$ranks{K} = 13;
-$ranks{Q} = 12;
-$ranks{J} = 11;
-$ranks{T} = 10;
-$ranks{9} = 9;
-$ranks{8} = 8;
-$ranks{7} = 7;
-$ranks{6} = 6;
-$ranks{5} = 5;
-$ranks{4} = 4;
-$ranks{3} = 3;
-$ranks{2} = 2;
-$ranks{0} = 0;
-
-my @cardNames = (qw(A K Q J T 9 8 7 6 5 4 3 2));
-my @htopNames = (qw(A K Q J T N E S X F O H W));
-my @hfulltopNames = (qw(SDS_ACE SDS_KING SDS_QUEEN SDS_JACK SDS_TEN 
-  SDS_NINE SDS_EIGHT SDS_SEVEN SDS_SIX SDS_FIVE 
-  SDS_FOUR SDS_THREE SDS_TWO));
-
-my %hfulltopNumber;
-for my $hno (0 .. $#hfulltopNames)
-{
-  $hfulltopNumber{$hfulltopNames[$hno]} = $hno;
-}
-
-my %fullPlayer;
-$fullPlayer{a} = 'QT_ACE';
-$fullPlayer{p} = 'QT_PARD';
-$fullPlayer{l} = 'QT_LHO';
-$fullPlayer{r} = 'QT_RHO';
-
-my %posName;
-$posName{Ace} = 'QT_ACE';
-$posName{Pard} = 'QT_PARD';
-$posName{Both} = 'QT_BOTH';
-
+# Global constants.
+my (%cardsToShort, @hands, %ranks, @cardNames, %fullPlayer, %posName);
+my (@htopNames, @hfulltopNames, %hfulltopNumber);
+setConstants();
 
 # Global variables.
 my (@entries, @profiles, %common);
@@ -102,13 +60,45 @@ printExamples();
 
 my (%empty, %reducedProfile);
 getCommonProfile(\%common);
-print "Common profile:\n";
 extractReducedProfile(\%common, \%empty, \%reducedProfile);
+
+print "Common profile:\n";
 printProfile(\%reducedProfile);
 print "\n";
 
 my @branchProfiles;
 getAllProfiles(\%common);
+
+
+sub setConstants
+{
+  %cardsToShort = (
+    cardsAce => 'a', cardsLHO => 'l', cardsPard => 'p', cardsRHO => 'r');
+
+  @hands = (qw(cardsAce cardsLHO cardsPard cardsRHO));
+
+  %ranks = (
+    A => 14, K => 13, Q => 12, J => 11, T => 10, 9 => 9, 8 => 8,
+    7 => 7, 6 => 6, 5 => 5, 4 => 4, 3 => 3, 2 => 2, 0 => 0);
+
+  @cardNames = (qw(A K Q J T 9 8 7 6 5 4 3 2));
+
+  %fullPlayer = (
+    a => 'QT_ACE', p => 'QT_PARD', l => 'QT_LHO', r => 'QT_RHO');
+
+  %posName = (Ace => 'QT_ACE', Pard => 'QT_PARD', Both => 'QT_BOTH');
+
+  @htopNames = (qw(A K Q J T N E S X F O H W));
+  
+  @hfulltopNames = (qw(SDS_ACE SDS_KING SDS_QUEEN SDS_JACK SDS_TEN 
+    SDS_NINE SDS_EIGHT SDS_SEVEN SDS_SIX SDS_FIVE 
+    SDS_FOUR SDS_THREE SDS_TWO));
+
+  for my $hno (0 .. $#hfulltopNames)
+  {
+    $hfulltopNumber{$hfulltopNames[$hno]} = $hno;
+  }
+}
 
 
 
