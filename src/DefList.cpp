@@ -288,6 +288,8 @@ void DefList::operator += (
   vector<unsigned> seen(SDS_CMP_SIZE, 0);
   vector<bool> skip(len, false);
   bool purge = false;
+  AltList altMod;
+  bool altModFlag = false;
 
   for (unsigned d = 0; d < len; d++)
   {
@@ -303,6 +305,41 @@ void DefList::operator += (
       // Defense will prefer the new one.
       purge = true;
       skip[d] = true;
+
+    }
+
+    if ((cd == SDS_HEADER_PLAY_OLD_BETTER || 
+        cd == SDS_HEADER_PLAY_NEW_BETTER) &&
+        list[d].GetLength() == 1 && alt.GetLength() == 1 &&
+        list[d].GetTricks() == alt.GetTricks())
+    {
+      // Could trawl the single alternative more efficiently, perhaps.
+      Header halt, hdef;
+      alt.GetHeader(halt);
+      unsigned ralt = halt.GetMaxRank();
+      list[d].GetHeader(hdef);
+      unsigned rdef = hdef.GetMaxRank();
+
+      if (cd == SDS_HEADER_PLAY_OLD_BETTER && rdef+1 == ralt)
+      {
+        // cout << "MergeDefender: fix ranks (a) from " << 
+          // ralt << " to " << rdef << "\n";
+        // list[d].Print(cout, "def");
+        // alt.Print(cout, "alt");
+        altModFlag = true;
+        altMod = alt;
+        altMod.FixRanks(rdef);
+        // altMod.Print(cout, "altnew");
+      }
+      else if (cd == SDS_HEADER_PLAY_NEW_BETTER && ralt+1 == rdef)
+      {
+        // cout << "MergeDefender: fix ranks (b) from " << 
+          // rdef << " to " << ralt << "\n";
+        // list[d].Print(cout, "def");
+        // alt.Print(cout, "alt");
+        list[d].FixRanks(ralt);
+        // list[d].Print(cout, "defnew");
+      }
     }
   }
 
@@ -330,7 +367,7 @@ void DefList::operator += (
   }
 
   assert(len < SDS_MAX_DEF);
-  list[len++] = alt;
+  list[len++] = (altModFlag ? altMod : alt);
   headerDirty = true;
 
   DefList::RegisterSize("NEWDEF2");

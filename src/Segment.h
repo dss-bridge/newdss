@@ -93,6 +93,8 @@ class Segment
 
     unsigned GetLength() const;
 
+    unsigned GetTricks() const;
+
     void GetSummaryTrick(
       Trick& summaryTrick,
       const bool lastFlag = true) const;
@@ -108,6 +110,11 @@ class Segment
       const Segment& seg2,
       const unsigned runRankOld = SDS_VOID,
       const unsigned runRankNew = SDS_VOID) const;
+
+    unsigned GetLowestRank() const;
+
+    void FixLowestRanks(
+      const unsigned rLower);
 
     bool EqualsExceptStart(
       const Segment& seg2,

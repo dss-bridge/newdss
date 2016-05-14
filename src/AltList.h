@@ -177,6 +177,8 @@ class AltList
 
     unsigned GetLength() const;
 
+    unsigned GetTricks() const;
+
     CmpDetailType Compare(
       const AltList& aNew) const;
 
@@ -188,6 +190,9 @@ class AltList
 
     CmpDetailType CompareHard(
       const AltList& aNew) const;
+
+    void FixRanks(
+      const unsigned rLower);
 
     bool operator == (
       const AltList& alt2) const;

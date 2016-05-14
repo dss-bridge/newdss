@@ -224,6 +224,15 @@ unsigned AltList::GetLength() const
 }
 
 
+unsigned AltList::GetTricks() const
+{
+  if (len == 1)
+    return list[0].GetTricks();
+  else
+    return 0;
+}
+
+
 CmpDetailType AltList::Compare(
   const AltList& aNew) const
 {
@@ -342,6 +351,14 @@ CmpDetailType AltList::CompareHard(
       comp.SetValue(lOld, lNew, list[lOld].Compare(aNew.list[lNew]));
 
   return comp.CompareHard();
+}
+
+
+void AltList::FixRanks(
+  const unsigned rLower)
+{
+  assert(len == 1);
+  list[0].FixRanks(rLower);
 }
 
 

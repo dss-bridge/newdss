@@ -198,6 +198,15 @@ void TrickList::GetHeader(
 }
 
 
+unsigned TrickList::GetTricks() const
+{
+  unsigned t = 0;
+  for (unsigned l = 0; l < len; l++)
+    t += list[l].GetTricks();
+  return t;
+}
+
+
 void TrickList::GetFirstSummaryTrick(
   Trick& t) const
 {
@@ -423,6 +432,23 @@ bool TrickList::EqualsExceptEnd(
   }
 
   return true;
+}
+
+
+void TrickList::FixRanks(
+  const unsigned rLower)
+{
+  unsigned l = 0;
+  while (l < len && list[l].GetLowestRank() == 0) // void
+    l++;
+
+  if (l == len)
+  {
+    assert(false);
+    return;
+  }
+
+  list[l].FixLowestRanks(rLower);
 }
 
 

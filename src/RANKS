@@ -1,0 +1,114 @@
+TYPE 1: Correcting a later, high lead winner down
+-------------------------------------------------
+
+7, e23
+
+   AJ9
+K8     -
+   QT
+
+T-K-A-void: Later win of Q should be corrected to T.
+
+
+8, 3823
+   AJT8
+K7     -
+   Q9
+
+9-K-A-void: Later win of Q should be corrected to 9.
+
+
+8, 388d
+   AJ9
+K8     7
+   QT
+
+T-K-A-7: Later win of Q should be corrected down to T.
+
+
+9, 388e
+   AKT8
+Q7     -
+   J96
+
+9-Q-A-void: Later win of J should be 9.
+
+
+Type 2: Correcting a highish winner based on shadow play
+--------------------------------------------------------
+
+8, 2485
+   AJ9
+-      Q87
+   KT
+
+Lead J: J-7-T-void.
+With AJ8 / Q97 / KT / void LHO can afford to cover.
+Here he can't, as there is still communication for 3 tricks.
+At the moment this becomes AA1T, but then the K and A win tricks.
+And yet if LHO had covered, we would have needed the 9 for 3 tricks.
+
+
+8, 2e2f
+   AT
+Q87    -
+   KJ9
+
+Lead J: Won't cover, but if he did, it would be 9 that took a trick.
+
+
+11, ae36f
+   A9
+J654   8
+   KQT7
+
+T-4-9-8: Defense prefers to T-J-A-8 (PB47), so should be PP17.
+
+
+12, 24c56f
+   AJ9
+T43    Q876
+   K5
+
+J-6-5-3: Covering would put the 9 into play, to should be 9.
+
+
+Type 3: Other
+-------------
+
+8, 328f
+   AQ9
+K87    -
+   JT
+
+PA3T: Odd, needs the 9?
+
+
+12, 92548
+   AKT53
+-      J876
+   Q94
+
+vs
+
+12, 92056
+   AKT87
+-      J654
+   Q93
+
+Rank 9 may be OK, but why are they different?
+
+
+12, 233bc7
+   AQT5
+J9763    4
+   K8
+
+vs
+
+12, 2306ff
+   AQT9
+J6543   8
+   K7
+
+

@@ -119,6 +119,15 @@ unsigned Segment::GetLength() const
 }
 
 
+unsigned Segment::GetTricks() const
+{
+  unsigned t = 0;
+  for (unsigned l = 0; l < len; l++)
+    t += list[l].trick.cashing;
+  return t;
+}
+
+
 void Segment::GetSummaryTrick(
   Trick& summaryTrick,
   const bool lastFlag) const
@@ -202,6 +211,43 @@ CmpTrickType Segment::Compare(
   seg2.GetSummaryTrick(t2);
   t2.trick.ranks = Min(t2.trick.ranks, runRankNew);
   return t1.Compare(t2);
+}
+
+
+unsigned Segment::GetLowestRank() const
+{
+  assert(len > 0);
+  if (len == 0)
+    return list[0].trick.ranks;
+  else
+    return Min(list[0].trick.ranks, list[1].trick.ranks);
+}
+
+
+void Segment::FixLowestRanks(
+  const unsigned rLower)
+{
+  // cout << " FixLowestRanks " << rLower << 
+    // " " << SDS_RANK_NAMES[list[0].trick.ranks] << ", " << 
+           // SDS_RANK_NAMES[list[1].trick.ranks] << "\n";
+  // Segment::Print();
+
+  if (len == 1)
+  {
+    assert(list[0].trick.ranks > rLower);
+    list[0].trick.ranks = rLower;
+  }
+  else if (list[0].trick.ranks == SDS_VOID)
+  {
+    assert(list[1].trick.ranks > rLower);
+    list[1].trick.ranks = rLower;
+  }
+  else
+  {
+    assert(list[0].trick.ranks > rLower);
+    list[0].trick.ranks = rLower;
+  }
+  // Segment::Print();
 }
 
 

@@ -99,6 +99,8 @@ class TrickList
       Header& header,
       const unsigned startNo = 0) const;
 
+    unsigned GetTricks() const;
+      
     void GetFirstSummaryTrick(
       Trick& t) const;
 
@@ -116,6 +118,9 @@ class TrickList
 
     bool EqualsExceptStart(
       const TrickList& lNew) const;
+
+    void FixRanks(
+      const unsigned rLower);
 
     bool operator == (
       const TrickList& t2) const;
