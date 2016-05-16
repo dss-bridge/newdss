@@ -99,6 +99,8 @@ class TrickList
       Header& header,
       const unsigned startNo = 0) const;
 
+    unsigned GetComplexity() const;
+      
     unsigned GetTricks() const;
       
     void GetFirstSummaryTrick(

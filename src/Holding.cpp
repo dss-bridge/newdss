@@ -168,12 +168,6 @@ void Holding::RewindLead()
       // Will lose trick.
       continue;
     }
-    else if (lrHi < cardListHi[rho][0])
-    {
-      // Just the lowest option.
-      leadList[numLeads] = lrLo;
-      numLeads++;
-    }
     else if (lrHi > maxPard)
     {
       // Highest, will win.
@@ -189,6 +183,12 @@ void Holding::RewindLead()
         leadList[numLeads] = lrLo;
         numLeads++;
       }
+    }
+    else if (lrHi < cardListHi[rho][0])
+    {
+      // Just the lowest option.
+      leadList[numLeads] = lrLo;
+      numLeads++;
     }
     else if (lrHi > cardListHi[lho][0])
     {
@@ -311,6 +311,39 @@ void Holding::RewindPard()
     int m = Max(leadRank, prLo);
     if (m < maxDefRun)
       continue;
+
+    bool skip = false;
+    if (l+1 != cardNo[pard] && prHi < leadRank)
+    {
+      // AT / J654 / KQ97 / 8: On the A, no sense in playing the 9.
+      // In general, skip unless the leader has a card in between.
+      skip = true;
+      for (int r = cardListHi[pard][l+1]+1; r < prLo && skip; r++)
+      {
+        if (rankHolder[r] == side)
+          skip = false;
+      }
+    }
+    if (skip)
+      continue;
+
+    if (numLeads > 1 &&
+        leadRank > maxDef && 
+        cardListHi[pard][0] > leadRank &&
+        cardListLo[pard][cardNo[pard]-1] < leadRank)
+    {
+      if (rankHolder[leadRank+1] == side && prLo < leadRank)
+      {
+        // Have led a low top card -- don't duck.
+        continue;
+      }
+      else if (rankHolder[leadRank-1] == side && prLo > leadRank)
+      {
+        // Have led a high top card -- don't overtake.
+        continue;
+      }
+    }
+
 
     pardList[numPards] = (prLo > leadRank ? prHi : prLo);
     numPards++;
@@ -486,6 +519,13 @@ PosType Holding::GetOppBest() const
 bool Holding::IsAATrick() const
 {
   return (side == QT_ACE && winSide == QT_ACE);
+}
+
+
+bool Holding::IsRealPP(const unsigned pRank) const
+{
+  return (length[QT_ACE] >= 2 && length[QT_PARD] >= 2 &&
+      Holding::ListToRank(completeList[QT_ACE][1]) < pRank);
 }
  
 

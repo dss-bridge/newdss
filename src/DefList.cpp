@@ -294,8 +294,11 @@ void DefList::operator += (
   for (unsigned d = 0; d < len; d++)
   {
     CmpDetailType cd;
+
     // cd = list[d].CompareWithExpand(alt);
-    cd = list[d].Compare(alt);
+    // cd = list[d].CompareSemiHard(alt);
+    // cd = list[d].Compare(alt);
+    cd = list[d].CompareAlmostHard(alt);
 
     CmpType cc = cmpDetailToShort[cd];
     seen[cc] = 1;
@@ -305,14 +308,17 @@ void DefList::operator += (
       // Defense will prefer the new one.
       purge = true;
       skip[d] = true;
-
     }
 
-    if ((cd == SDS_HEADER_PLAY_OLD_BETTER || 
-        cd == SDS_HEADER_PLAY_NEW_BETTER) &&
-        list[d].GetLength() == 1 && alt.GetLength() == 1 &&
-        list[d].GetTricks() == alt.GetTricks())
+    /*
+    if ((cd == SDS_HEADER_PLAY_OLD_BETTER && list[d].GetComplexity() == 1) ||
+        (cd == SDS_HEADER_PLAY_NEW_BETTER && alt.GetComplexity() == 1))
     {
+      unsigned tdef = list[d].GetTricks();
+      unsigned talt = alt.GetTricks();
+      if (tdef != talt)
+        continue;
+
       // Could trawl the single alternative more efficiently, perhaps.
       Header halt, hdef;
       alt.GetHeader(halt);
@@ -322,25 +328,24 @@ void DefList::operator += (
 
       if (cd == SDS_HEADER_PLAY_OLD_BETTER && rdef+1 == ralt)
       {
-        // cout << "MergeDefender: fix ranks (a) from " << 
-          // ralt << " to " << rdef << "\n";
-        // list[d].Print(cout, "def");
-        // alt.Print(cout, "alt");
         altModFlag = true;
         altMod = alt;
-        altMod.FixRanks(rdef);
-        // altMod.Print(cout, "altnew");
+// list[d].Print(cout, "Def losing");
+// altMod.Print(cout, "alt before");
+        altMod.FixRanks(rdef, tdef);
+// altMod.Print(cout, "alt after");
+// cout << endl;
       }
       else if (cd == SDS_HEADER_PLAY_NEW_BETTER && ralt+1 == rdef)
       {
-        // cout << "MergeDefender: fix ranks (b) from " << 
-          // rdef << " to " << ralt << "\n";
-        // list[d].Print(cout, "def");
-        // alt.Print(cout, "alt");
-        list[d].FixRanks(ralt);
-        // list[d].Print(cout, "defnew");
+// alt.Print(cout, "alt losing");
+// list[d].Print(cout, "Def before");
+        list[d].FixRanks(ralt, talt);
+// list[d].Print(cout, "Def before");
+// cout << endl;
       }
     }
+  */
   }
 
   unsigned c = seen[SDS_SAME] + seen[SDS_NEW_BETTER] + seen[SDS_OLD_BETTER];
@@ -453,7 +458,8 @@ void DefList::operator *= (
 
   for (unsigned dOld = 0; dOld < len; dOld++)
     for (unsigned dNew = 0; dNew < def2.len; dNew++)
-      comp.SetValue(dOld, dNew, list[dOld].CompareHard(def2.list[dNew]));
+      comp.SetValue(dOld, dNew, list[dOld].CompareAlmostHard(def2.list[dNew]));
+      // comp.SetValue(dOld, dNew, list[dOld].CompareHard(def2.list[dNew]));
 
   CmpDetailType c = comp.CompareDeclarer();
   if (c == SDS_HEADER_PLAY_OLD_BETTER ||

@@ -217,8 +217,8 @@ CmpTrickType Segment::Compare(
 unsigned Segment::GetLowestRank() const
 {
   assert(len > 0);
-  if (len == 0)
-    return list[0].trick.ranks;
+  if (len == 1)
+    return (list[0].trick.ranks == SDS_VOID ? 0 : list[0].trick.ranks);
   else
     return Min(list[0].trick.ranks, list[1].trick.ranks);
 }
@@ -227,11 +227,6 @@ unsigned Segment::GetLowestRank() const
 void Segment::FixLowestRanks(
   const unsigned rLower)
 {
-  // cout << " FixLowestRanks " << rLower << 
-    // " " << SDS_RANK_NAMES[list[0].trick.ranks] << ", " << 
-           // SDS_RANK_NAMES[list[1].trick.ranks] << "\n";
-  // Segment::Print();
-
   if (len == 1)
   {
     assert(list[0].trick.ranks > rLower);
@@ -247,7 +242,6 @@ void Segment::FixLowestRanks(
     assert(list[0].trick.ranks > rLower);
     list[0].trick.ranks = rLower;
   }
-  // Segment::Print();
 }
 
 
@@ -437,6 +431,33 @@ bool Segment::PrependSpecial(
       // AP1top + AAns = AP(n+1)min(r,s).  Can't be a finesse.
       list[0].trick.start = QT_ACE;
       list[0].trick.end = QT_PARD;
+      list[0].trick.cashing += mergingMove.trick.cashing;
+      if (mergingMove.trick.ranks < list[0].trick.ranks)
+        list[0].trick.ranks = mergingMove.trick.ranks;
+      return true;
+    }
+    else
+      return false;
+  }
+  else if (list[0].trick.start == QT_PARD &&
+      list[0].trick.end == QT_PARD)
+  {
+    // Can combine with previous once they have grown to be identical.
+    unsigned mdl = holding.GetMinDeclLength();
+    if (mdl >= 2 &&
+        mergingMove.trick.start == QT_PARD &&
+        mergingMove.trick.end == QT_ACE &&
+        mergingMove.trick.cashing == 1 &&
+        holding.IsRealPP(mergingMove.trick.ranks))
+    {
+      // PA1A + PPns = PA(n+1)min(s,A).  Can't be a finesse.
+      // IsRealPP distinguishes between A9 / T6543 / KQJ87 / -,
+      // where 7-void-A-3 leaves a "real" PP3J move, and
+      // AQT8 / - / 9765 / KJ4, where 5-K-A-void leaves
+      // QT8 / - / 976 / J4 which is only PP39 with a finesse.
+      // Could probably make PB here as well?
+      list[0].trick.start = QT_PARD;
+      list[0].trick.end = QT_ACE;
       list[0].trick.cashing += mergingMove.trick.cashing;
       if (mergingMove.trick.ranks < list[0].trick.ranks)
         list[0].trick.ranks = mergingMove.trick.ranks;

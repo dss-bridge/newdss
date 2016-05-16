@@ -224,12 +224,24 @@ unsigned AltList::GetLength() const
 }
 
 
+unsigned AltList::GetComplexity() const
+{
+  unsigned c = 0;
+  for (unsigned a = 0; a < len; a++)
+    c += list[a].GetComplexity();
+  return c;
+}
+
+
 unsigned AltList::GetTricks() const
 {
-  if (len == 1)
-    return list[0].GetTricks();
-  else
-    return 0;
+  unsigned t = 0;
+  for (unsigned l = 0; l < len; l++)
+  {
+    unsigned tNew = list[l].GetTricks();
+    t = Max(t, tNew);
+  }
+  return t;
 }
 
 
@@ -337,6 +349,40 @@ CmpDetailType AltList::CompareSemiHard(
 }
 
 
+CmpDetailType AltList::CompareAlmostHard(
+  const AltList& aNew) const
+{
+  unsigned numOld = len;
+  unsigned numNew = aNew.len;
+
+  AltMatrix2D comp;
+  comp.SetDimensions(numOld, numNew);
+
+  for (unsigned lOld = 0; lOld < numOld; lOld++)
+    for (unsigned lNew = 0; lNew < numNew; lNew++)
+      comp.SetValue(lOld, lNew, list[lOld].Compare(aNew.list[lNew]));
+
+  CmpDetailType c = comp.CompareHard();
+  if (c != SDS_HEADER_PLAY_DIFFERENT && c != SDS_HEADER_RANK_DIFFERENT)
+    return c;
+
+  if (AltList::CompareMultiSide(QT_PARD, comp, aNew,
+      cmpDetailHardMatrix))
+  {
+    // Unlike CompareSemiHard, don't worry about the soft comparison
+    // in the opposite direction.
+    return SDS_HEADER_PLAY_OLD_BETTER;
+  }
+  else if (aNew.CompareMultiSide(QT_ACE, comp, * this,
+      cmpDetailHardMatrix))
+  {
+    return SDS_HEADER_PLAY_NEW_BETTER;
+  }
+  else
+    return c;
+}
+
+
 CmpDetailType AltList::CompareHard(
   const AltList& aNew) const
 {
@@ -355,10 +401,14 @@ CmpDetailType AltList::CompareHard(
 
 
 void AltList::FixRanks(
-  const unsigned rLower)
+  const unsigned rLower,
+  const unsigned tLower)
 {
-  assert(len == 1);
-  list[0].FixRanks(rLower);
+  for (unsigned l = 0; l < len; l++)
+  {
+    if (list[l].GetTricks() == tLower)
+      list[l].FixRanks(rLower);
+  }
 }
 
 
@@ -912,8 +962,6 @@ void AltList::HardReduce()
 
   AltList::PurgeList(purgeList);
 }
-
-
 
 
 void AltList::PurgeMulti()

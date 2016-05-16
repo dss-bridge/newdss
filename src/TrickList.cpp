@@ -198,6 +198,15 @@ void TrickList::GetHeader(
 }
 
 
+unsigned TrickList::GetComplexity() const
+{
+  unsigned c = 0;
+  for (unsigned l = 0; l < len; l++)
+    c += list[l].GetLength();
+  return c;
+}
+
+
 unsigned TrickList::GetTricks() const
 {
   unsigned t = 0;
