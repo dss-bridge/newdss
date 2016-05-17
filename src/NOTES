@@ -1,7 +1,39 @@
+16.05.2016
+----------
+Down to 246 CompareRecurse errors, 126,554 RANK errors in 3,817,051
+lines.
+
+The best way to reduce the 246 is probably to work on 13 ,b06ff
+AKQ98 / 7 / J6 / T5432.  This gets to AP1J + AA3Q which should reduce
+(in Segment.cpp) to AA4J, but it's a bit tricky.
+
+In that Segment function, output all hits of AP+AA and PA+PP, and find
+the right Holding function to recognize cases.
+
+Then go on in that function with the symmetric cases in general.
+
+
+
+Once we have that, there is 7, e23 AJ9 / - / QT / K8 which should
+use rank T.
+
+There is 13, a42956 AT9 / J6543 / KQ872 / - which has d = 5, as there
+are two d's starting with A-3-2 and two starting with the 9.
+In fact it may even be true, as covering the 9 yields AB75, whereas
+covering the A+9 only yields AP75.  Nonetheless, perhaps it helps
+to fix the shorter RANK errors and then some of these might go away?
+
+The rank detector in single.cpp can optionally not recurse, but
+instead only output a single specimen of each new cone (i.e. only
+when the top of the cone is new, even if it doesn't agree with the
+current cone).  Or something like that.
+
+
+Clean up many branches with separate.pl, once ranks are OK.
+
+
 07.05.2016
 ----------
-* Debug the rank-problem detector in single.cpp (it compiles).
-
 * Not happy with Holding.cpp, run >= 3, but hard...
 
 Split LoopHold to make it faster to compile (derived).
