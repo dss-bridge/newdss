@@ -415,7 +415,6 @@ bool Segment::PrependSpecial(
     {
       // PPnr + AAms = PB(n+m)min(r,s).
       // It is always also possible to cash the last trick from P.
-
       list[0].trick.start = QT_PARD;
       list[0].trick.end = QT_BOTH;
       list[0].trick.cashing += mergingMove.trick.cashing;
@@ -423,12 +422,14 @@ bool Segment::PrependSpecial(
         list[0].trick.ranks = mergingMove.trick.ranks;
       return true;
     }
-    else if (mdl >= list[0].trick.cashing+1u &&
+    // else if (mdl >= list[0].trick.cashing+1u &&
+    else if (mdl >= 2 &&
         mergingMove.trick.start == QT_ACE &&
         mergingMove.trick.end == QT_PARD &&
         mergingMove.trick.cashing == 1)
     {
       // AP1top + AAns = AP(n+1)min(r,s).  Can't be a finesse.
+      // Could probably make AB here as well?
       list[0].trick.start = QT_ACE;
       list[0].trick.end = QT_PARD;
       list[0].trick.cashing += mergingMove.trick.cashing;
@@ -448,7 +449,8 @@ bool Segment::PrependSpecial(
         mergingMove.trick.start == QT_PARD &&
         mergingMove.trick.end == QT_ACE &&
         mergingMove.trick.cashing == 1 &&
-        holding.IsRealPP(mergingMove.trick.ranks))
+        holding.HasRemainingPTop())
+        // holding.IsRealPP(mergingMove.trick.ranks))
     {
       // PA1A + PPns = PA(n+1)min(s,A).  Can't be a finesse.
       // IsRealPP distinguishes between A9 / T6543 / KQJ87 / -,

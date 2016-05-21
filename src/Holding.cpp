@@ -527,6 +527,41 @@ bool Holding::IsRealPP(const unsigned pRank) const
   return (length[QT_ACE] >= 2 && length[QT_PARD] >= 2 &&
       Holding::ListToRank(completeList[QT_ACE][1]) < pRank);
 }
+
+
+bool Holding::HasRemainingPTop() const
+{
+  if (length[QT_ACE] <= 1 || length[QT_PARD] <= 1)
+    return false;
+
+  unsigned pTop = completeList[QT_PARD][0];
+  if (static_cast<int>(pTop) == leadRank)
+    pTop = completeList[QT_PARD][1];
+
+  unsigned maxl;
+  if (length[QT_LHO] == 0)
+    maxl = 0;
+  else if (static_cast<int>(completeList[QT_LHO][0]) != lhoRank)
+    maxl = completeList[QT_LHO][0];
+  else if (length[QT_LHO] == 1)
+    maxl = 0;
+  else
+    maxl = completeList[QT_LHO][1];
+
+  unsigned maxr;
+  if (length[QT_RHO] == 0)
+    maxr = 0;
+  else if (static_cast<int>(completeList[QT_RHO][0]) != rhoRank)
+    maxr = completeList[QT_RHO][0];
+  else if (length[QT_RHO] == 1)
+    maxr = 0;
+  else
+    maxr = completeList[QT_RHO][1];
+
+  unsigned maxd = Max(maxl, maxr);
+
+  return (pTop > maxd);
+}
  
 
 bool Holding::IsPA1ACasher() const
