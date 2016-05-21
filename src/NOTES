@@ -1,17 +1,42 @@
+21.05.2016
+----------
+12, 0x29e0bf
+    A87
+T543     J
+    KQ96
+
+12, 0x29e0ef
+    A87
+T543     J
+    KQ95
+
+Why are these different?  Has to do with
+
+8, 2e2f
+    AT
+Q87      -
+    KJ9
+
+8, 2e3b
+    AT
+Q97      -
+    KJ8
+
+The first one is AB2K or PP1T + BA1- + PP1-.
+The second one is BB2K or PA2T + PP1-.
+In the first one, RHO can't cover, so declarer can stay with pard.
+In the second one, he can, so declarer can't stay.
+Even so, if AB2K were BB2K, then we could collapse PP1T + BA1-.
+So why don't we get BB2K?
+It might help to use AA1A + BP1K = BB2K and not just AB2K.
+Then again, we'll never beat BB2K even if it deserves to be beaten.
+
+
 16.05.2016
 ----------
-Down to 246 CompareRecurse errors, 126,554 RANK errors in 3,817,051
-lines.
-
-The best way to reduce the 246 is probably to work on 13 ,b06ff
-AKQ98 / 7 / J6 / T5432.  This gets to AP1J + AA3Q which should reduce
-(in Segment.cpp) to AA4J, but it's a bit tricky.
-
-In that Segment function, output all hits of AP+AA and PA+PP, and find
-the right Holding function to recognize cases.
-
-Then go on in that function with the symmetric cases in general.
-
+In Segment::PrependSpecial:
+If AA1A + PB2Q = AA1A + PA2Q or AA1A + PP2Q, then if they add up
+independently, could be AB3Q... (idea 12, 9c856)
 
 
 Once we have that, there is 7, e23 AJ9 / - / QT / K8 which should

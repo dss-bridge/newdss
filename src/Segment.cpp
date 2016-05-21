@@ -405,6 +405,22 @@ bool Segment::PrependSpecial(
       list[0].trick.ranks = mergingMove.trick.ranks;
     return true;
   }
+  else if (mergingMove.trick.start != QT_BOTH &&
+      mergingMove.trick.end == QT_PARD &&
+      list[0].trick.start == QT_ACE &&
+      list[0].trick.end == QT_PARD &&
+      list[0].trick.cashing == 1)
+  {
+    // APnr + AP1s = AP(n+1)min(r,s).
+    // PPnr + AP1s = PP(n+1)min(r,s).
+    // It is always also possible to cash the last trick from A.
+
+    list[0].trick.start = mergingMove.trick.start;
+    list[0].trick.cashing += mergingMove.trick.cashing;
+    if (mergingMove.trick.ranks < list[0].trick.ranks)
+      list[0].trick.ranks = mergingMove.trick.ranks;
+    return true;
+  }
   else if (list[0].trick.start == QT_ACE &&
       list[0].trick.end == QT_ACE)
   {
@@ -422,7 +438,6 @@ bool Segment::PrependSpecial(
         list[0].trick.ranks = mergingMove.trick.ranks;
       return true;
     }
-    // else if (mdl >= list[0].trick.cashing+1u &&
     else if (mdl >= 2 &&
         mergingMove.trick.start == QT_ACE &&
         mergingMove.trick.end == QT_PARD &&
@@ -431,7 +446,7 @@ bool Segment::PrependSpecial(
       // AP1top + AAns = AP(n+1)min(r,s).  Can't be a finesse.
       // Could probably make AB here as well?
       list[0].trick.start = QT_ACE;
-      list[0].trick.end = QT_PARD;
+      list[0].trick.end = QT_BOTH;
       list[0].trick.cashing += mergingMove.trick.cashing;
       if (mergingMove.trick.ranks < list[0].trick.ranks)
         list[0].trick.ranks = mergingMove.trick.ranks;
@@ -444,13 +459,26 @@ bool Segment::PrependSpecial(
       list[0].trick.end == QT_PARD)
   {
     // Can combine with previous once they have grown to be identical.
+
     unsigned mdl = holding.GetMinDeclLength();
     if (mdl >= 2 &&
+        mergingMove.trick.start == QT_ACE &&
+        mergingMove.trick.end == QT_ACE)
+    {
+      // AAnr + PPms = AB(n+m)min(r,s).
+      // It is always also possible to cash the last trick from A.
+      list[0].trick.start = QT_ACE;
+      list[0].trick.end = QT_BOTH;
+      list[0].trick.cashing += mergingMove.trick.cashing;
+      if (mergingMove.trick.ranks < list[0].trick.ranks)
+        list[0].trick.ranks = mergingMove.trick.ranks;
+      return true;
+    }
+    else if (mdl >= 2 &&
         mergingMove.trick.start == QT_PARD &&
         mergingMove.trick.end == QT_ACE &&
         mergingMove.trick.cashing == 1 &&
         holding.HasRemainingPTop())
-        // holding.IsRealPP(mergingMove.trick.ranks))
     {
       // PA1A + PPns = PA(n+1)min(s,A).  Can't be a finesse.
       // IsRealPP distinguishes between A9 / T6543 / KQJ87 / -,
@@ -459,7 +487,7 @@ bool Segment::PrependSpecial(
       // QT8 / - / 976 / J4 which is only PP39 with a finesse.
       // Could probably make PB here as well?
       list[0].trick.start = QT_PARD;
-      list[0].trick.end = QT_ACE;
+      list[0].trick.end = QT_BOTH;
       list[0].trick.cashing += mergingMove.trick.cashing;
       if (mergingMove.trick.ranks < list[0].trick.ranks)
         list[0].trick.ranks = mergingMove.trick.ranks;
