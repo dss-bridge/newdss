@@ -310,7 +310,7 @@ void DefList::operator += (
       skip[d] = true;
     }
 
-    /*
+    /* */
     if ((cd == SDS_HEADER_PLAY_OLD_BETTER && list[d].GetComplexity() == 1) ||
         (cd == SDS_HEADER_PLAY_NEW_BETTER && alt.GetComplexity() == 1))
     {
@@ -345,7 +345,7 @@ void DefList::operator += (
 // cout << endl;
       }
     }
-  */
+  /* */
   }
 
   unsigned c = seen[SDS_SAME] + seen[SDS_NEW_BETTER] + seen[SDS_OLD_BETTER];

@@ -447,6 +447,15 @@ bool TrickList::EqualsExceptEnd(
 void TrickList::FixRanks(
   const unsigned rLower)
 {
+  // Only fix lists that start with a segment of length 2 that
+  // changes side.
+  // A9 / - / KQJ872 / T6543: PA29 + PP4-, don't fix.
+  // AT / - / KJ9 / Q87: PP1T (or J) + BA1- + PP1-, do fix.
+  // AJ9 / - / QT / K8: PA1A + BP1Q + AA1-, do fix.
+  // We're not actually testing for the side change here.
+  if (list[len-1].GetLength() == 1)
+    return;
+
   unsigned l = 0;
   while (l < len && list[l].GetLowestRank() == 0) // void
     l++;
