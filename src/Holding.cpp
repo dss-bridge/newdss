@@ -724,7 +724,9 @@ unsigned Holding::PossiblyFixRank(
   if (s0 > h)
     return SDS_VOID;
 
-  if (length[side] == 2 && p1 > s0 && s0 > lr)
+  if (length[side] == 2 && 
+    // p1 > s0 && 
+    s0 > lr)
     return Holding::ListToRank(s0);
   else if ((length[lho] == 2 && p1 < lr) ||
       (length[lho] == 3 &&

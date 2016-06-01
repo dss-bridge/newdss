@@ -7952,7 +7952,8 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         // PROBLEM (rank ra2)?
         if (pickFlag) holdCtr[0x11cb]++;
         unsigned ra1 = HR(QT_ACE, 2);
-        unsigned ra2 = (p2 > l0p ? HR(QT_PARD, 1) : HR(QT_PARD, 2));
+        // unsigned ra2 = (p2 > l0p ? HR(QT_PARD, 1) : HR(QT_PARD, 2));
+        unsigned ra2 = HR(QT_PARD, 2);
         rank = Min(ra1, ra2);
         trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
         trick[3].Set(QT_PARD, QT_ACE, ra1, length[QT_ACE]-1);
@@ -7989,10 +7990,10 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         if (pickFlag) holdCtr[0x11ce]++;
         unsigned ra1 = HR(QT_ACE, 2);
         unsigned ra2;
-        if (completeList[QT_ACE][2] > completeList[QT_PARD][1])
+        // if (completeList[QT_ACE][2] > completeList[QT_PARD][1])
           ra2 = HR(QT_PARD, 2);
-        else
-          ra2 = HR(QT_PARD, 1);
+        // else
+          // ra2 = HR(QT_PARD, 1);
         rank = Min(ra1, ra2);
         trick[2].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
         trick[3].Set(QT_PARD, QT_ACE, ra1, length[QT_ACE]-1);
