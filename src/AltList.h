@@ -66,6 +66,8 @@ class AltList
     void PurgeList(
       const std::vector<bool>& purgeList);
 
+    void PurgeMulti();
+
     void PunchOut(
       const AltList * alist,
       const unsigned purgeNo,
@@ -80,7 +82,10 @@ class AltList
 
     void HardReduce();
 
-    void PurgeMulti();
+    void ReduceIfDominated(
+      const unsigned n,
+      const unsigned a0,
+      const unsigned a1);
 
     CmpDetailType CompareMulti(
       const TrickList& tref,
@@ -96,7 +101,7 @@ class AltList
 
     CmpDetailType CompareMultiTrickList(
       TrickList& tlist,
-      const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE] = cmpDetailMatrix);
+      const CmpDetailType cmpMat[][SDS_HEADER_CMP_SIZE] = cmpDetailHardMatrix);
 
     CmpDetailType FrontIsGE(
       const TrickList& tlist,
@@ -160,16 +165,25 @@ class AltList
     bool Set122(
       const Trick trick[]);
 
+    bool Set123(
+      const Trick trick[]);
+
     bool Set113(
       const Trick trick[]);
 
     bool Set114(
       const Trick trick[]);
 
+    bool Set1112(
+      const Trick trick[]);
+
     bool Set1122(
       const Trick trick[]);
 
     bool Set1123(
+      const Trick trick[]);
+
+    bool Set1124(
       const Trick trick[]);
 
     void GetHeader(
@@ -225,6 +239,8 @@ class AltList
 
     bool MergeSides(
       const AltList& aNew);
+
+    void ReduceSpecial();
 
     void Print(
       std::ostream& pout,

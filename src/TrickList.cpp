@@ -224,6 +224,16 @@ void TrickList::GetFirstSummaryTrick(
 }
 
 
+unsigned TrickList::xBNo(
+  const PosType start) const
+{
+  if (len == 1)
+    return list[0].xBNo(start);
+  else
+    return 0;
+}
+
+
 bool TrickList::CanExpand() const
 {
   if (len == 1)
@@ -256,7 +266,7 @@ bool TrickList::IsSimpleComplement(
 
 CmpDetailType TrickList::CompareInit(
   const TrickList& lNew,
-  CompareStruct cdata) const
+  CompareStruct& cdata) const
 {
   CmpTrickType cc, cRun = SDS_TRICK_SAME;
   do
@@ -290,6 +300,10 @@ CmpDetailType TrickList::CompareInit(
     cdata.tricksNew += t2.GetCashing();
     cdata.ranksNew = Min(cdata.ranksNew, t2.GetRanks());
   }
+  // while (cc != SDS_TRICK_PLAY_NEW_BETTER &&
+      // cc != SDS_TRICK_PLAY_OLD_BETTER &&
+      // cc != SDS_TRICK_RANK_NEW_BETTER &&
+      // cc != SDS_TRICK_RANK_OLD_BETTER);
   while (cc != SDS_TRICK_PLAY_NEW_BETTER &&
       cc != SDS_TRICK_PLAY_OLD_BETTER);
 
@@ -326,7 +340,7 @@ CmpDetailType TrickList::Compare(
 
 
 CmpDetailType TrickList::CompareRunning(
-  const CompareStruct cdata) const
+  const CompareStruct& cdata) const
 {
   if (cdata.tricksOld > cdata.tricksNew)
     return SDS_HEADER_PLAY_OLD_BETTER;
@@ -343,11 +357,11 @@ CmpDetailType TrickList::CompareRunning(
 
 CmpDetailType TrickList::CompareTail(
   const TrickList& lNew,
-  CompareStruct cdata) const
+  CompareStruct& cdata) const
 {
   if (cdata.lenOld == 0 && cdata.lenNew == 0)
   {
-    return cmpDetailMatrix[cdata.winnerFirst][cdata.winnerRunning];
+    return cmpDetailHardMatrix[cdata.winnerFirst][cdata.winnerRunning];
   }
   else if (cdata.lenOld == 0)
   {
@@ -356,7 +370,7 @@ CmpDetailType TrickList::CompareTail(
         c == SDS_HEADER_PLAY_NEW_BETTER ||
         c == SDS_HEADER_RANK_NEW_BETTER)
     {
-      return cmpDetailMatrix[cdata.winnerFirst][SDS_HEADER_PLAY_NEW_BETTER];
+      return cmpDetailHardMatrix[cdata.winnerFirst][SDS_HEADER_PLAY_NEW_BETTER];
     }
   }
   else if (cdata.lenNew == 0)
@@ -366,7 +380,7 @@ CmpDetailType TrickList::CompareTail(
         c == SDS_HEADER_PLAY_OLD_BETTER ||
         c == SDS_HEADER_RANK_OLD_BETTER)
     {
-      return cmpDetailMatrix[cdata.winnerFirst][SDS_HEADER_PLAY_OLD_BETTER];
+      return cmpDetailHardMatrix[cdata.winnerFirst][SDS_HEADER_PLAY_OLD_BETTER];
     }
   }
 
@@ -389,7 +403,7 @@ CmpDetailType TrickList::CompareTail(
   }
 
   CmpDetailType d = TrickList::CompareRunning(cdata);
-  cdata.winnerRunning = cmpDetailMatrix[cdata.winnerRunning][d];
+  cdata.winnerRunning = cmpDetailHardMatrix[cdata.winnerRunning][d];
 
   CmpDetailType c = TrickList::CompareTail(lNew, cdata);
   return cmpDetailMatrix[cdata.winnerFirst][c];

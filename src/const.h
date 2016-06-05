@@ -21,7 +21,7 @@
 #define SDS_NINE 7
 #define SDS_EIGHT 6
 
-#define SDS_MAX_DEF 5
+#define SDS_MAX_DEF 6
 #define SDS_MAX_ALT 7
 
 #define Max(x, y) (((x) >= (y)) ? (x) : (y))

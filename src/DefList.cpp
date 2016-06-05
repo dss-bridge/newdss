@@ -166,6 +166,15 @@ bool DefList::Set122(
 }
 
 
+bool DefList::Set123(
+  const Trick trick[])
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set123(trick);
+}
+
+
 bool DefList::Set113(
   const Trick trick[])
 {
@@ -184,6 +193,15 @@ bool DefList::Set114(
 }
 
 
+bool DefList::Set1112(
+  const Trick trick[])
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set1112(trick);
+}
+
+
 bool DefList::Set1122(
   const Trick trick[])
 {
@@ -199,6 +217,15 @@ bool DefList::Set1123(
   headerDirty = true;
   len = 1;
   return list[0].Set1123(trick);
+}
+
+
+bool DefList::Set1124(
+  const Trick trick[])
+{
+  headerDirty = true;
+  len = 1;
+  return list[0].Set1124(trick);
 }
 
 
@@ -311,8 +338,10 @@ void DefList::operator += (
     }
 
     /* */
-    if ((cd == SDS_HEADER_PLAY_OLD_BETTER && list[d].GetComplexity() == 1) ||
-        (cd == SDS_HEADER_PLAY_NEW_BETTER && alt.GetComplexity() == 1))
+    // if ((cd == SDS_HEADER_PLAY_OLD_BETTER && list[d].GetComplexity() == 1) ||
+        // (cd == SDS_HEADER_PLAY_NEW_BETTER && alt.GetComplexity() == 1))
+    if (cd == SDS_HEADER_PLAY_OLD_BETTER ||
+        cd == SDS_HEADER_PLAY_NEW_BETTER)
     {
       unsigned tdef = list[d].GetTricks();
       unsigned talt = alt.GetTricks();
@@ -442,6 +471,8 @@ void DefList::operator *= (
   {
     DefList::Print(files.debug, "DefList::MergeDeclarer old");
     def2.Print(files.debug, "DefList::MergeDeclarer: new");
+    // DefList::Print(cout, "DefList::MergeDeclarer old");
+    // def2.Print(cout, "DefList::MergeDeclarer: new");
   }
 
   /*
@@ -530,6 +561,8 @@ bool DefList::MergeSidesSoft(
   {
     def1.Print(files.debug, "DefList::MergeSidesSoft def1");
     def2.Print(files.debug, "DefList::MergeSidesSoft def2");
+    // def1.Print(cout, "DefList::MergeSidesSoft def1");
+    // def2.Print(cout, "DefList::MergeSidesSoft def2");
   }
 
   DefList::Reset();
@@ -552,6 +585,7 @@ bool DefList::MergeSidesSoft(
       AltList alt = def1.list[0] + def2.list[0];
       * this += alt;
     }
+    list[0].ReduceSpecial(); // Dubious long-term
     return true;
   }
 

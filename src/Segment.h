@@ -33,6 +33,9 @@ class Segment
     void PrependSimple(
       const Trick& tPrep);
 
+    bool PrependCommon(
+      const Trick& mergingMove);
+
     bool PrependSpecial(
       const Trick& mergingMove,
       const Holding& holding);
@@ -105,6 +108,9 @@ class Segment
       const Segment& seg2) const;
 
     bool IsAA1ATrick() const;
+
+    unsigned xBNo(
+      const PosType start) const;
 
     CmpTrickType Compare(
       const Segment& seg2,

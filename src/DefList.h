@@ -90,16 +90,25 @@ class DefList
     bool Set122(
       const Trick trick[]);
 
+    bool Set123(
+      const Trick trick[]);
+
     bool Set113(
       const Trick trick[]);
 
     bool Set114(
       const Trick trick[]);
 
+    bool Set1112(
+      const Trick trick[]);
+
     bool Set1122(
       const Trick trick[]);
 
     bool Set1123(
+      const Trick trick[]);
+
+    bool Set1124(
       const Trick trick[]);
 
     Header& GetHeader();

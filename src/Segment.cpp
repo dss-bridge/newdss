@@ -188,6 +188,18 @@ bool Segment::IsAA1ATrick() const
 }
 
 
+unsigned Segment::xBNo(
+  const PosType start) const
+{
+  if (len == 1 &&
+      list[0].trick.start == start &&
+      list[0].trick.end == QT_BOTH)
+    return list[0].trick.cashing;
+  else
+    return 0;
+}
+
+
 CmpTrickType Segment::Compare(
   const Segment& seg2,
   const unsigned runRankOld,
@@ -345,7 +357,11 @@ bool Segment::Prepend(
     case SDS_APPEND_MERGED:
       return true;
     case SDS_APPEND_NEW_SEG:
-      if (lastFlag && Segment::PrependSpecial(mergingMove, holding))
+      if (len == 1 && 
+          (lastSegFlag || holding.GetMinDeclLength() == 2) &&
+          Segment::PrependCommon(mergingMove))
+        return true;
+       else if (lastFlag && Segment::PrependSpecial(mergingMove, holding))
         return true;
       else
         return false;
@@ -385,9 +401,8 @@ void Segment::PrependSimple(
 }
 
 
-bool Segment::PrependSpecial(
-  const Trick& mergingMove,
-  const Holding& holding)
+bool Segment::PrependCommon(
+  const Trick& mergingMove)
 {
   if (mergingMove.trick.start != QT_BOTH &&
       mergingMove.trick.end == QT_ACE &&
@@ -421,7 +436,16 @@ bool Segment::PrependSpecial(
       list[0].trick.ranks = mergingMove.trick.ranks;
     return true;
   }
-  else if (list[0].trick.start == QT_ACE &&
+  else
+    return false;
+}
+
+
+bool Segment::PrependSpecial(
+  const Trick& mergingMove,
+  const Holding& holding)
+{
+  if (list[0].trick.start == QT_ACE &&
       list[0].trick.end == QT_ACE)
   {
     unsigned mdl = holding.GetMinDeclLength();
@@ -717,7 +741,8 @@ bool Segment::Fix11(
       }
     }
     else if (c == SDS_SAME &&
-        (t1.trick.end == QT_BOTH || t2.trick.end == QT_BOTH))
+        ((t1.trick.end == QT_BOTH && t2.trick.start != t2.trick.end ) ||
+         (t2.trick.end == QT_BOTH && t1.trick.start != t1.trick.end)))
     {
       // C2: AB+Ax either way, PB+Px either way,
       // when tricks and ranks are the same.
@@ -786,7 +811,6 @@ bool Segment::Fix11_OneB(
   {
     // C8: BAnr or P*ms equals BAnr if t1 >= t2.
     // Similarly for BPnr or A*ms.
-
     fix1 = SDS_FIX_UNCHANGED;
     fix2 = SDS_FIX_PURGED;
     return true;

@@ -41,14 +41,14 @@ class TrickList
 
     CmpDetailType CompareInit(
       const TrickList& lNew,
-      CompareStruct cdata) const;
+      CompareStruct& cdata) const;
 
     CmpDetailType CompareRunning(
-      const CompareStruct cdata) const;
+      const CompareStruct& cdata) const;
 
     CmpDetailType CompareTail(
       const TrickList& lNew,
-      CompareStruct cdata) const;
+      CompareStruct& cdata) const;
 
     bool EqualsExceptEnd(
       const TrickList& lNew) const;
@@ -105,6 +105,9 @@ class TrickList
       
     void GetFirstSummaryTrick(
       Trick& t) const;
+
+    unsigned xBNo(
+      const PosType start) const;
 
     bool CanExpand() const;
 

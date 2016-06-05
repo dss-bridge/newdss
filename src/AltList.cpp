@@ -161,6 +161,16 @@ bool AltList::Set122(
 }
 
 
+bool AltList::Set123(
+  const Trick trick[])
+{
+  len = 3;
+  (void) list[0].Set1(trick[0]);
+  (void) list[1].Set2(trick[1], trick[2]);
+  return list[2].Set3(trick[3], trick[4], trick[5]);
+}
+
+
 bool AltList::Set113(
   const Trick trick[])
 {
@@ -178,6 +188,17 @@ bool AltList::Set114(
   (void) list[0].Set1(trick[0]);
   (void) list[1].Set1(trick[1]);
   return list[2].Set4(trick[2], trick[3], trick[4], trick[5]);
+}
+
+
+bool AltList::Set1112(
+  const Trick trick[])
+{
+  len = 4;
+  (void) list[0].Set1(trick[0]);
+  (void) list[1].Set1(trick[1]);
+  (void) list[2].Set1(trick[2]);
+  return list[3].Set2(trick[3], trick[4]);
 }
 
 
@@ -200,6 +221,17 @@ bool AltList::Set1123(
   (void) list[1].Set1(trick[1]);
   (void) list[2].Set2(trick[2], trick[3]);
   return list[3].Set3(trick[4], trick[5], trick[6]);
+}
+
+
+bool AltList::Set1124(
+  const Trick trick[])
+{
+  len = 4;
+  (void) list[0].Set1(trick[0]);
+  (void) list[1].Set1(trick[1]);
+  (void) list[2].Set2(trick[2], trick[3]);
+  return list[3].Set4(trick[4], trick[5], trick[6], trick[7]);
 }
 
 
@@ -515,6 +547,8 @@ AltList AltList::operator + (
   {
     aOld.Print(files.debug, "AltList::++ aOld");
     aNew.Print(files.debug, "AltList::++ aNew");
+    // aOld.Print(cout, "AltList::++ aOld");
+    // aNew.Print(cout, "AltList::++ aNew");
   }
 
   vector<bool> softX(aOld.len, true);
@@ -543,6 +577,7 @@ AltList AltList::operator + (
 
   if (options.debugAlt)
     aOld.Print(files.debug, "AltList::++ result");
+    // aOld.Print(cout, "AltList::++ result");
 
   return aOld;
 }
@@ -779,7 +814,9 @@ void AltList::FillMatrix2D(
       if ((! softX[a1] && ! softY[a2]) || compY.IsPurged(a2))
         continue;
 
-      (void) list[a1].FixOrCompare(aNew.list[a2], fix1, fix2);
+      if (! list[a1].FixOrCompare(aNew.list[a2], fix1, fix2))
+        continue;
+
       if (fix2 == SDS_FIX_PURGED)
       {
         compY.Purge(a2);
@@ -960,6 +997,88 @@ void AltList::HardReduce()
     }
   }
 
+  AltList::PurgeList(purgeList);
+}
+
+
+void AltList::ReduceSpecial()
+{
+  // Somewhat inconsistently, consider BBnr to beat other ways
+  // to get the same number of tricks, even with better rank.
+  // Similarly for ABnr or PBns.
+  
+  if (len <= 1)
+    return;
+  
+  bool seenA = false, seenP = false;
+  unsigned na = 0xffff, np = 0xffff, aOther = 0xffff;
+
+  for (unsigned a = 0; a < len; a++)
+  {
+    unsigned nb = list[a].xBNo(QT_BOTH);
+    if (nb > 0)
+    {
+      AltList::ReduceIfDominated(nb, a, a);
+      return;
+    }
+    else if (seenA)
+    {
+      np = list[a].xBNo(QT_PARD);
+      if (np > 0)
+      {
+        if (na == np)
+          AltList::ReduceIfDominated(na, a, aOther);
+        return;
+      }
+    }
+    else if (seenP)
+    {
+      na = list[a].xBNo(QT_ACE);
+      if (na > 0)
+      {
+        if (na == np)
+          AltList::ReduceIfDominated(na, a, aOther);
+        return;
+      }
+    }
+    else
+    {
+      na = list[a].xBNo(QT_ACE);
+      if (na > 0)
+      {
+        seenA = true;
+        aOther = a;
+        continue;
+      }
+      
+      np = list[a].xBNo(QT_PARD);
+      if (np > 0)
+      {
+        seenP = true;
+        aOther = a;
+      }
+    }
+  }
+}
+
+
+void AltList::ReduceIfDominated(
+  const unsigned n,
+  const unsigned a0,
+  const unsigned a1)
+{
+  for (unsigned a = 0; a < len; a++)
+  {
+    if (a == a0 || a == a1)
+      continue;
+
+    if (list[a].GetTricks() > n)
+      return;
+  }
+
+  vector<bool> purgeList(len, true);
+  purgeList[a0] = false;
+  purgeList[a1] = false;
   AltList::PurgeList(purgeList);
 }
 

@@ -739,6 +739,17 @@ unsigned Holding::PossiblyFixRank(
   {
     return Holding::ListToRank(h);
   }
+  else if (s0 == h && length[lho] >= 3)
+  {
+    // Pick the last of the leader's own run.
+    unsigned reduced = h-1;
+    while (reduced >= lr && rankHolder[reduced] != side)
+      reduced--;
+    if (reduced > lr)
+      return Holding::ListToRank(reduced);
+    else
+      return SDS_VOID;
+  }
   else
     return SDS_VOID;
 }
