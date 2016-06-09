@@ -356,6 +356,7 @@ void DefList::operator += (
       unsigned rdef = hdef.GetMaxRank();
 
       if (cd == SDS_HEADER_PLAY_OLD_BETTER && rdef+1 == ralt)
+      // if (cd == SDS_HEADER_PLAY_OLD_BETTER && rdef < ralt)
       {
         altModFlag = true;
         altMod = alt;
@@ -366,6 +367,7 @@ void DefList::operator += (
 // cout << endl;
       }
       else if (cd == SDS_HEADER_PLAY_NEW_BETTER && ralt+1 == rdef)
+      // else if (cd == SDS_HEADER_PLAY_NEW_BETTER && ralt < rdef)
       {
 // alt.Print(cout, "alt losing");
 // list[d].Print(cout, "Def before");

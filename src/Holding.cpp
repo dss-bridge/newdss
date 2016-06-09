@@ -538,10 +538,11 @@ bool Holding::HasRemainingPTop() const
   if (static_cast<int>(pTop) == leadRank)
     pTop = completeList[QT_PARD][1];
 
+  // Note that side == QT_PARD, so rho is QT_LHO.
   unsigned maxl;
   if (length[QT_LHO] == 0)
     maxl = 0;
-  else if (static_cast<int>(completeList[QT_LHO][0]) != lhoRank)
+  else if (static_cast<int>(completeList[QT_LHO][0]) != rhoRank)
     maxl = completeList[QT_LHO][0];
   else if (length[QT_LHO] == 1)
     maxl = 0;
@@ -551,7 +552,7 @@ bool Holding::HasRemainingPTop() const
   unsigned maxr;
   if (length[QT_RHO] == 0)
     maxr = 0;
-  else if (static_cast<int>(completeList[QT_RHO][0]) != rhoRank)
+  else if (static_cast<int>(completeList[QT_RHO][0]) != lhoRank)
     maxr = completeList[QT_RHO][0];
   else if (length[QT_RHO] == 1)
     maxr = 0;
@@ -559,6 +560,14 @@ bool Holding::HasRemainingPTop() const
     maxr = completeList[QT_RHO][1];
 
   unsigned maxd = Max(maxl, maxr);
+
+// cout << "HRPT pTop " << pTop << ", maxl " << maxl << ", maxr " << maxr <<
+  // ", maxd " << maxd << ", lho-rho " << lhoRank << ", " << rhoRank << "\n";
+// cout << "CL " << completeList[QT_LHO][0] << ", CR " <<
+  // completeList[QT_RHO][0] << "\n";
+// Holding::Print();
+// Holding::PrintPlay();
+// cout << "\n";
 
   return (pTop > maxd);
 }
