@@ -40,6 +40,10 @@ class Segment
       const Trick& mergingMove,
       const Holding& holding);
 
+    bool PrependSpecialAlreadyMerged(
+      const Trick& mergingMove,
+      const Holding& holding);
+
     void PrependDeep(
       const Trick& mergingMove);
 

@@ -361,17 +361,25 @@ bool Segment::Prepend(
           (lastSegFlag || holding.GetMinDeclLength() == 2) &&
           Segment::PrependCommon(mergingMove))
         return true;
-       else if (lastFlag && Segment::PrependSpecial(mergingMove, holding))
+      else if (lastFlag && Segment::PrependSpecial(mergingMove, holding))
         return true;
       else
         return false;
     default:
       if (len == 1)
       {
-        list[1] = mergingMove;
-        len = 2;
-        if (holding.GetLength(QT_LHO) == 0)
-          Segment::PrependFix(lastFlag);
+        if (lastFlag && Segment::PrependSpecialAlreadyMerged(
+          mergingMove, holding))
+        {
+          // Worked.
+        }
+        else
+        {
+          list[1] = mergingMove;
+          len = 2;
+          if (holding.GetLength(QT_LHO) == 0)
+            Segment::PrependFix(lastFlag);
+        }
       }
       else if (len == 2)
         Segment::PrependDeep(mergingMove);
@@ -522,6 +530,32 @@ bool Segment::PrependSpecial(
   }
   else
     return false;
+}
+
+
+bool Segment::PrependSpecialAlreadyMerged(
+  const Trick& mergingMove,
+  const Holding& holding)
+{
+  if (list[0].trick.start == QT_ACE &&
+      list[0].trick.end == QT_PARD)
+  {
+    if (mergingMove.trick.start == QT_PARD &&
+        mergingMove.trick.end == QT_ACE &&
+        holding.APIsBP())
+    {
+      // PAnr + APms = PB(n+m)min(r,s) if AP can be BP.
+      list[0].trick.start = QT_PARD;
+      list[0].trick.end = QT_BOTH;
+      list[0].trick.cashing += mergingMove.trick.cashing;
+      if (mergingMove.trick.ranks < list[0].trick.ranks)
+        list[0].trick.ranks = mergingMove.trick.ranks;
+      return true;
+    }
+    else
+      return false;
+  }
+  return false;
 }
 
 

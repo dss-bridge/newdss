@@ -126,6 +126,7 @@ class Holding
     bool IsAATrick() const;
 
     bool IsRealPP(const unsigned pRank) const;
+    bool APIsBP()const;
     bool HasRemainingPTop() const;
 
     bool IsPA1ACasher() const;

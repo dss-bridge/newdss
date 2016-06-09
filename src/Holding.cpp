@@ -529,6 +529,16 @@ bool Holding::IsRealPP(const unsigned pRank) const
 }
 
 
+bool Holding::APIsBP() const
+{
+  if (length[QT_PARD] == 2 ||
+      length[QT_LHO] <= 2)
+    return true;
+  else
+    return false;
+}
+
+
 bool Holding::HasRemainingPTop() const
 {
   if (length[QT_ACE] <= 1 || length[QT_PARD] <= 1)
