@@ -534,6 +534,24 @@ bool Holding::APIsBP() const
   if (length[QT_PARD] == 2 ||
       length[QT_LHO] <= 2)
     return true;
+
+  unsigned aTop = completeList[QT_ACE][0];
+  if (static_cast<int>(aTop) == pardRank)
+    aTop = completeList[QT_ACE][1];
+
+  // Note that side == QT_PARD, so rho is QT_LHO.
+  unsigned maxl;
+  if (length[QT_LHO] == 0)
+    maxl = 0;
+  else if (static_cast<int>(completeList[QT_LHO][0]) != rhoRank)
+    maxl = completeList[QT_LHO][0];
+  else if (length[QT_LHO] == 1)
+    maxl = 0;
+  else
+    maxl = completeList[QT_LHO][1];
+
+  if (aTop > maxl)
+    return true;
   else
     return false;
 }

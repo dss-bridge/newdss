@@ -985,7 +985,7 @@ bool LoopHold::CashoutBothDiffPdLongWeak(
       if (pickFlag) holdCtr[0xa33]++;
       lowestRank = Holding::ListToRank(cb.minAce);
       r = Holding::ListToRank(cb.maxPard);
-      trick[0].Set(QT_ACE, QT_PARD, r, cb.lenShort);
+      trick[0].Set(QT_BOTH, QT_BOTH, r, cb.lenShort);
       trick[1].Set(QT_BOTH, QT_ACE, lowestRank, cb.lenShort);
       trick[2].Set(QT_PARD, QT_PARD, SDS_VOID, cb.lenLong - cb.lenShort);
       return def.Set12(trick[0], trick[1], trick[2]);
@@ -7024,11 +7024,10 @@ bool LoopHold::SolveComplex15(DefList& def, unsigned& rank) const
         {
           if (pickFlag) holdCtr[0x1169]++;
           rank = HR(QT_ACE, 2);
-          trick[1].Set(QT_PARD, QT_ACE, SDS_QUEEN, 1);
-          trick[2].Set(QT_ACE, QT_PARD, SDS_TEN, 2);
-          trick[3].Set(QT_PARD, QT_ACE, rank, 3);
-          trick[4].Set(QT_PARD, QT_PARD, SDS_VOID, 1);
-          return def.Set122(trick);
+          trick[1].Set(QT_PARD, QT_BOTH, SDS_TEN, 3);
+          trick[2].Set(QT_PARD, QT_ACE, rank, 3);
+          trick[3].Set(QT_PARD, QT_PARD, SDS_VOID, 1);
+          return def.Set112(trick);
         }
         else if (completeList[QT_LHO][1] > completeList[QT_PARD][1])
         {
