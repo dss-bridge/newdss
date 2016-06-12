@@ -1,3 +1,10 @@
+13, 5acef
+    AKQ6
+7532       JT
+    984
+
+Should there be a play for unblocking 98 and hooking 6?
+
 05.06.2016
 ----------
 About 52,854 rank issues left for now.
@@ -48,56 +55,8 @@ Ugh.
 2. Think about 3 6 8 -1 (9-Q-A): Should it be rank J or T-9?
 
 
-21.05.2016
-----------
-12, 0x29e0bf
-    A87
-T543     J
-    KQ96
-
-12, 0x29e0ef
-    A87
-T543     J
-    KQ95
-
-Why are these different?  Has to do with
-
-8, 2e2f
-    AT
-Q87      -
-    KJ9
-
-8, 2e3b
-    AT
-Q97      -
-    KJ8
-
-The first one is AB2K or PP1T + BA1- + PP1-.
-The second one is BB2K or PA2T + PP1-.
-In the first one, RHO can't cover, so declarer can stay with pard.
-In the second one, he can, so declarer can't stay.
-Even so, if AB2K were BB2K, then we could collapse PP1T + BA1-.
-So why don't we get BB2K?
-It might help to use AA1A + BP1K = BB2K and not just AB2K.
-Then again, we'll never beat BB2K even if it deserves to be beaten.
-
-
 16.05.2016
 ----------
-In Segment::PrependSpecial:
-If AA1A + PB2Q = AA1A + PA2Q or AA1A + PP2Q, then if they add up
-independently, could be AB3Q... (idea 12, 9c856)
-
-
-Once we have that, there is 7, e23 AJ9 / - / QT / K8 which should
-use rank T.
-
-There is 13, a42956 AT9 / J6543 / KQ872 / - which has d = 5, as there
-are two d's starting with A-3-2 and two starting with the 9.
-In fact it may even be true, as covering the 9 yields AB75, whereas
-covering the A+9 only yields AP75.  Nonetheless, perhaps it helps
-to fix the shorter RANK errors and then some of these might go away?
-
 The rank detector in single.cpp can optionally not recurse, but
 instead only output a single specimen of each new cone (i.e. only
 when the top of the cone is new, even if it doesn't agree with the
@@ -120,9 +79,6 @@ for Simple moves).
 
 
 Have more generic Set function than Set1123...
-
-
-13, ce2ac5: assert violation?!
 
 
 13. cc9257
@@ -203,13 +159,6 @@ The merge then loses the 6: AA1A + PA36 <= PA4T (or PA49, or whatever).
 This is actually true.  No reason to start with ace if you have a
 AP move from elsewhere.
 This now segfaults when called from the command line!
-
-13, 9ab056
-    A76
-8         Q543
-    KJT92
-
-Looks a bit odd all round.
 
 
 Remove GetKeyNew and GetKey

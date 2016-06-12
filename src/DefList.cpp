@@ -340,8 +340,10 @@ void DefList::operator += (
     /* */
     // if ((cd == SDS_HEADER_PLAY_OLD_BETTER && list[d].GetComplexity() == 1) ||
         // (cd == SDS_HEADER_PLAY_NEW_BETTER && alt.GetComplexity() == 1))
-    if (cd == SDS_HEADER_PLAY_OLD_BETTER ||
-        cd == SDS_HEADER_PLAY_NEW_BETTER)
+    // if (cd == SDS_HEADER_PLAY_OLD_BETTER ||
+        // cd == SDS_HEADER_PLAY_NEW_BETTER)
+    if (cd == SDS_HEADER_RANK_OLD_BETTER ||
+        cd == SDS_HEADER_RANK_NEW_BETTER)
     {
       unsigned tdef = list[d].GetTricks();
       unsigned talt = alt.GetTricks();
@@ -355,21 +357,23 @@ void DefList::operator += (
       list[d].GetHeader(hdef);
       unsigned rdef = hdef.GetMaxRank();
 
-      if (cd == SDS_HEADER_PLAY_OLD_BETTER && rdef+1 == ralt)
-      // if (cd == SDS_HEADER_PLAY_OLD_BETTER && rdef < ralt)
+      // if (cd == SDS_HEADER_PLAY_OLD_BETTER && rdef+1 == ralt)
+      if (cd == SDS_HEADER_PLAY_OLD_BETTER && rdef < ralt)
       {
         altModFlag = true;
         altMod = alt;
 // list[d].Print(cout, "Def losing");
+// cout << "cd " << static_cast<int>(cd) << "\n";
 // altMod.Print(cout, "alt before");
         altMod.FixRanks(rdef, tdef);
 // altMod.Print(cout, "alt after");
 // cout << endl;
       }
-      else if (cd == SDS_HEADER_PLAY_NEW_BETTER && ralt+1 == rdef)
-      // else if (cd == SDS_HEADER_PLAY_NEW_BETTER && ralt < rdef)
+      // else if (cd == SDS_HEADER_PLAY_NEW_BETTER && ralt+1 == rdef)
+      else if (cd == SDS_HEADER_PLAY_NEW_BETTER && ralt < rdef)
       {
 // alt.Print(cout, "alt losing");
+// cout << "cd " << static_cast<int>(cd) << "\n";
 // list[d].Print(cout, "Def before");
         list[d].FixRanks(ralt, talt);
 // list[d].Print(cout, "Def before");

@@ -1118,6 +1118,45 @@ bool Segment::Fix12Special(
   FixType& fix1,
   FixType& fix2) const
 {
+  const Trick& t1 = list[0];
+  Trick& t200 = seg20.list[1];
+  Trick& t201 = seg20.list[0];
+  Trick& t21 = seg21.list[0];
+
+  // AB3Q or AA19 + BP1- + AA2-: The first segment can be simplified
+  // so AP29 + AA2-, as AA29 would never be used (no AP0- move).
+
+  if (// false && 
+      t200.trick.start != QT_BOTH &&
+      t200.trick.end == t200.trick.start &&
+      t201.trick.start == QT_BOTH &&
+      t201.trick.end == SDS_PARTNER[t200.trick.start] &&
+      t1.trick.start != t201.trick.end &&
+      t1.trick.end != t201.trick.end)
+  {
+    unsigned char m = t200.trick.cashing + t201.trick.cashing;
+    unsigned char n = m + t21.trick.cashing;
+    unsigned char s = Min(t200.trick.ranks, t201.trick.ranks);
+    unsigned char t = s;
+    if (t21.trick.ranks < t)
+      t = t21.trick.ranks;
+
+    if ((n > t1.trick.cashing ||
+       (n == t1.trick.cashing && t > t1.trick.ranks)) && 
+       (m < t1.trick.cashing || 
+       (m == t1.trick.cashing && s <= t1.trick.ranks)))
+    {
+      t201.trick.start = t200.trick.start;
+      t201.trick.cashing += t200.trick.cashing;
+      if (t200.trick.ranks < t201.trick.ranks)
+        t201.trick.ranks = t200.trick.ranks;
+      seg20.len = 1;
+      fix1 = SDS_FIX_UNCHANGED;
+      fix2 = SDS_FIX_WEAKER;
+      return true;
+    }
+  }
+
   // xAnr or xA-m1-s1 + BP-m2-s2 + AA-m3-s3,
   // with m1+m2+m3 and min(s1,s2,s3) <= n, r).
   // xPnr or xP-m1-s1 + BA-m2-s2 + PP-m3-s3 similarly.
@@ -1130,11 +1169,6 @@ bool Segment::Fix12Special(
   // information, but as we don't mind this in general, we don't mind
   // it here either.
   // If we have xBnr, not xAnr, then (a) loses as well.
-
-  const Trick& t1 = list[0];
-  Trick& t200 = seg20.list[1];
-  Trick& t201 = seg20.list[0];
-  Trick& t21 = seg21.list[0];
 
   if (t1.trick.start != QT_BOTH &&
       (t1.trick.end == QT_BOTH || t1.trick.end == t21.trick.end) &&
