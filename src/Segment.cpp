@@ -1126,8 +1126,7 @@ bool Segment::Fix12Special(
   // AB3Q or AA19 + BP1- + AA2-: The first segment can be simplified
   // so AP29 + AA2-, as AA29 would never be used (no AP0- move).
 
-  if (// false && 
-      t200.trick.start != QT_BOTH &&
+  if (t200.trick.start != QT_BOTH &&
       t200.trick.end == t200.trick.start &&
       t201.trick.start == QT_BOTH &&
       t201.trick.end == SDS_PARTNER[t200.trick.start] &&

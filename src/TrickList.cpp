@@ -300,12 +300,12 @@ CmpDetailType TrickList::CompareInit(
     cdata.tricksNew += t2.GetCashing();
     cdata.ranksNew = Min(cdata.ranksNew, t2.GetRanks());
   }
-  // while (cc != SDS_TRICK_PLAY_NEW_BETTER &&
-      // cc != SDS_TRICK_PLAY_OLD_BETTER &&
-      // cc != SDS_TRICK_RANK_NEW_BETTER &&
-      // cc != SDS_TRICK_RANK_OLD_BETTER);
   while (cc != SDS_TRICK_PLAY_NEW_BETTER &&
-      cc != SDS_TRICK_PLAY_OLD_BETTER);
+      cc != SDS_TRICK_PLAY_OLD_BETTER &&
+      cc != SDS_TRICK_RANK_NEW_BETTER &&
+      cc != SDS_TRICK_RANK_OLD_BETTER);
+  // while (cc != SDS_TRICK_PLAY_NEW_BETTER &&
+      // cc != SDS_TRICK_PLAY_OLD_BETTER);
 
   return cmpTrickToDetail[cc];
 }

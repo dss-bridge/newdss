@@ -100,6 +100,28 @@ cout << endl;
 PrintHoldCounter(cout);
 exit(0);
 #endif
+
+/*
+DefList def1, def2;
+Trick trick[3];
+trick[0].Set(QT_PARD, QT_BOTH, SDS_KING, 2);
+def1.Set1(trick[0]);
+
+trick[0].Set(QT_PARD, QT_PARD, SDS_TEN, 1);
+trick[1].Set(QT_BOTH, QT_ACE, SDS_VOID, 1);
+trick[2].Set(QT_PARD, QT_PARD, SDS_VOID, 1);
+def2.Set3(trick[0], trick[1], trick[2]);
+
+def1.Print();
+def2.Print();
+
+def1 *= def2;
+def1.Print();
+
+exit(0);
+*/
+
+
   if (options.suitLength)
   {
     LoopHold holding;
