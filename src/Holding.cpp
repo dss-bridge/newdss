@@ -727,10 +727,27 @@ unsigned Holding::PossiblyFixRank(
   // Make sure the trick is a cover that was "actively" made.
   unsigned lr = static_cast<unsigned>(leadRank);
   if (length[side] == 1 ||
+      length[pard] == 1 ||
       leadRank > lhoRank ||
-     (length[rho] > 0 && completeList[rho][0] > lr) ||
-      minRank[lho] > leadRank ||
-      minRank[pard] > leadRank)
+     (length[rho] > 0 && completeList[rho][0] > lr)) // ||
+      // minRank[lho] > leadRank) // ||
+      // minRank[pard] > leadRank)
+    return SDS_VOID;
+
+  if (minRank[pard] > leadRank)
+  {
+    if (minRank[pard] > lhoRank)
+      return SDS_VOID;
+
+    // From AQT98 / - / 76 / KJ5, use the T and not the 8 on the J.
+    lr = static_cast<unsigned>(lhoRank);
+    while (rankHolder[lr] != pard)
+      lr--;
+    
+    if (minRank[lho] > static_cast<int>(lr))
+      return SDS_VOID;
+  }
+  else if (minRank[lho] > leadRank)
     return SDS_VOID;
 
   // Find the number of consecutive higher cards with our side.
@@ -746,13 +763,28 @@ unsigned Holding::PossiblyFixRank(
     // Lead 9: 9-J-A-void, then later PA1A + AP1T + AA2-.
     // But only covers when we have T9.
     // General rule turns out to be: length >= #tops with leader.
-    if (length[lho] >= Holding::TopsOverRank(side, lr) &&
-        rankHolder[h] == side)
+    if (minRank[pard] > leadRank)
     {
-      return Holding::ListToRank(h);
+      if (completeList[lho][0] + length[lho] >= suitLength &&
+          rankHolder[h] == side)
+      {
+        // Probably not the final truth, but works for now.
+        // Kx, Qxx, Jxxx etc.
+        return Holding::ListToRank(h);
+      }
+      else
+        return SDS_VOID;
     }
     else
-      return SDS_VOID;
+    {
+      if (length[lho] >= Holding::TopsOverRank(side, lr) &&
+          rankHolder[h] == side)
+      {
+        return Holding::ListToRank(h);
+      }
+      else
+        return SDS_VOID;
+    }
   }
 
   // At least three in a row at the top, leader with no very high card.
