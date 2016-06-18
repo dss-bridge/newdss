@@ -459,7 +459,9 @@ bool Segment::PrependSpecial(
     unsigned mdl = holding.GetMinDeclLength();
     if (mdl >= 2 &&
         mergingMove.trick.start == QT_PARD &&
-        mergingMove.trick.end == QT_PARD)
+        mergingMove.trick.end == QT_PARD &&
+        (list[0].trick.cashing == 1 ||
+        holding.IsNotFinesse(QT_PARD)))
     {
       // PPnr + AAms = PB(n+m)min(r,s).
       // It is always also possible to cash the last trick from P.
