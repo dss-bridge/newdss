@@ -750,7 +750,18 @@ unsigned Holding::PossiblyFixRank(
   // if (minRank[pard] > leadRank)
   // It's probably enough that LHO has a card below lhoRank that
   // beats leadRank (doesn't have to be the lowest LHO card).
-  if (minRank[pard] > leadRank || minRank[lho] > leadRank)
+  int nextLho;
+  if (minRank[lho] == lhoRank)
+    nextLho = static_cast<int>(lhoRank);
+  else
+  {
+    nextLho = static_cast<int>(lhoRank) - 1;
+    while (rankHolder[nextLho] != lho)
+      nextLho--;
+  }
+
+  // if (minRank[pard] > leadRank || minRank[lho] > leadRank)
+  if (minRank[pard] > leadRank || nextLho > leadRank)
   {
     if (minRank[pard] > lhoRank)
       return SDS_VOID;
@@ -782,7 +793,8 @@ unsigned Holding::PossiblyFixRank(
     // But only covers when we have T9.
     // General rule turns out to be: length >= #tops with leader.
     // Ditto to change above.
-    if (minRank[pard] > leadRank || minRank[lho] > leadRank)
+    // if (minRank[pard] > leadRank || minRank[lho] > leadRank)
+    if (minRank[pard] > leadRank || nextLho > leadRank)
     {
       if (completeList[lho][0] + length[lho] >= suitLength &&
           rankHolder[h] == side)
