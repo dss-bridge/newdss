@@ -744,12 +744,13 @@ unsigned Holding::PossiblyFixRank(
   unsigned lr = static_cast<unsigned>(leadRank);
   if (length[side] == 1 ||
       length[pard] == 1 ||
-      leadRank > lhoRank) // ||
-     // (length[rho] > 0 && 
-      // completeList[rho][0] > lr))
+      leadRank > lhoRank)
     return SDS_VOID;
 
-  if (minRank[pard] > leadRank)
+  // if (minRank[pard] > leadRank)
+  // It's probably enough that LHO has a card below lhoRank that
+  // beats leadRank (doesn't have to be the lowest LHO card).
+  if (minRank[pard] > leadRank || minRank[lho] > leadRank)
   {
     if (minRank[pard] > lhoRank)
       return SDS_VOID;
@@ -780,7 +781,8 @@ unsigned Holding::PossiblyFixRank(
     // Lead 9: 9-J-A-void, then later PA1A + AP1T + AA2-.
     // But only covers when we have T9.
     // General rule turns out to be: length >= #tops with leader.
-    if (minRank[pard] > leadRank)
+    // Ditto to change above.
+    if (minRank[pard] > leadRank || minRank[lho] > leadRank)
     {
       if (completeList[lho][0] + length[lho] >= suitLength &&
           rankHolder[h] == side)
