@@ -671,6 +671,14 @@ void Holding::AdjustWinRank()
 
   // We look for the next rank down, skipping over played cards.
   unsigned soughtRank = winRank-1;
+  while (rankHolder[soughtRank] == QT_LHO ||
+         rankHolder[soughtRank] == QT_RHO)
+    soughtRank--;
+
+  winRank = soughtRank;
+  return;
+
+  /*
   if (soughtRank == static_cast<unsigned>(lhoRank))
   {
     if (soughtRank == 0) return;
@@ -691,6 +699,7 @@ void Holding::AdjustWinRank()
       soughtRank--;
     }
   }
+  */
 
   // If declarer holds that card, 
   if (leadCurrIndex < numLeads)
