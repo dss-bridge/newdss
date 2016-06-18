@@ -744,10 +744,9 @@ unsigned Holding::PossiblyFixRank(
   unsigned lr = static_cast<unsigned>(leadRank);
   if (length[side] == 1 ||
       length[pard] == 1 ||
-      leadRank > lhoRank ||
-     (length[rho] > 0 && completeList[rho][0] > lr)) // ||
-      // minRank[lho] > leadRank) // ||
-      // minRank[pard] > leadRank)
+      leadRank > lhoRank) // ||
+     // (length[rho] > 0 && 
+      // completeList[rho][0] > lr))
     return SDS_VOID;
 
   if (minRank[pard] > leadRank)
@@ -764,6 +763,8 @@ unsigned Holding::PossiblyFixRank(
       return SDS_VOID;
   }
   else if (minRank[lho] > leadRank)
+    return SDS_VOID;
+  else if (length[rho] > 0 && completeList[rho][0] > lr)
     return SDS_VOID;
 
   // Find the number of consecutive higher cards with our side.
