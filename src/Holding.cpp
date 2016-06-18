@@ -760,16 +760,32 @@ unsigned Holding::PossiblyFixRank(
       nextLho--;
   }
 
+  // From AQT98 / - / 76 / KJ5, use the T and not the 8 on the J.
+  int nextPard = static_cast<int>(lhoRank);
+  if (minRank[pard] < lhoRank)
+  {
+    while (rankHolder[nextPard] != pard)
+      nextPard--;
+  }
+
   // if (minRank[pard] > leadRank || minRank[lho] > leadRank)
-  if (minRank[pard] > leadRank || nextLho > leadRank)
+  bool simpleFlag = 
+      (minRank[pard] > leadRank || 
+      nextLho > leadRank); // ||
+      // (length[side] > length[lho] && 
+          // nextPard > leadRank))
+          // nextPard > static_cast<int>(completeList[side][0])));
+  // if (minRank[pard] > leadRank || nextLho > leadRank)
+  if (simpleFlag)
   {
     if (minRank[pard] > lhoRank)
       return SDS_VOID;
 
     // From AQT98 / - / 76 / KJ5, use the T and not the 8 on the J.
-    lr = static_cast<unsigned>(lhoRank);
-    while (rankHolder[lr] != pard)
-      lr--;
+    lr = static_cast<unsigned>(nextPard);
+    // lr = static_cast<unsigned>(lhoRank);
+    // while (rankHolder[lr] != pard)
+      // lr--;
     
     if (minRank[lho] > static_cast<int>(lr))
       return SDS_VOID;
@@ -794,7 +810,8 @@ unsigned Holding::PossiblyFixRank(
     // General rule turns out to be: length >= #tops with leader.
     // Ditto to change above.
     // if (minRank[pard] > leadRank || minRank[lho] > leadRank)
-    if (minRank[pard] > leadRank || nextLho > leadRank)
+    // if (minRank[pard] > leadRank || nextLho > leadRank)
+    if (simpleFlag)
     {
       if (completeList[lho][0] + length[lho] >= suitLength &&
           rankHolder[h] == side)
