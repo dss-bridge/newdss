@@ -128,6 +128,7 @@ class Holding
     bool IsRealPP(const unsigned pRank) const;
     bool APIsBP()const;
     bool HasRemainingPTop() const;
+    bool IsNotFinesse(const PosType pStart) const;
 
     bool IsPA1ACasher() const;
 

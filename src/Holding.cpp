@@ -588,16 +588,23 @@ bool Holding::HasRemainingPTop() const
     maxr = completeList[QT_RHO][1];
 
   unsigned maxd = Max(maxl, maxr);
-
-// cout << "HRPT pTop " << pTop << ", maxl " << maxl << ", maxr " << maxr <<
-  // ", maxd " << maxd << ", lho-rho " << lhoRank << ", " << rhoRank << "\n";
-// cout << "CL " << completeList[QT_LHO][0] << ", CR " <<
-  // completeList[QT_RHO][0] << "\n";
-// Holding::Print();
-// Holding::PrintPlay();
-// cout << "\n";
-
   return (pTop > maxd);
+}
+
+
+bool Holding::IsNotFinesse(const PosType pStart) const
+{
+  // Checking whether AA+PPn can be combined to AB.  pStart = QT_ACE then.
+  if (pStart == QT_ACE)
+  {
+    return (completeList[QT_RHO][0] < completeList[QT_PARD][0]);
+  }
+  else if (pStart == QT_PARD)
+  {
+    return (completeList[QT_LHO][0] < completeList[QT_ACE][0]);
+  }
+  else
+    return false;
 }
  
 
