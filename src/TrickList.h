@@ -115,6 +115,11 @@ class TrickList
       const PosType endVal,
       TrickList& tl) const;
 
+    bool CanSplit() const;
+
+    void Split(
+      const PosType endval);
+
     CmpDetailType Compare(
       const TrickList& lNew) const;
 

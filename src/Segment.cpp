@@ -166,6 +166,28 @@ bool Segment::CanExpand() const
 }
 
 
+bool Segment::CanSplit() const
+{
+  // Actually it should also be OK for first start to be QT_BOTH.
+  return (len == 2 && 
+    list[1].trick.start != QT_BOTH &&
+    list[0].trick.start == QT_BOTH);
+}
+
+
+void Segment::Split(
+  const PosType endVal)
+{
+  assert(len == 2);
+  list[0].trick.start = list[1].trick.start;
+  list[0].trick.end = endVal;
+  list[0].trick.cashing += list[1].trick.cashing;
+  if (list[1].trick.ranks < list[0].trick.ranks)
+    list[0].trick.ranks = list[1].trick.ranks;
+  len = 1;
+}
+
+
 bool Segment::IsSimpleComplement(
   const Segment& seg2) const
 {
@@ -317,6 +339,14 @@ void Segment::FixEquals(
   if (rankToFix == SDS_VOID)
     return;
 
+  Segment::FixEquals(rankToFix, fixedRank);
+}
+
+
+void Segment::FixEquals(
+  const unsigned rankToFix,
+  const unsigned fixedRank)
+{
   // AKQ2 / - / T9 / J876: Turn later T to 9.
   for (unsigned l = 0; l < len; l++)
     if (list[len-1-l].trick.ranks <= rankToFix &&
@@ -348,9 +378,23 @@ bool Segment::Prepend(
   assert(len > 0);
 
   const Trick& mergingMove = holding.GetTrick();
-  Segment::FixEquals(holding);
+/*
+if (holding.GetLength(QT_PARD) == 5)
+{
+cout << "mergingMove\n";
+mergingMove.Print();
+cout << "\n";
+holding.PrintPlay();
+cout << "\n";
+holding.Print();
+cout << "\n";
+}
+*/
+
+  // Segment::FixEquals(holding);
   bool lastFlag = (lastSegFlag && (len == 1));
   const bool mergeSpecialFlag = holding.GetMergeType();
+
 
   switch(list[len-1].Prepend(mergingMove, mergeSpecialFlag, lastFlag))
   {

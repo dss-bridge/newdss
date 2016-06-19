@@ -532,6 +532,26 @@ void AltList::operator += (
   for (unsigned a = 0; a < len; a++)
     list[a] += holding;
   
+  // TrickLists of the form PA29 + BP1- + AA1- can be expanded to
+  // PP39 + AA1- or PA39.
+/*
+  for (unsigned a1 = len; a1 >= 1; a1--)
+  {
+    if (! list[a1-1].CanSplit())
+      continue;
+
+// AltList::Print(cout, "before");
+    // Copy the one to be expanded as well.
+    for (unsigned a2 = len; a2 >= a1; a2--)
+      list[a2] = list[a2-1];
+    len++;
+
+    list[a1-1].Split(QT_ACE);
+    list[a1].Split(QT_PARD);
+// AltList::Print(cout, "after");
+  }
+*/
+
   AltList::Reduce();
 }
 

@@ -843,6 +843,7 @@ unsigned Holding::PossiblyFixRank(
 
   if (length[side] == 2 && 
     // p1 > s0 && 
+    // s0 == h &&
     s0 > lr)
     return Holding::ListToRank(s0);
   else if ((length[lho] == 2 && p1 < lr) ||
@@ -857,9 +858,11 @@ unsigned Holding::PossiblyFixRank(
     return Holding::ListToRank(h);
   }
   else if (s0 == h && length[lho] >= 3)
+  // else if (length[lho] >= 3)
   {
     // Pick the last of the leader's own run.
     unsigned reduced = h-1;
+    // unsigned reduced = h;
     while (reduced >= lr && rankHolder[reduced] != side)
       reduced--;
     if (reduced > lr)

@@ -108,6 +108,11 @@ class Segment
 
     bool CanExpand() const;
 
+    bool CanSplit() const;
+
+    void Split(
+      const PosType endVal);
+
     bool IsSimpleComplement(
       const Segment& seg2) const;
 
@@ -144,6 +149,10 @@ class Segment
 
     void FixEquals(
       const Holding& holding);
+
+    void FixEquals(
+      const unsigned rankToFix,
+      const unsigned fixedRank);
 
     bool Prepend(
       const Holding& holding,

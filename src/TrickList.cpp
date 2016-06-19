@@ -254,6 +254,31 @@ void TrickList::ExpandEnd(
 }
 
 
+bool TrickList::CanSplit() const
+{
+  if (len == 1)
+    return false;
+  else
+    return list[len-1].CanSplit();
+}
+
+
+void TrickList::Split(
+  const PosType endval)
+{
+  assert(len > 1);
+  if (endval == list[len-2].GetStart())
+  {
+    // Only the initial segment survives.
+    list[0] = list[len-1];
+    list[0].Split(endval);
+    len = 1;
+  }
+  else
+    list[len-1].Split(endval);
+}
+
+
 bool TrickList::IsSimpleComplement(
   const TrickList& lNew) const
 {
@@ -515,6 +540,14 @@ void TrickList::operator += (
 
   for (unsigned p = 0; p < len; p++)
     list[p].Localize(holding);
+
+  unsigned fixedRank;
+  unsigned rankToFix = holding.PossiblyFixRank(fixedRank);
+  if (rankToFix != SDS_VOID)
+  {
+    for (unsigned p = 0; p < len; p++)
+      list[p].FixEquals(rankToFix, fixedRank);
+  }
 
   if (list[len-1].Prepend(holding, len == 1))
   {
