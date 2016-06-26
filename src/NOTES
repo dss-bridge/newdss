@@ -1,3 +1,61 @@
+26.06.2016
+----------
+Working on 2, PossiblyFixRankRun():
+
+It's reasonably simple, but not right so far.  (45,168 lines)
+I think a combination of two ideas can fix it:
+
+a) Introduce a shadow low card, made from leader's lowest card,
+only when even the lowest card can theoretically be run as a finesse.
+So LHO must have a higher and a lower card, pard must have a lower
+card, and RHOmax must be lower (or void), and length[side] > 1.
+
+This makes a special path through Holding.cpp.  Mainly it limits
+partner's plays (he can't duck even if that would win).
+
+Do this is leader's first play, to get a sensible solution in first.
+
+b) The run should then probably go back to including both sides.
+
+AQT97 / - / 86 / KJ5 will become PA1T + PA4- or PA1Q + PA48,
+and the former will win.
+
+AJ7 / - / QT9 / K7 will adjust Q to T or 9, but the shadow play
+will only use AQJ.
+
+A8 / 7654 / KJT / Q4 will adjust J to T, but the shadow play will
+only use AKJ.
+
+No need for the cashers check anymore then?
+
+
+19.06.2016
+----------
+There are several known issues:
+
+1. The double finesse is a bit tricky.
+
+   AQTx            AQTx
+KJx     -      KJ8       -
+   98xx            9xxx
+
+The 8 allows PA1Q + (either PA3T or PP39).
+Without the 8, PA1T + (either PA3- or PP39).
+With 9876, we cannot avoid getting the first which is actually worse.
+One could even argue that it should be PP38 in that case.  Or not.
+Perhaps the solution is to allow a special lead which we "promise" to
+overtake.  It only applies when even the lowest lead can be run.
+So needs to beat lhomin, also rhomax (can be void), also pardmin.
+
+
+2. PA + BP + another A segment
+Split into PP + A segment, or PA without A segment.
+The code already exists, but is not turned on.
+
+
+
+
+
 13, 5acef
     AKQ6
 7532       JT

@@ -541,6 +541,21 @@ void TrickList::operator += (
   for (unsigned p = 0; p < len; p++)
     list[p].Localize(holding);
 
+  AdjustRankType adjust;
+  holding.PossiblyFixRank(adjust);
+  if (adjust.lower1 != SDS_VOID)
+  {
+    for (unsigned p = 0; p < len; p++)
+      list[p].FixEquals(adjust.upper1, adjust.lower1);
+  }
+
+  if (adjust.lower2 != SDS_VOID)
+  {
+    for (unsigned p = 0; p < len; p++)
+      list[p].FixEquals(adjust.upper2, adjust.lower2);
+  }
+
+  /*
   unsigned fixedRank;
   unsigned rankToFix = holding.PossiblyFixRank(fixedRank);
   if (rankToFix != SDS_VOID)
@@ -548,6 +563,7 @@ void TrickList::operator += (
     for (unsigned p = 0; p < len; p++)
       list[p].FixEquals(rankToFix, fixedRank);
   }
+  */
 
   if (list[len-1].Prepend(holding, len == 1))
   {

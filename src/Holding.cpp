@@ -737,6 +737,205 @@ unsigned Holding::GetSideRun(
 }
 
 
+void Holding::PossiblyFixRankFinesse(
+  AdjustRankType& adjust) const
+{
+  // First case: Partner could have finessed against LHO with one
+  // of his own cards (i.e. not by running the lead).
+
+  // Follow the run upwards.  By definition, the top card can only
+  // be from leader's side, as partner would otherwise have won 
+  // the trick with a higher card from the run.
+
+  if (minRank[pard] > lhoRank)
+    return;
+
+  int nextPard = lhoRank;
+  while (rankHolder[nextPard] != pard)
+    nextPard--;
+
+  if (nextPard < leadRank || minRank[lho] > nextPard)
+    return;
+
+  unsigned np = static_cast<unsigned>(nextPard);
+  if (length[rho] > 0 && completeList[rho][0] > np)
+    return;
+
+  unsigned run = Holding::GetSideRun(np);
+  if (run == 1)
+    return;
+
+  // Not sure this is exactly right.
+  // if (length[side] <= length[lho])
+    // return;
+
+  // if (completeList[lho][0] + length[lho] >= suitLength)
+  // if (length[lho] >= Holding::TopsOverRank(side, np) + 1)
+      // Holding::TopsOverRank(pard, np) + 
+      // Holding::TopsOverRank(side, static_cast<unsigned>(lhoRank)))
+  unsigned lr;
+  if (static_cast<unsigned>(lhoRank) < completeList[lho][0])
+    lr = completeList[lho][0];
+  else
+    lr = completeList[lho][1];
+
+  if (length[lho] > 
+        Holding::TopsOverRank(pard, lr) + Holding::TopsOverRank(side, lr))
+  {
+    unsigned a = Holding::ListToRank(np);
+    adjust.lower1 = a;
+    adjust.upper1 = a + run - 1;
+  }
+}
+
+
+void Holding::PossiblyFixRankRun(
+  AdjustRankType& adjust) const
+{
+  // Second case: Leader could have run his lead if not covered.
+  
+  // Start from the the higher of (a) the lead, 
+  // (b) LHO's lowest card, (c) RHO's highest card if not void.  
+  // If partner's lowest card is higher, skip.
+  // Otherwise, work up a run from there.
+
+  if (minRank[lho] > leadRank)
+    return;
+  if (length[rho] > 0 && static_cast<int>(completeList[rho][0]) > leadRank)
+    return;
+  if (minRank[pard] > leadRank)
+    return;
+
+  unsigned nl = static_cast<unsigned>(leadRank);
+  unsigned run = Holding::GetSideRun(nl);
+  if (run == 1)
+    return;
+
+  unsigned topRunSide = nl + run - 1;
+
+  // Don't adjust if there are enough tops higher than the card led,
+  // such that LHO can be cashed out after this cover.
+  // A8 / 7654 / KJT / Q9,
+  // AJ6 / 75 / KT98 / Q4,
+  // AT6 / - / KQ98 / J754,
+  // AKT7 / - / Q98 / J654.
+  // unsigned cashers = Holding::TopsOverRank(side, nl) - 1 +
+    // Holding::TopsOverRank(pard, nl);
+  // if (lr < nl && cashers >= length[lho])
+    // return;
+
+  unsigned lh = static_cast<unsigned>(lhoRank);
+  unsigned cashers = 
+    Holding::TopsOverRank(side, lh) +
+    Holding::TopsOverRank(pard, lh);
+  if (cashers >= length[lho] && length[side] > length[lho])
+    return;
+
+  // Only adjust up the highest side card in that run.
+  // Can write a single, short function to find this later...
+
+  while (rankHolder[topRunSide] == pard)
+    topRunSide--;
+
+  if (topRunSide == nl)
+    return;
+
+  adjust.lower2 = Holding::ListToRank(nl);
+  adjust.upper2 = Holding::ListToRank(topRunSide);
+  return;
+
+
+  unsigned lr;
+  if (static_cast<unsigned>(lhoRank) < completeList[lho][0])
+    lr = completeList[lho][0];
+  else
+    lr = completeList[lho][1];
+
+  int nextPard = lhoRank;
+  while (rankHolder[nextPard] != pard)
+    nextPard--;
+  unsigned np = static_cast<unsigned>(nextPard);
+  if (nextPard < leadRank || minRank[lho] > nextPard)
+    np = SDS_VOID;
+  else if (length[rho] > 0 && completeList[rho][0] > np)
+    np = SDS_VOID;
+
+
+  if (np != SDS_VOID)
+  {
+    // If there is a finesse position, stay on lead side.
+    while (rankHolder[topRunSide] != side)
+      topRunSide--;
+    if (topRunSide == nl)
+      return;
+
+    adjust.lower2 = Holding::ListToRank(nl);
+    adjust.upper2 = Holding::ListToRank(topRunSide);
+    return;
+  }
+
+  if (length[lho] <= Holding::TopsOverRank(pard, lr))
+  {
+    // If the suit can be cashed out completely from partner after this
+    // trick, then only consider leader's side for any correction.
+    while (rankHolder[topRunSide] != side)
+      topRunSide--;
+    if (topRunSide == nl)
+      return;
+  }
+
+  // if (length[lho] >= Holding::TopsOverRank(side, nl))
+  // unsigned lr = static_cast<unsigned>(lhoRank);
+  // if (length[lho] >= Holding::TopsOverRank(side, nl))
+  // {
+  // if (length[side] <= length[lho])
+  // if (length[lho] > 
+        // Holding::TopsOverRank(pard, lr) + Holding::TopsOverRank(side, lr))
+  if (length[lho] >= Holding::TopsOverRank(side, nl))
+  {
+    adjust.lower2 = Holding::ListToRank(nl);
+    adjust.upper2 = Holding::ListToRank(topRunSide);
+  }
+}
+
+
+#include "options.h"
+extern OptionsType options;
+void Holding::PossiblyFixRank(
+  AdjustRankType& adjust) const
+{
+  adjust.lower1 = SDS_VOID;
+  adjust.lower2 = SDS_VOID;
+
+  if (length[side] == 1 ||
+      length[pard] == 1 ||
+      length[lho] == 1 ||
+      leadRank > lhoRank)
+    return;
+
+  Holding::PossiblyFixRankFinesse(adjust);
+  Holding::PossiblyFixRankRun(adjust);
+
+if (options.debugFlow)
+{
+  if (adjust.lower1 != SDS_VOID)
+  {
+Holding::Print();
+Holding::PrintPlay();
+    cout << "adjust high (finesse): " << 
+      adjust.upper1 << " to " << adjust.lower1 << "\n\n";
+  }
+  if (adjust.lower2 != SDS_VOID)
+  {
+Holding::Print();
+Holding::PrintPlay();
+    cout << "adjust low (run): " << 
+      adjust.upper2 << " to " << adjust.lower2 << "\n\n";
+  }
+}
+}
+
+
 unsigned Holding::PossiblyFixRank(
   unsigned& fixedRank) const
 {
@@ -770,8 +969,10 @@ unsigned Holding::PossiblyFixRank(
 
   // if (minRank[pard] > leadRank || minRank[lho] > leadRank)
   bool simpleFlag = 
-      (minRank[pard] > leadRank || 
-      nextLho > leadRank); // ||
+      (minRank[lho] > leadRank ||
+       minRank[pard] > static_cast<int>(completeList[side][0]) ||
+      (minRank[pard] > leadRank && nextLho < minRank[pard]));
+      // (nextLho > leadRank && nextLho > nextPard)); // ||
       // (length[side] > length[lho] && 
           // nextPard > leadRank))
           // nextPard > static_cast<int>(completeList[side][0])));
@@ -781,17 +982,14 @@ unsigned Holding::PossiblyFixRank(
     if (minRank[pard] > lhoRank)
       return SDS_VOID;
 
+    if (minRank[lho] > nextPard)
+      return SDS_VOID;
+
     // From AQT98 / - / 76 / KJ5, use the T and not the 8 on the J.
     lr = static_cast<unsigned>(nextPard);
-    // lr = static_cast<unsigned>(lhoRank);
-    // while (rankHolder[lr] != pard)
-      // lr--;
     
-    if (minRank[lho] > static_cast<int>(lr))
-      return SDS_VOID;
   }
 
-  // else if (length[rho] > 0 && completeList[rho][0] > lr)
   if (length[rho] > 0 && completeList[rho][0] > lr)
     return SDS_VOID;
 
@@ -839,18 +1037,43 @@ unsigned Holding::PossiblyFixRank(
   unsigned s0 = completeList[side][0];
   unsigned p1 = completeList[pard][1];
   if (s0 > h)
+  {
     return SDS_VOID;
+    // Need to permit some of these.
+
+    if ((length[lho] == 2 && p1 < lr) ||
+        (length[lho] == 3 &&
+          (length[pard] < length[lho] ||
+           completeList[pard][2] < completeList[lho][0])) ||
+        (length[lho] >= 4 &&
+          (length[pard] < length[lho] ||
+           completeList[pard][length[lho]-1] < completeList[lho][0])))
+    {
+      return Holding::ListToRank(h);
+    }
+    else 
+    if (length[lho] >= 3)
+    {
+      // Pick the last of the leader's own run.
+      unsigned reduced = h;
+      while (reduced >= lr && rankHolder[reduced] != side)
+        reduced--;
+      if (reduced > lr)
+        return Holding::ListToRank(reduced);
+      else
+        return SDS_VOID;
+    }
+    else
+      return SDS_VOID;
+  }
 
   if (length[side] == 2 && 
-    // p1 > s0 && 
-    // s0 == h &&
     s0 > lr)
     return Holding::ListToRank(s0);
   else if ((length[lho] == 2 && p1 < lr) ||
       (length[lho] == 3 &&
         (length[pard] < length[lho] ||
          completeList[pard][2] < completeList[lho][0])) ||
-         // completeList[pard][2] < lr)) ||
       (length[lho] >= 4 &&
         (length[pard] < length[lho] ||
          completeList[pard][length[lho]-1] < completeList[lho][0])))
@@ -858,11 +1081,9 @@ unsigned Holding::PossiblyFixRank(
     return Holding::ListToRank(h);
   }
   else if (s0 == h && length[lho] >= 3)
-  // else if (length[lho] >= 3)
   {
     // Pick the last of the leader's own run.
     unsigned reduced = h-1;
-    // unsigned reduced = h;
     while (reduced >= lr && rankHolder[reduced] != side)
       reduced--;
     if (reduced > lr)

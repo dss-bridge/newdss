@@ -17,6 +17,15 @@ class Trick;
 #define SDS_MAX_RANKS 14
 
 
+struct AdjustRankType
+{
+  unsigned upper1;
+  unsigned lower1;
+  unsigned upper2;
+  unsigned lower2;
+};
+
+
 class Holding
 {
   private:
@@ -83,6 +92,11 @@ class Holding
       const PosType& player,
       const unsigned rank) const;
 
+    void PossiblyFixRankFinesse(
+      AdjustRankType& adjust) const;
+
+    void PossiblyFixRankRun(
+      AdjustRankType& adjust) const;
 
   public:
 
@@ -120,6 +134,8 @@ class Holding
     unsigned GetNumTops() const;
     unsigned PossiblyFixRank(
       unsigned& fixedRank) const;
+    void PossiblyFixRank(
+      AdjustRankType& adjust) const;
     unsigned GetSideRun(
       const unsigned start) const;
 
