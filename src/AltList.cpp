@@ -534,7 +534,7 @@ void AltList::operator += (
   
   // TrickLists of the form PA29 + BP1- + AA1- can be expanded to
   // PP39 + AA1- or PA39.
-/*
+/* */
   for (unsigned a1 = len; a1 >= 1; a1--)
   {
     if (! list[a1-1].CanSplit())
@@ -550,7 +550,7 @@ void AltList::operator += (
     list[a1].Split(QT_PARD);
 // AltList::Print(cout, "after");
   }
-*/
+/* */
 
   AltList::Reduce();
 }
