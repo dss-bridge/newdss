@@ -1,3 +1,8 @@
+03.07.2016
+----------
+By the way, 12 0x266016 has FixOrCompare(AP1J + AB36, AP46)
+and it comes out that AP46 is a better play?!
+
 26.06.2016
 ----------
 Working on 2, PossiblyFixRankRun():
@@ -12,6 +17,7 @@ card, and RHOmax must be lower (or void), and length[side] > 1.
 
 This makes a special path through Holding.cpp.  Mainly it limits
 partner's plays (he can't duck even if that would win).
+And LHO must duck (otherwise we'd not need the special play).
 
 Do this is leader's first play, to get a sensible solution in first.
 

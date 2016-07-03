@@ -96,6 +96,15 @@ void Segment::SetEnd(
 {
   assert(len > 0);
   list[0].SetEnd(end);
+
+  if (len == 2 && end == QT_BOTH)
+  {
+    list[0].trick.start = list[1].trick.start;
+    list[0].trick.cashing += list[1].trick.cashing;
+    if (list[1].trick.ranks < list[0].trick.ranks)
+      list[0].trick.ranks = list[1].trick.ranks;
+    len = 1;
+  }
 }
 
 
@@ -227,9 +236,10 @@ CmpTrickType Segment::Compare(
   const unsigned runRankOld,
   const unsigned runRankNew) const
 {
+  CmpTrickType c1 = SDS_TRICK_SAME;
   if (len == 2 && seg2.len == 2)
   {
-    CmpTrickType c1 = list[1].Compare(seg2.list[1]);
+    c1 = list[1].Compare(seg2.list[1]);
     if (c1 == SDS_TRICK_RANK_NEW_BETTER ||
         c1 == SDS_TRICK_RANK_OLD_BETTER)
     {
@@ -244,7 +254,13 @@ CmpTrickType Segment::Compare(
   Trick t2;
   seg2.GetSummaryTrick(t2);
   t2.trick.ranks = Min(t2.trick.ranks, runRankNew);
-  return t1.Compare(t2);
+
+  CmpTrickType c = t1.Compare(t2);
+  if (c == SDS_TRICK_SAME && len == 2 && 
+      seg2.len == 2 && c1 != SDS_TRICK_SAME)
+    return c1;
+  else
+    return c;
 }
 
 

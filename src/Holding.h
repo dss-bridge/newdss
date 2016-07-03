@@ -52,6 +52,7 @@ class Holding
     int maxDef;
     int maxDefRun;
     int minRank[SDS_HANDS];
+    bool lowLeadPresentFlag;
 
     PosType winSide;
     unsigned winRank;

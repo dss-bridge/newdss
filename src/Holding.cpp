@@ -148,6 +148,32 @@ void Holding::SetSide(
   }
   else
     assert(false);
+
+  // If leader's lowest card can theoretically be run as a finesse,
+  // we introduce a special lead that partner MUST overtake.
+  // For example, with AQTx / - / 9876 / KJx we make the 6 lead
+  // a card that LHO can duck, because we must overtake anyway.
+  // We still keep the normal 6 lead as well, though.
+
+  lowLeadPresentFlag = false;
+  if (length[side] == 1 || length[lho] <= 1 || length[pard] <= 1)
+    return;
+
+  unsigned lrLoU = completeList[side][length[side]-1];
+  int lrLo = static_cast<int>(lrLoU);
+  if (lrLo < minRank[lho] || 
+      lrLoU > completeList[lho][0])
+    return;
+  else if (lrLo < minRank[pard] ||
+      lrLoU > completeList[pard][0])
+    return;
+  else if (length[rho] >= 1 && lrLoU < completeList[rho][0])
+    return;
+  else if (completeList[lho][0] > completeList[pard][0])
+    return;
+
+  lowLeadPresentFlag = true;
+    
 }
 
 
@@ -156,6 +182,13 @@ void Holding::RewindLead()
   numLeads = 0;
   leadCurrIndex = 0;
   int maxPard = cardListHi[pard][0];
+
+  if (lowLeadPresentFlag)
+  {
+    // The special lead that can be run but must be overtaken.
+    leadList[numLeads] = minRank[side];
+    numLeads++;
+  }
 
   for (unsigned l = 0; l < cardNo[side]; l++)
   {
@@ -240,6 +273,14 @@ void Holding::RewindLho()
     numLhoGroups--;
   }
 
+  // if (leadCurrIndex == 1 && lowLeadPresentFlag)
+  // {
+    // The special lead that partner must overtake.  LHO must duck.
+    // lhoList[numLhos] = minRank[lho];
+    // numLhos++;
+    // return;
+  // }
+
   for (unsigned l = 0; l < numLhoGroups; l++)
   {
     int c = cardListLo[lho][l];
@@ -310,6 +351,12 @@ void Holding::RewindPard()
 
     int m = Max(leadRank, prLo);
     if (m < maxDefRun)
+      continue;
+
+    // If special lead, must duck.
+    if (lowLeadPresentFlag && 
+        leadCurrIndex == 1 &&
+        prHi < leadRank)
       continue;
 
     bool skip = false;
@@ -805,6 +852,8 @@ void Holding::PossiblyFixRankRun(
     return;
   if (minRank[pard] > leadRank)
     return;
+  if (lowLeadPresentFlag && leadCurrIndex == 1)
+    return;
 
   unsigned nl = static_cast<unsigned>(leadRank);
   unsigned run = Holding::GetSideRun(nl);
@@ -829,16 +878,26 @@ void Holding::PossiblyFixRankRun(
     Holding::TopsOverRank(side, lh) +
     Holding::TopsOverRank(pard, lh);
   if (cashers >= length[lho] && length[side] > length[lho])
-    return;
+  {
+    // AKQ54 / - / 9873 -/ JT6 on the 7 lead: Adjust 8 to 7.
+    if (run == 2)
+    {
+      // Not AKQ54 / 2 / T873 / J96.
+      if (topRunSide == completeList[side][0])
+        return;
+    }
+    else
+      topRunSide--;
+  }
 
   // Only adjust up the highest side card in that run.
   // Can write a single, short function to find this later...
 
-  while (rankHolder[topRunSide] == pard)
-    topRunSide--;
+  // while (rankHolder[topRunSide] == pard)
+    // topRunSide--;
 
-  if (topRunSide == nl)
-    return;
+  // if (topRunSide == nl)
+    // return;
 
   adjust.lower2 = Holding::ListToRank(nl);
   adjust.upper2 = Holding::ListToRank(topRunSide);
