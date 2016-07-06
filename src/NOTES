@@ -3,38 +3,6 @@
 By the way, 12 0x266016 has FixOrCompare(AP1J + AB36, AP46)
 and it comes out that AP46 is a better play?!
 
-11, 33a2b AKJ7  - / 9865 / QT4 comes out PP48??
-
-9, 1afc
-   AK6
-987    Q
-   JT
-
-Comes out PA2K (not AA2K) or BP2J + AA1-, after Soft merge.
-It's one thing to use AA2K < BP2K, but should we really strike AA2K here?
-
-Affects
-
-13, 5abfc
-   AKQ2
-6543   JT
-   987
-
-where the concatenation after, say, A-T-7-3, becomes AA39 (and not
-AA3Q).
-
-
----
-
-
-13, 5acef
-    AKQ6
-7532       JT
-    984
-
-Should there be a play for unblocking 98 and hooking 6?
-Yes, and also BA3Q.
-
 
 05.06.2016
 ----------

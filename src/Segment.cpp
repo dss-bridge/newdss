@@ -1124,7 +1124,10 @@ bool Segment::Fix12(
       fix2 = SDS_FIX_WEAKER;
       return true;
     }
-    else if (t1.trick.cashing <= t20.trick.cashing)
+    // else if (t1.trick.cashing <= t20.trick.cashing)
+    else if (t1.trick.cashing < t20.trick.cashing ||
+        (t1.trick.cashing == t20.trick.cashing &&
+         t1.trick.ranks <= t20.trick.ranks))
     {
       // BA2K or BP3T + AA1-  equals  PA2K or same.
       t1.trick.start = t20.trick.end;
