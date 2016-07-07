@@ -834,7 +834,9 @@ void AltList::FillMatrix2D(
       if ((! softX[a1] && ! softY[a2]) || compY.IsPurged(a2))
         continue;
 
-      if (! list[a1].FixOrCompare(aNew.list[a2], fix1, fix2))
+      // Don't really need c.
+      CmpDetailType c = list[a1].FixOrCompare(aNew.list[a2], fix1, fix2);
+      if (fix1 == SDS_FIX_UNCHANGED && fix2 == SDS_FIX_UNCHANGED)
         continue;
 
       if (fix2 == SDS_FIX_PURGED)

@@ -3,6 +3,8 @@
 By the way, 12 0x266016 has FixOrCompare(AP1J + AB36, AP46)
 and it comes out that AP46 is a better play?!
 
+Can we cut one set of compare calls in MergeDeclarer?
+
 
 05.06.2016
 ----------

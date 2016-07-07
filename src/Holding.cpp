@@ -813,8 +813,8 @@ void Holding::PossiblyFixRankFinesse(
     return;
 
   // A bit suspect, perhaps: Don't count a double split yet.
-  if (static_cast<unsigned>(lhoRank) != completeList[lho][0])
-    return;
+  // if (static_cast<unsigned>(lhoRank) != completeList[lho][0])
+    // return;
 
   // Not sure this is exactly right.
   // if (length[side] <= length[lho])
