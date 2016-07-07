@@ -186,6 +186,9 @@ class AltList
     bool Set1124(
       const Trick trick[]);
 
+    bool Set11223(
+      const Trick trick[]);
+
     void GetHeader(
       Header& header) const;
 

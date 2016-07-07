@@ -235,6 +235,18 @@ bool AltList::Set1124(
 }
 
 
+bool AltList::Set11223(
+  const Trick trick[])
+{
+  len = 5;
+  (void) list[0].Set1(trick[0]);
+  (void) list[1].Set1(trick[1]);
+  (void) list[2].Set2(trick[2], trick[3]);
+  (void) list[3].Set2(trick[4], trick[5]);
+  return list[4].Set3(trick[6], trick[7], trick[8]);
+}
+
+
 void AltList::GetHeader(
   Header& header) const
 {

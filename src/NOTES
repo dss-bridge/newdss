@@ -1,3 +1,15 @@
+07.07.2016
+----------
+10,885 rank issues left.
+
+13, cc2ae4 vs 13, cc2ab1
+Given PA2Q and PA1T + PA49, PA1Q + PB45 should become PA1Q + PP45.
+Not so easy, as we need PA2Q for this as well. (0x11ab)
+
+New numbering for (a) function calls, (b) branches taken.
+Use a macro REGISTER.
+Turn on dump of a specific branch from command line, no recompile.
+
 03.07.2016
 ----------
 By the way, 12 0x266016 has FixOrCompare(AP1J + AB36, AP46)
@@ -5,55 +17,17 @@ and it comes out that AP46 is a better play?!
 
 Can we cut one set of compare calls in MergeDeclarer?
 
+13, 1c2b8f really should be symmetrical.
+AKT94, Q, 875, J632.
+
 
 05.06.2016
 ----------
-About 52,854 rank issues left for now.
-Two changes not turned on at the moment:
-1. DefList special rank fix, probably should go again.
-2. CompareInit, change commented out for now.
+DefList special rank fix probably should go again (BB trumps all).
 
-First do these for completeness:
-
-0x102e, 80
-0x1083, 320
-0x11a8, 33
-0x11ac, 111 (two sub-cases, 11223 and 1122)
-0x11bd, 196
-0x11bf, 153
-0x11d3, 30
-0x11e1, 285
-0x12a4, 105
-0x1365-a, 19
-
-0x1188-a, 33 cases (two sub-cases, 1123 and 1124)
-0x11ab  , 71 cases (two sub-cases, 1123 and 1124)
-
-
-01.06.2016
-----------
-9, 0x388b
-    AKT8
-Q6       -
-    J97
-
-9-6: A beats 8, PA4T or PP3J+AA1-
-9-6-8: PB48 becomes PP48
-Then PA4T or PP48 together seem to beat PP3J+AA1-.
-This is OK for PP3J, but probably not for PA4J as J > T.
-So we should carry along both.
-Then in the end, PP49 should lose to BA4T, leaving the symmetric soln.
-
-So
-1. Find the place where MergeDeclarer of
-3 0 2 -1
-PP4T or PA3J+AA1- merged with PA4T+PP48 becomes only the latter.
-Probably some too soft merge.
-No, actually it's the regular AltList + of PP48 over PP3J+AA1- !
-Ugh.
-
-2. Think about 3 6 8 -1 (9-Q-A): Should it be rank J or T-9?
-
+126a
+1268
+126a
 
 16.05.2016
 ----------
