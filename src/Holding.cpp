@@ -812,6 +812,22 @@ void Holding::PossiblyFixRankFinesse(
   if (run == 1)
     return;
 
+
+
+  unsigned lh = static_cast<unsigned>(lhoRank);
+  unsigned cashers = 
+    Holding::TopsOverRank(pard, lh);
+  if (cashers >= length[lho] && length[side] > length[lho])
+  {
+    // AKQ54 / - / 9873 -/ JT6 on the 7 lead: Adjust 8 to 7.
+    run--;
+    if (run == 1)
+      return;
+  }
+
+
+
+
   // A bit suspect, perhaps: Don't count a double split yet.
   // if (static_cast<unsigned>(lhoRank) != completeList[lho][0])
     // return;

@@ -1,3 +1,47 @@
+08.07.2016
+----------
+Rank error
+
+#1
+..........
+
+10, c3222f
+    AQT8
+J65        -
+    J97
+
+PP2T arises because we compare after J holds:
+PA4T or PP49 (cover) or PA4T or PP2T (duck).
+Probably in MergeDefender we should fix the rank of PP2T to PP29.
+Compare to
+
+10, 320af
+    AQT9
+J65        -
+    J87
+
+#2
+..........
+
+10, 32c2b
+    AQ98
+KT5        -
+    J76
+
+Get PA19 + PA3-, which is not wrong, but prefer PA1A+PA39, also
+for consistency.  Comes about in CompareAlmostHard of
+
+PA2J or PA1A+PA39, or PA2Q or PA19+PA3-.
+
+Maybe have a post-processing step in DefList *=, after 
+CompareAlmostHard, where we check whether each TrickList was
+individually beaten on rank by one from the other side.  We could
+pass in the comp matrix and just look through it.
+
+10, 32e8b is the same issue.
+
+
+
 07.07.2016
 ----------
 10,885 rank issues left.

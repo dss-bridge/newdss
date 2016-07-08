@@ -442,6 +442,8 @@ void DefList::operator += (
   {
     DefList::Print(files.debug, "DefList::MergeDefender: old");
     def2.Print(files.debug, "DefList::MergeDefender: new");
+    // DefList::Print(cout, "DefList::MergeDefender: old");
+    // def2.Print(cout, "DefList::MergeDefender: new");
   }
 
   for (unsigned d2 = 0; d2 < def2.len; d2++)
