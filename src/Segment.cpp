@@ -1115,7 +1115,10 @@ bool Segment::Fix12(
       t20.trick.start == QT_BOTH &&
       t20.trick.end == SDS_PARTNER[t1.trick.end])
   {
-    if (t1.trick.cashing >= t20.trick.cashing + t21.trick.cashing)
+    // if (t1.trick.cashing >= t20.trick.cashing + t21.trick.cashing)
+    if (t1.trick.cashing > t20.trick.cashing + t21.trick.cashing ||
+       (t1.trick.cashing == t20.trick.cashing + t21.trick.cashing &&
+        t1.trick.ranks >= t20.trick.ranks))
     {
       // BAnr (r > s) or _B_Pms+AA(n-m)-  equals  BAnr or _A_Pms+AA(n-m)-.
       // BPnr (r > s) or _B_Ams+PP(n-m)-  equals  BPnr or _P_Ams+PP(n-m)-.

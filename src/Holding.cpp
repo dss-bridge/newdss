@@ -814,6 +814,10 @@ void Holding::PossiblyFixRankFinesse(
 
 
 
+  // Possibly add side's cards above LHO's maximum card?
+  // Combine with below test?  Idea:  If partner's card is above
+  // lhoMax, then # of both sides above this card.
+  // If not, # + 1.
   unsigned lh = static_cast<unsigned>(lhoRank);
   unsigned cashers = 
     Holding::TopsOverRank(pard, lh);
