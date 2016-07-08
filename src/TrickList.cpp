@@ -308,7 +308,10 @@ CmpDetailType TrickList::CompareInit(
 
     cc = list[cdata.lenOld].Compare(lNew.list[cdata.lenNew],
       cdata.ranksOld, cdata.ranksNew);
-    if (cc == SDS_TRICK_PLAY_DIFFERENT)
+    // if (cc == SDS_TRICK_PLAY_DIFFERENT)
+    if (cc == SDS_TRICK_PLAY_DIFFERENT ||
+        cc == SDS_TRICK_PLAY_NEW_ADV ||
+        cc == SDS_TRICK_PLAY_OLD_ADV)
       return SDS_HEADER_PLAY_DIFFERENT;
 
     cRun = cmpTrickMatrix[cRun][cc];
