@@ -412,6 +412,7 @@ CmpDetailType TrickList::CompareTail(
     }
   }
 
+  PosType eOld = QT_SIZE, eNew = QT_SIZE;
   if (cdata.lenOld > 0)
   {
     Trick t;
@@ -419,6 +420,7 @@ CmpDetailType TrickList::CompareTail(
     cdata.tricksOld += t.GetCashing();
     cdata.ranksOld = Min(cdata.ranksOld, t.GetRanks());
     cdata.lenOld--;
+    eOld = t.GetEnd();
   }
 
   if (cdata.lenNew > 0)
@@ -428,10 +430,18 @@ CmpDetailType TrickList::CompareTail(
     cdata.tricksNew += t.GetCashing();
     cdata.ranksNew = Min(cdata.ranksNew, t.GetRanks());
     cdata.lenNew--;
+    eNew = t.GetEnd();
   }
 
   CmpDetailType d = TrickList::CompareRunning(cdata);
   cdata.winnerRunning = cmpDetailHardMatrix[cdata.winnerRunning][d];
+
+  if (cdata.winnerRunning == SDS_HEADER_RANK_OLD_BETTER ||
+      cdata.winnerRunning == SDS_HEADER_RANK_NEW_BETTER)
+  {
+    if (eOld != eNew && eOld != QT_SIZE && eNew != QT_SIZE)
+      return SDS_HEADER_PLAY_DIFFERENT;
+  }
 
   CmpDetailType c = TrickList::CompareTail(lNew, cdata);
   return cmpDetailMatrix[cdata.winnerFirst][c];

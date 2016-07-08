@@ -451,6 +451,39 @@ bool AltMatrix2D::CandList(
 }
 
 
+bool AltMatrix2D::IsBeatenOnRank(
+  const unsigned coord,
+  const bool transposeFlag,
+  unsigned& tWin) const
+{
+  if (transposeFlag)
+  {
+    // Y dimension.
+    for (unsigned i = 0; i < numX; i++)
+    {
+      if (matrix[i][coord] == SDS_HEADER_RANK_OLD_BETTER)
+      {
+        tWin = i;
+        return true;
+      }
+    }
+  }
+  else
+  {
+    // X dimension.
+    for (unsigned i = 0; i < numY; i++)
+    {
+      if (matrix[coord][i] == SDS_HEADER_RANK_NEW_BETTER)
+      {
+        tWin = i;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+
 
 void AltMatrix2D::PrintVector(
   ostream& out,

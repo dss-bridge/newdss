@@ -20,45 +20,16 @@ Compare to
 J65        -
     J87
 
-#2
-..........
-
-10, 32c2b
-    AQ98
-KT5        -
-    J76
-
-Get PA19 + PA3-, which is not wrong, but prefer PA1A+PA39, also
-for consistency.  Comes about in CompareAlmostHard of
-
-PA2J or PA1A+PA39, or PA2Q or PA19+PA3-.
-
-Maybe have a post-processing step in DefList *=, after 
-CompareAlmostHard, where we check whether each TrickList was
-individually beaten on rank by one from the other side.  We could
-pass in the comp matrix and just look through it.
-
-10, 32e8b is the same issue.
-
 
 
 07.07.2016
 ----------
-10,885 rank issues left.
-
-13, cc2ae4 vs 13, cc2ab1
-Given PA2Q and PA1T + PA49, PA1Q + PB45 should become PA1Q + PP45.
-Not so easy, as we need PA2Q for this as well. (0x11ab)
-
 New numbering for (a) function calls, (b) branches taken.
 Use a macro REGISTER.
 Turn on dump of a specific branch from command line, no recompile.
 
 03.07.2016
 ----------
-By the way, 12 0x266016 has FixOrCompare(AP1J + AB36, AP46)
-and it comes out that AP46 is a better play?!
-
 Can we cut one set of compare calls in MergeDeclarer?
 
 13, 1c2b8f really should be symmetrical.

@@ -394,13 +394,14 @@ CmpDetailType AltList::CompareSemiHard(
 
 
 CmpDetailType AltList::CompareAlmostHard(
-  const AltList& aNew) const
+  const AltList& aNew,
+  AltMatrix2D& comp) const
 {
   unsigned numOld = len;
   unsigned numNew = aNew.len;
 
-  AltMatrix2D comp;
-  comp.SetDimensions(numOld, numNew);
+  // AltMatrix2D comp;
+  // comp.SetDimensions(numOld, numNew);
 
   for (unsigned lOld = 0; lOld < numOld; lOld++)
     for (unsigned lNew = 0; lNew < numNew; lNew++)
@@ -441,6 +442,27 @@ CmpDetailType AltList::CompareHard(
       comp.SetValue(lOld, lNew, list[lOld].Compare(aNew.list[lNew]));
 
   return comp.CompareHard();
+}
+
+
+void AltList::ImproveRanks(
+  const AltList& aLosing,
+  const AltMatrix2D& comp,
+  const bool transposeFlag)
+{
+  unsigned tWin;
+  for (unsigned l = 0; l < len; l++)
+  {
+    if (comp.IsBeatenOnRank(l, transposeFlag, tWin))
+    {
+// AltList::Print(cout, "win");
+// aLosing.Print(cout, "lose");
+// comp.Print(cout, "comp");
+// cout << "tp " << transposeFlag << " l " << l << " twin " << tWin << endl;
+      list[l] = aLosing.list[tWin];
+// AltList::Print(cout, "win after");
+    }
+  }
 }
 
 

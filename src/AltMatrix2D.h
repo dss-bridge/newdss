@@ -107,6 +107,11 @@ class AltMatrix2D
       bool use[],
       CmpDetailType& c) const;
 
+    bool IsBeatenOnRank(
+      const unsigned coord,
+      const bool transposeFlag,
+      unsigned& tWin) const;
+
     void Print(
       std::ostream& out,
       const std::string text) const;

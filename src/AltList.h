@@ -208,10 +208,16 @@ class AltList
       const AltList& aNew) const;
 
     CmpDetailType CompareAlmostHard(
-      const AltList& aNew) const;
+      const AltList& aNew,
+      AltMatrix2D& comp) const;
 
     CmpDetailType CompareHard(
       const AltList& aNew) const;
+
+    void ImproveRanks(
+      const AltList& aLosing,
+      const AltMatrix2D& comp,
+      const bool transposeFlag);
 
     void FixRanks(
       const unsigned rLower,

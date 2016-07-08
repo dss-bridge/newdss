@@ -334,7 +334,9 @@ void DefList::operator += (
     // cd = list[d].CompareWithExpand(alt);
     // cd = list[d].CompareSemiHard(alt);
     // cd = list[d].Compare(alt);
-    cd = list[d].CompareAlmostHard(alt);
+    AltMatrix2D compAlt;
+    compAlt.SetDimensions(list[d].GetLength(), alt.GetLength());
+    cd = list[d].CompareAlmostHard(alt, compAlt);
 
     CmpType cc = cmpDetailToShort[cd];
     seen[cc] = 1;
@@ -486,10 +488,10 @@ void DefList::operator *= (
 
   if (options.debugDef)
   {
-    DefList::Print(files.debug, "DefList::MergeDeclarer old");
-    def2.Print(files.debug, "DefList::MergeDeclarer: new");
-    // DefList::Print(cout, "DefList::MergeDeclarer old");
-    // def2.Print(cout, "DefList::MergeDeclarer: new");
+    // DefList::Print(files.debug, "DefList::MergeDeclarer old");
+    // def2.Print(files.debug, "DefList::MergeDeclarer: new");
+    DefList::Print(cout, "DefList::MergeDeclarer old");
+    def2.Print(cout, "DefList::MergeDeclarer: new");
   }
 
   /*
@@ -501,12 +503,21 @@ void DefList::operator *= (
      as well.
   */
 
-  AltMatrix2D comp;
+  AltMatrix2D comp, compAlt;
   comp.SetDimensions(len, def2.len);
+//if (list[0].GetLength() == 3 && def2.list[0].GetLength() == 3)
+//{
+  //cout << "HERE\n";
+//}
 
   for (unsigned dOld = 0; dOld < len; dOld++)
     for (unsigned dNew = 0; dNew < def2.len; dNew++)
-      comp.SetValue(dOld, dNew, list[dOld].CompareAlmostHard(def2.list[dNew]));
+    {
+      compAlt.SetDimensions(list[dOld].GetLength(),
+        def2.list[dNew].GetLength());
+      comp.SetValue(dOld, dNew, 
+        list[dOld].CompareAlmostHard(def2.list[dNew], compAlt));
+    }
       // comp.SetValue(dOld, dNew, list[dOld].CompareHard(def2.list[dNew]));
 
   CmpDetailType c = comp.CompareDeclarer();
@@ -514,12 +525,28 @@ void DefList::operator *= (
       c == SDS_HEADER_RANK_OLD_BETTER ||
       c == SDS_HEADER_SAME)
   {
-    // Nothing more to do.
+    // * this survives.
+    if (len == 1 && def2.len == 1)
+    {
+      // It is possible that one of the alternatives is beaten on rank
+      // by one of the losing side's alternatives.
+      list[0].ImproveRanks(def2.list[0], compAlt, false);
+    }
   }
   else if (c == SDS_HEADER_PLAY_NEW_BETTER ||
       c == SDS_HEADER_RANK_NEW_BETTER)
   {
-    * this = def2;
+    if (len == 1 && def2.len == 1)
+    {
+      // It is possible that one of the alternatives is beaten on rank
+      // by one of the losing side's alternatives.
+      // Ugly copy.
+      DefList def2tmp = def2;
+      def2tmp.list[0].ImproveRanks(list[0], compAlt, true);
+      * this = def2tmp;
+    }
+    else
+      * this = def2;
   }
   else
   {
