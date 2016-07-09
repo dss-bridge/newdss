@@ -1073,6 +1073,10 @@ bool Segment::Fix12(
       Segment::Fix1nSpecial(seg20, fix1, fix2))
     return true;
 
+  if (len == 2 && seg20.len == 1 &&
+      Segment::Fix12Fold(seg20, fix1, fix2))
+    return true;
+
   if (len > 1 || seg20.len > 1 || seg21.len > 1)
     return false;
 
@@ -1162,6 +1166,32 @@ bool Segment::Fix12(
     // APnr  ">="  PP1A + APms (r <= s, n >= m+1).
     fix1 = SDS_FIX_UNCHANGED;
     fix2 = SDS_FIX_PURGED;
+    return true;
+  }
+
+  return false;
+}
+
+
+bool Segment::FixBoost(
+  Segment& seg20,
+  Segment& seg21) const
+{
+  // With PB3Q, PP29 + AA2- becomes PP2Q + AA29.
+  // Without a PA move, we will never choose PP2Q anyway.
+  // With a PA move, it comes out as before.
+
+  if (seg20.len != 1)
+    return false;
+
+  Trick& t200 = seg20.list[0];
+  if (list[0] > t200)
+  {
+    Trick& t210 = seg21.list[seg21.len-1];
+    unsigned r = t200.trick.ranks;
+    if (t210.trick.ranks > r)
+      t210.trick.ranks = r;
+    t200.trick.ranks = list[0].trick.ranks;
     return true;
   }
 
@@ -1312,6 +1342,47 @@ bool Segment::Fix1nSpecial(
       return true;
     }
   }
+  return false;
+}
+
+
+bool Segment::Fix12Fold(
+  const Segment& seg20,
+  FixType& fix1,
+  FixType& fix2)
+{
+  Trick& t10 = list[1];
+  Trick& t11 = list[0];
+  const Trick& t200 = seg20.list[seg20.len-1];
+
+  if (t10.trick.start != QT_BOTH && 
+      t10.trick.start == t11.trick.end &&
+      (t200.trick.start == QT_BOTH || 
+        t200.trick.start == t10.trick.start) &&
+      t200.trick.end == t10.trick.end)
+  {
+    if (t10.trick.cashing < t200.trick.cashing)
+    {
+// cout << "SEG before\n";
+// Segment::Print();
+// cout << "seg2 before\n";
+// seg20.Print();
+      // AP1K + PA2J or AP3J + ... becomes AA3J.
+      t11.trick.start = t11.trick.end;
+      t11.trick.cashing += t10.trick.cashing;
+      if (t10.trick.ranks < t11.trick.ranks)
+        t11.trick.ranks = t10.trick.ranks;
+      len = 1;
+      fix1 = SDS_FIX_WEAKER;
+      fix2 = SDS_FIX_UNCHANGED;
+// cout << "SEG after\n";
+// Segment::Print();
+// cout << "seg2 after\n";
+// seg20.Print();
+      return true;
+    }
+  }
+
   return false;
 }
 

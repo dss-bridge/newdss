@@ -488,10 +488,10 @@ void DefList::operator *= (
 
   if (options.debugDef)
   {
-    // DefList::Print(files.debug, "DefList::MergeDeclarer old");
-    // def2.Print(files.debug, "DefList::MergeDeclarer: new");
-    DefList::Print(cout, "DefList::MergeDeclarer old");
-    def2.Print(cout, "DefList::MergeDeclarer: new");
+    DefList::Print(files.debug, "DefList::MergeDeclarer old");
+    def2.Print(files.debug, "DefList::MergeDeclarer: new");
+    // DefList::Print(cout, "DefList::MergeDeclarer old");
+    // def2.Print(cout, "DefList::MergeDeclarer: new");
   }
 
   /*

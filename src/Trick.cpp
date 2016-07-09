@@ -183,6 +183,25 @@ bool Trick::EqualsExceptStart(
 }
 
 
+bool Trick::operator > (
+  const Trick& t2) const
+{
+  // This is not a "regular" > operator.  It is used to check whether
+  // t2's rank can be changed up.
+  if (trick.cashing < t2.trick.cashing ||
+      trick.ranks <= t2.trick.ranks)
+    return false;
+
+  if (trick.start != t2.trick.start && trick.start != QT_BOTH)
+    return false;
+
+  if (trick.end != t2.trick.end && trick.end != QT_BOTH)
+    return false;
+
+  return true;
+}
+
+
 bool Trick::EqualsExceptEnd(
   const Trick& t2) const
 {

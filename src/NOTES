@@ -1,5 +1,9 @@
 08.07.2016
 ----------
+10, b8cf vs b83f
+When we have e.g. PB3Q, turn PP29+PA2- into PP2Q+PA29.
+New postprocessing, perhaps in Reduce.
+
 Rank error
 
 #1

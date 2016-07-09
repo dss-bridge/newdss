@@ -710,14 +710,35 @@ bool TrickList::Fix(
     list[len-1].SetStart(QT_BOTH);
     fix1 = SDS_FIX_STRONGER;
     fix2 = SDS_FIX_PURGED;
+    return true;
   }
   else if (TrickList::EqualsExceptEnd(lOther))
   {
     list[0].SetEnd(QT_BOTH);
     fix1 = SDS_FIX_STRONGER;
     fix2 = SDS_FIX_PURGED;
+    return true;
   }
-  else if (len == 1 && lOther.len == 1)
+  
+  if (len == 1 && lOther.len >= 2)
+  {
+    if (list[0].FixBoost(lOther.list[lOther.len-1], 
+        lOther.list[lOther.len-2]))
+    {
+      // fix2 = SDS_FIX_STRONGER;
+      // return true;
+    }
+  }
+  else if (lOther.len == 1 && len >= 2)
+  {
+    if (lOther.list[0].FixBoost(list[len-1], list[len-2]))
+    {
+      // fix1 = SDS_FIX_STRONGER;
+      // return true;
+    }
+  }
+
+  if (len == 1 && lOther.len == 1)
   {
     if (list[0].Fix11(lOther.list[0], fix1, fix2))
     {

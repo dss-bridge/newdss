@@ -175,11 +175,20 @@ class Segment
       FixType& fix1,
       FixType& fix2);
     
+    bool FixBoost(
+      Segment& seg20,
+      Segment& seg21) const;
+
     bool Fix1n(
       Segment& seg20,
       FixType& fix1,
       FixType& fix2) const;
     
+    bool Fix12Fold(
+      const Segment& seg20,
+      FixType& fix1,
+      FixType& fix2);
+
     void Print(
       std::ostream& out = std::cout) const;
 
