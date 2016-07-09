@@ -9909,8 +9909,11 @@ return false;
           }
           else
           {
-return false;
             if (pickFlag) holdCtr[0x1266]++;
+            rank = HR(pp, 2);
+            trick[0].Set(QT_BOTH, pp, rank, length[pp]);
+            trick[1].Set(pp, pa, SDS_QUEEN, 3);
+            return def.Set11(trick[0], trick[1]);
           }
         }
         else if (length[pp] == 5 && length[pl] == 5)
@@ -11048,11 +11051,6 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
         // AK7x / 8xx / JTx / Q9.
         if (pickFlag) holdCtr[0x144c]++;
         rank = HR(QT_PARD, 1);
-        // trick[0].Set(QT_BOTH, QT_ACE, SDS_KING, 2);
-        // trick[1].Set(QT_BOTH, QT_PARD, SDS_JACK, 1);
-        // trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
-        // trick[3].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]);
-        // return def.Set31(trick);
         trick[0].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]);
         trick[1].Set(QT_BOTH, QT_PARD, SDS_JACK, 3);
         trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE]-3);
@@ -11073,12 +11071,6 @@ bool LoopHold::SolveComplex44(DefList& def, unsigned& rank) const
         if (pickFlag) holdCtr[0x144d]++;
         rank = HR(QT_PARD, length[QT_PARD]-3);
         unsigned rank2 = HR(QT_PARD, 1);
-        // trick[0].Set(QT_ACE, QT_ACE, SDS_KING, 2);
-        // trick[1].Set(QT_BOTH, QT_PARD, rank, length[QT_PARD] - 2);
-        // trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, 
-          // length[QT_ACE] - length[QT_PARD]);
-        // trick[3].Set(QT_PARD, QT_BOTH, rank2, length[QT_ACE]);
-        // return def.Set31(trick);
         trick[0].Set(QT_PARD, QT_BOTH, rank2, length[QT_ACE]);
         trick[1].Set(QT_ACE, QT_ACE, rank, length[QT_PARD]);
         trick[2].Set(QT_ACE, QT_PARD, rank, length[QT_PARD]);
@@ -11188,11 +11180,6 @@ bool LoopHold::SolveComplex48(DefList& def, unsigned& rank) const
         // AKQxx / (x) / T9xx / Jxx.
         if (pickFlag) holdCtr[0x1481]++;
         rank = HR(QT_PARD, 1);
-        // trick[0].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]);
-        // trick[1].Set(QT_BOTH, QT_ACE, SDS_QUEEN, 3);
-        // trick[2].Set(QT_BOTH, QT_PARD, SDS_TEN, 1);
-        // trick[3].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE] - 4);
-        // return def.Set13(trick);
         trick[0].Set(QT_PARD, QT_BOTH, rank, length[QT_ACE]);
         trick[1].Set(QT_BOTH, QT_PARD, SDS_TEN, 4);
         trick[2].Set(QT_ACE, QT_ACE, SDS_VOID, length[QT_ACE] - 4);
