@@ -1,5 +1,16 @@
 08.07.2016
 ----------
+Rank error:
+10, 238cf vs 10, 2383f
+
+Commented out:
+
+0x11c4, 12 / 338ba0
+0x11cf
+0x11d3
+0x1266, 12 / b4a3f
+0x1269, 11 / 2ca3f
+
 10, b8cf vs b83f
 When we have e.g. PB3Q, turn PP29+PA2- into PP2Q+PA29.
 New postprocessing, perhaps in Reduce.
