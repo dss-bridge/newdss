@@ -1,5 +1,15 @@
 07.08.2016
 ----------
+Trails:
+We probably have to let each of the 4 trails have an embed,
+signified by a flag.
+Once we have filled all (up to) 8 trails, we do a reduction.
+An AA with an embed which is worse than a stand-alone AA
+loses its last move and becomes its embed (xP), which in turn
+may lose to a stand-alone xP.
+That should take care of the two cases below.
+
+
 TrickList::Compare
 Write a CompareTrails that works as in AltList.
 Actually can simplify: Skip over same ones.
