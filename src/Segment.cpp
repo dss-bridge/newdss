@@ -1119,7 +1119,6 @@ bool Segment::Fix12(
       t20.trick.start == QT_BOTH &&
       t20.trick.end == SDS_PARTNER[t1.trick.end])
   {
-    // if (t1.trick.cashing >= t20.trick.cashing + t21.trick.cashing)
     if (t1.trick.cashing > t20.trick.cashing + t21.trick.cashing ||
        (t1.trick.cashing == t20.trick.cashing + t21.trick.cashing &&
         t1.trick.ranks >= t20.trick.ranks))
@@ -1168,6 +1167,25 @@ bool Segment::Fix12(
     fix2 = SDS_FIX_PURGED;
     return true;
   }
+  /*
+  else if (t1.trick.start != QT_BOTH &&
+      t1.trick.end != QT_BOTH &&
+      t1.trick.start == t20.trick.start &&
+      t1.trick.end == t21.trick.start &&
+      t21.trick.end == t21.trick.start)
+  {
+    if (t1.trick.cashing > t20.trick.cashing + t21.trick.cashing ||
+       (t1.trick.cashing == t20.trick.cashing + t21.trick.cashing &&
+        t1.trick.ranks >= Min(t20.trick.ranks, t20.trick.ranks)))
+    {
+      // AP59 or AA3Q + PP27; second list becomes AA3Q, as
+      // AP57 is worse than AP59.
+      fix1 = SDS_FIX_UNCHANGED;
+      fix2 = SDS_FIX_COLLAPSE;
+      return true;
+    }
+  }
+  */
 
   return false;
 }

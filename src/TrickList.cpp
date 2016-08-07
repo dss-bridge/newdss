@@ -198,6 +198,14 @@ void TrickList::GetHeader(
 }
 
 
+const Segment& TrickList::GetSegmentNo(
+  unsigned no) const
+{
+  assert(no < len);
+  return list[len-1-no];
+}
+
+
 unsigned TrickList::GetComplexity() const
 {
   unsigned c = 0;

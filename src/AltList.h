@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "TrickList.h"
+#include "Trails.h"
 #include "compare.h"
 #include "const.h"
 
@@ -21,6 +22,16 @@ class AltMatrix2D;
 class Holding;
 class Header;
 class Trick;
+
+
+struct TrailProgress
+{
+  unsigned nextSegNo[SDS_MAX_ALT];
+  bool finished [SDS_MAX_ALT];
+  unsigned numActive;
+  bool nextHasA;
+  bool nextHasP;
+};
 
 
 class AltList
@@ -113,6 +124,26 @@ class AltList
 
     void ConnectFirst(
       const PosType pend);
+
+    CmpDetailType CompareTrailsRecurse(
+      const AltList& aNew,
+      const CmpDetailType cRunning,
+      const PosType startNext,
+      Trails trails[],
+      Trails trailsNew[],
+      TrailProgress& tp,
+      TrailProgress& tpNew) const;
+
+    void CompareTrailsAdvance(
+      const PosType startNext,
+      Trails trails[],
+      TrailProgress& tp) const;
+
+    bool CompareTrailsRecurseIsDone(
+      const CmpDetailType cNew,
+      const TrailProgress& tp,
+      const TrailProgress& tpNew,
+      CmpDetailType& cRet) const;
 
     void RegisterSize(
       const std::string& text);
@@ -212,6 +243,9 @@ class AltList
       AltMatrix2D& comp) const;
 
     CmpDetailType CompareHard(
+      const AltList& aNew) const;
+
+    CmpDetailType CompareTrails(
       const AltList& aNew) const;
 
     void ImproveRanks(

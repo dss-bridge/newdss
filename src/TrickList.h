@@ -99,6 +99,9 @@ class TrickList
       Header& header,
       const unsigned startNo = 0) const;
 
+    const Segment& GetSegmentNo(
+      unsigned no) const;
+
     unsigned GetComplexity() const;
       
     unsigned GetTricks() const;

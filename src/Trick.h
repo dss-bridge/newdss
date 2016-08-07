@@ -16,6 +16,7 @@
 
 class Holding;
 class Segment;
+class Trails;
 
 
 class Trick
@@ -41,6 +42,7 @@ class Trick
   public:
 
     friend class Segment;
+    friend class Trails;
 
     Trick();
 

@@ -289,6 +289,8 @@ unsigned AltList::GetTricks() const
 }
 
 
+// #define MULTI_REDUCE
+
 CmpDetailType AltList::Compare(
   const AltList& aNew) const
 {
@@ -306,11 +308,13 @@ CmpDetailType AltList::Compare(
   if (c != SDS_HEADER_PLAY_DIFFERENT && c != SDS_HEADER_RANK_DIFFERENT)
     return c;
 
+#ifdef MULTI_REDUCE
   if (AltList::CompareMultiSide(QT_PARD, comp, aNew))
     return SDS_HEADER_PLAY_OLD_BETTER;
   else if (aNew.CompareMultiSide(QT_ACE, comp, * this))
     return SDS_HEADER_PLAY_NEW_BETTER;
   else
+#endif
     return c;
 }
 
@@ -369,6 +373,7 @@ CmpDetailType AltList::CompareSemiHard(
   if (c != SDS_HEADER_PLAY_DIFFERENT && c != SDS_HEADER_RANK_DIFFERENT)
     return c;
 
+#ifdef MULTI_REDUCE
   if (AltList::CompareMultiSide(QT_PARD, comp, aNew,
       cmpDetailHardMatrix))
   {
@@ -389,6 +394,7 @@ CmpDetailType AltList::CompareSemiHard(
       return SDS_HEADER_PLAY_NEW_BETTER;
   }
   else
+#endif
     return c;
 }
 
@@ -411,6 +417,7 @@ CmpDetailType AltList::CompareAlmostHard(
   if (c != SDS_HEADER_PLAY_DIFFERENT && c != SDS_HEADER_RANK_DIFFERENT)
     return c;
 
+#ifdef MULTI_REDUCE
   if (AltList::CompareMultiSide(QT_PARD, comp, aNew,
       cmpDetailHardMatrix))
   {
@@ -424,6 +431,7 @@ CmpDetailType AltList::CompareAlmostHard(
     return SDS_HEADER_PLAY_NEW_BETTER;
   }
   else
+#endif
     return c;
 }
 
@@ -442,6 +450,31 @@ CmpDetailType AltList::CompareHard(
       comp.SetValue(lOld, lNew, list[lOld].Compare(aNew.list[lNew]));
 
   return comp.CompareHard();
+}
+
+
+CmpDetailType AltList::CompareTrails(
+  const AltList& aNew) const
+{
+  Trails trails[SDS_MAX_ALT], trailsNew[SDS_MAX_ALT];
+  TrailProgress tp, tpNew;
+
+  for (unsigned a = 0; a < len; a++)
+  {
+    tp.nextSegNo[a] = 0;
+    tp.finished[a] = false;
+  }
+  tp.numActive = len;
+
+  for (unsigned a = 0; a < aNew.len; a++)
+  {
+    tpNew.nextSegNo[a] = 0;
+    tpNew.finished[a] = false;
+  }
+  tpNew.numActive = aNew.len;
+
+  return AltList::CompareTrailsRecurse(
+    aNew, SDS_HEADER_SAME, QT_BOTH, trails, trailsNew, tp, tpNew);
 }
 
 
@@ -1017,7 +1050,9 @@ void AltList::Reduce()
 
   AltList::PurgeList(comp);
 
+#ifdef MULTI_REDUCE
   AltList::PurgeMulti();
+#endif
 
   if (options.debugAlt)
     AltList::Print(files.debug, "AltList::Reduce after");
@@ -1305,6 +1340,185 @@ void AltList::ConnectFirst(
 {
   for (unsigned a = 0; a < len; a++)
     list[a].ConnectFirst(pend);
+}
+
+
+CmpDetailType AltList::CompareTrailsRecurse(
+  const AltList& aNew,
+  const CmpDetailType cRunning,
+  const PosType startNext,
+  Trails trails[],
+  Trails trailsNew[],
+  TrailProgress& tp,
+  TrailProgress& tpNew) const
+{
+  AltList::CompareTrailsAdvance(startNext, trails, tp);
+  aNew.CompareTrailsAdvance(startNext, trailsNew, tpNew);
+
+  Trails tcomb;
+  tcomb.Combine(trails, len);
+
+  Trails tcombNew;
+  tcombNew.Combine(trailsNew, aNew.len);
+
+  CmpDetailType c = tcomb.Compare(tcombNew);
+  CmpDetailType cNew = cmpDetailMatrix[cRunning][c];
+  CmpDetailType cRet, cRecurse;
+  if (AltList::CompareTrailsRecurseIsDone(cNew, tp, tpNew, cRet))
+    return cRet;
+
+  bool hasA = false, hasP = false;
+  switch(cNew)
+  {
+    case SDS_HEADER_SAME:
+      // Have to advance both.
+      if (tp.nextHasA || tpNew.nextHasA)
+        hasA = true;
+
+      if (tp.nextHasP || tpNew.nextHasP)
+        hasP = true;
+      break;
+
+    case SDS_HEADER_PLAY_OLD_BETTER:
+    case SDS_HEADER_RANK_OLD_BETTER:
+      // The new one is the underdog.
+      if (tpNew.nextHasA)
+        hasA = true;
+
+      if (tpNew.nextHasP)
+        hasP = true;
+      break;
+
+    case SDS_HEADER_PLAY_NEW_BETTER:
+    case SDS_HEADER_RANK_NEW_BETTER:
+      // The old one is the underdog.
+      if (tp.nextHasA)
+        hasA = true;
+
+      if (tp.nextHasP)
+        hasP = true;
+      break;
+
+    default:
+      assert(false);
+      break;
+  }
+
+  assert(hasA || hasP);
+  if (hasA && hasP)
+  {
+    // Have to keep a copy.
+    TrailProgress tpc = tp;
+    TrailProgress tpcNew = tpNew;
+
+    cRecurse = AltList::CompareTrailsRecurse(
+      aNew, cNew, QT_ACE, trails, trailsNew, tp, tpNew);
+    cNew = cmpDetailMatrix[cNew][cRecurse];
+    if (cNew == SDS_HEADER_PLAY_DIFFERENT ||
+        cNew == SDS_HEADER_RANK_DIFFERENT)
+      return cNew;
+
+    cRecurse = AltList::CompareTrailsRecurse(
+      aNew, cNew, QT_PARD, trails, trailsNew, tpc, tpcNew);
+  }
+  else if (hasA)
+  {
+    cRecurse = AltList::CompareTrailsRecurse(
+      aNew, cNew, QT_ACE, trails, trailsNew, tp, tpNew);
+  }
+  else
+  {
+    cRecurse = AltList::CompareTrailsRecurse(
+      aNew, cNew, QT_PARD, trails, trailsNew, tp, tpNew);
+  }
+
+  cNew = cmpDetailMatrix[cNew][cRecurse];
+  return cNew;
+}
+
+
+bool AltList::CompareTrailsRecurseIsDone(
+  const CmpDetailType cNew,
+  const TrailProgress& tp,
+  const TrailProgress& tpNew,
+  CmpDetailType& cRet) const
+{
+  if (cNew == SDS_HEADER_PLAY_DIFFERENT ||
+      cNew == SDS_HEADER_RANK_DIFFERENT)
+  {
+    cRet = cNew;
+    return true;
+  }
+
+  if (tp.numActive == 0 && tpNew.numActive == 0)
+  {
+    cRet = cNew;
+    return true;
+  }
+
+  if (tp.numActive == 0 &&
+     (cNew == SDS_HEADER_SAME ||
+      cNew == SDS_HEADER_PLAY_NEW_BETTER ||
+      cNew == SDS_HEADER_RANK_NEW_BETTER))
+  {
+    cRet = SDS_HEADER_PLAY_NEW_BETTER;
+    return true;
+  }
+
+  if (tpNew.numActive == 0 &&
+     (cNew == SDS_HEADER_SAME ||
+      cNew == SDS_HEADER_PLAY_OLD_BETTER ||
+      cNew == SDS_HEADER_RANK_OLD_BETTER))
+  {
+    cRet = SDS_HEADER_PLAY_OLD_BETTER;
+    return true;
+  }
+
+  return false;
+}
+
+
+void AltList::CompareTrailsAdvance(
+  const PosType startNext,
+  Trails trails[],
+  TrailProgress& tp) const
+{
+  tp.nextHasA = false;
+  tp.nextHasP = false;
+
+  for (unsigned a = 0; a < len; a++)
+  {
+    if (tp.finished[a])
+      continue;
+
+    const Segment& seg = list[a].GetSegmentNo(tp.nextSegNo[a]);
+// cout << "a " << a << ":\n";
+// seg.Print();
+    if (tp.nextSegNo[a] == 0 || seg.GetStart() == startNext)
+    {
+      trails[a].Add(seg);
+    }
+    else
+      continue;
+// trails[a].Print();
+// cout << endl;
+
+    if (++tp.nextSegNo[a] == list[a].GetLength())
+    {
+      tp.finished[a] = true;
+      tp.numActive--;
+    }
+    else
+    {
+      PosType follower = SDS_PARTNER[seg.GetEnd()];
+      if (follower == QT_ACE)
+        tp.nextHasA = true;
+      else if (follower == QT_PARD)
+        tp.nextHasP = true;
+      else
+        assert(false);
+    }
+  }
 }
 
 

@@ -338,6 +338,21 @@ void DefList::operator += (
     compAlt.SetDimensions(list[d].GetLength(), alt.GetLength());
     cd = list[d].CompareAlmostHard(alt, compAlt);
 
+// list[d].Print(cout,"old before");
+// alt.Print(cout,"new before");
+// cout << endl;
+    CmpDetailType cdTrail =
+      list[d].CompareTrails(alt);
+    /* */
+    if (cd != cdTrail)
+    {
+      list[d].Print(cout,"+= old");
+      alt.Print(cout,"+= new");
+      cout << "cd " << static_cast<int>(cd) << 
+        ", cdTrail " << static_cast<int>(cdTrail) << "\n";
+    }
+    /* */
+
     CmpType cc = cmpDetailToShort[cd];
     seen[cc] = 1;
 
@@ -505,18 +520,43 @@ void DefList::operator *= (
 
   AltMatrix2D comp, compAlt;
   comp.SetDimensions(len, def2.len);
-//if (list[0].GetLength() == 3 && def2.list[0].GetLength() == 3)
-//{
-  //cout << "HERE\n";
-//}
+/*
+if (len == 2 && def2.len == 1 &&
+    list[0].GetLength() == 2 && def2.list[0].GetLength() == 2)
+{
+  cout << "HERE\n";
+  DefList::Print(cout, "old");
+  def2.Print(cout, "new");
+  cout << endl;
+}
+*/
 
   for (unsigned dOld = 0; dOld < len; dOld++)
     for (unsigned dNew = 0; dNew < def2.len; dNew++)
     {
       compAlt.SetDimensions(list[dOld].GetLength(),
         def2.list[dNew].GetLength());
+
+CmpDetailType cdBase = 
+  list[dOld].CompareAlmostHard(def2.list[dNew], compAlt);
+
+      CmpDetailType cdTrail =
+        list[dOld].CompareTrails(def2.list[dNew]);
+      /* */
+      if (cdBase != cdTrail)
+      {
+        list[dOld].Print(cout,"*= old");
+        list[dNew].Print(cout,"*= new");
+        cout << "cd " << static_cast<int>(cdBase) << 
+          ", cdTrail " << static_cast<int>(cdTrail) << "\n";
+        cdBase = cdTrail;
+      }
+
       comp.SetValue(dOld, dNew, 
-        list[dOld].CompareAlmostHard(def2.list[dNew], compAlt));
+        cdBase);
+        // list[dOld].CompareAlmostHard(def2.list[dNew], compAlt));
+      /* */
+
     }
       // comp.SetValue(dOld, dNew, list[dOld].CompareHard(def2.list[dNew]));
 

@@ -14,6 +14,7 @@
 #include "compare.h"
 
 class Holding;
+class Trails;
 
 
 #define SEGMENT_MAXMOVES 2
@@ -72,6 +73,8 @@ class Segment
       FixType& fix2) const;
 
   public:
+
+    friend class Trails;
 
     Segment();
 

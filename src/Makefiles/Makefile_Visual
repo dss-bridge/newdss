@@ -16,6 +16,7 @@ SOURCE_FILES 	=		\
         Trick.cpp               \
         Segment.cpp             \
         TrickList.cpp           \
+        Trails.cpp              \
         AltList.cpp             \
 	AltMatrix1D.cpp		\
 	AltMatrix2D.cpp		\
@@ -68,11 +69,12 @@ Trick.obj: Trick.h compare.h const.h Holding.h
 Segment.obj: Trick.h compare.h const.h Segment.h Holding.h
 TrickList.obj: Holding.h Trick.h compare.h const.h TrickList.h Segment.h
 TrickList.obj: Header.h
+Trails.obj: Trails.h const.h compare.h Trick.h
 AltList.obj: Trick.h compare.h const.h AltList.h TrickList.h Segment.h
 AltList.obj: AltMatrix1D.h AltMatrix2D.h Holding.h Header.h files.h options.h
 AltMatrix1D.obj: AltMatrix1D.h compare.h const.h
 AltMatrix2D.obj: AltMatrix2D.h compare.h const.h
-Holding.obj: Holding.h Trick.h compare.h const.h
+Holding.obj: Holding.h Trick.h compare.h const.h options.h
 LoopHold.obj: Trick.h compare.h const.h LoopHold.h Holding.h DefList.h
 LoopHold.obj: AltList.h TrickList.h Segment.h Header.h portab.h
 SimpleMoves.obj: Trick.h compare.h const.h Header.h DefList.h AltList.h

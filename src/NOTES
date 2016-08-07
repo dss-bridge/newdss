@@ -1,3 +1,80 @@
+07.08.2016
+----------
+TrickList::Compare
+Write a CompareTrails that works as in AltList.
+Actually can simplify: Skip over same ones.
+Then start on the clever stuff.
+
+In FixorCompare, call both and see if they agree.
+
+
+10.07.2016
+----------
+Make a catalog of reductions we do and don't want to happen.
+Five of each.
+
+
+Want to happen
+..............
+9, 1b8f
+    AK8
+T76      Q
+    J9
+
+1. A-9, then decide on the J.
+PA2K
+PP2J + AA1-
+
+2. A-J, then let defense decide.
+PA2K
+PA1A + PP18 + AA1-
+
+
+
+Don't want to happen
+....................
+12, b4a3f
+    AK96
+J543     T
+    Q87
+
+1.
+AA49
+AP3Q
+
+2.
+AA46
+AP3Q + AA17 (don't eliminate)
+
+
+09.07.2016
+----------
+I thought I could reduce AA59 or AP39 + AA27 to AA59 or AP39.
+AA57 would be worse than AA59.  But it is the same as in
+
+AKJT / 9 / Q / -,
+
+where AP1Q + AA3- should not be reduced to AP1Q, given AA4A.
+This is within a single AltList (two alternatives).
+
+So in AK96 / T / Q87 / J543, we should still get (12 / b4a3f)
+BA49, AP3Q and also AP37 + AA1-.  The problem occurs in
+MergeDeclarer of
+
+AP3Q
+AA49
+
+AA46
+AP3Q + AA17
+
+where the former wins at the moment.  Maybe the whole MultiMerge
+idea is wrong? :-(
+
+I do think it's right to make AP3Q or AP38 + AA17 into AP3Q + AA17.
+
+
+
+
 08.07.2016
 ----------
 Rank error:
@@ -22,7 +99,7 @@ Rank error
 
 10, c3222f
     AQT8
-J65        -
+K65        -
     J97
 
 PP2T arises because we compare after J holds:
@@ -32,7 +109,7 @@ Compare to
 
 10, 320af
     AQT9
-J65        -
+K65        -
     J87
 
 
